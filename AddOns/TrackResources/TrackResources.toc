@@ -1,0 +1,16 @@
+## Interface: 11302
+## Title: Track Resources
+## Author: Calistra (Classic WoW Beta PvP Alliance)
+## Version: 0.7
+## Notes: My first addon, doing this for fun.
+## SavedVariables: TrackResourcesCfg
+## SavedVariablesPerCharacter: TrackResourcesCfgChar
+
+# Main
+TrackResources.xml
+TrackResources.lua
+
+# Modules
+Modules\ObjectResources.lua
+Modules\TrackResourcesMap.lua
+Modules\TrackResourcesMinimap.lua

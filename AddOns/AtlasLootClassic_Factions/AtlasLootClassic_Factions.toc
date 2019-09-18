@@ -1,0 +1,19 @@
+﻿## Interface: 11302
+## Author: Lag
+## Version: v1.1.8-beta
+## Dependencies: AtlasLootClassic
+## LoadOnDemand: 1
+## Title: AtlasLootClassic |cFF0099FF[Factions]|r
+## Title-zhCN: AtlasLootClassic |cFF0099FF[Factions]|r
+## Title-zhTW: AtlasLootClassic |cFF0099FF[Factions]|r
+## Notes: AtlasLoot loot tables from Factions
+## Notes-zhCN: AtlasLoot 阵营掉落列表
+## Notes-zhTW: AtlasLoot loot tables from Factions
+## X-Category: Map
+## X-License: GPL v2
+## X-AtlasLootClassic-LootModule: 1
+## X-Revision: BigFoot
+
+Locales\Locales.xml
+
+data.lua

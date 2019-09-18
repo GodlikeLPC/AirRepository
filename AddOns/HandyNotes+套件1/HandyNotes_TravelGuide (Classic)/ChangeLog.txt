@@ -1,0 +1,6 @@
+Revision History:
+=================
+
+* v2.1.0 (September 01, 2019)
+- Version for Classic
+- Added Boats and Zepplin locations

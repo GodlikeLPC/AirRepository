@@ -1,0 +1,26 @@
+﻿## Interface: 11302
+## Author: Lag
+## Version: v1.1.8-beta
+## Dependencies: AtlasLootClassic
+## LoadOnDemand: 1
+## Title: AtlasLoot Classic |cFF22B14C[Options]|r
+## Title-zhCN: AtlasLoot Classic |cFF22B14C[Options]|r
+## Title-zhTW: AtlasLoot Classic |cFF22B14C[Options]|r
+## Notes: AtlasLoot options module
+## Notes-zhCN: AtlasLoo t选项模块
+## Notes-zhTW: AtlasLoot options module
+## X-Category: Map
+## X-License: GPL v2
+## X-AtlasLoot-LootModule: 0
+## X-Revision: BigFoot
+
+embeds.xml
+
+Locales\constants.cn.lua
+Locales\constants.tw.lua
+
+Core.lua
+Main.lua
+Windows.lua
+MiniMapButton.lua
+Addons.lua
