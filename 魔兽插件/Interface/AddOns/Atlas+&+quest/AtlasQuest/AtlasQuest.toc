@@ -1,0 +1,33 @@
+## Interface: 11200
+## Title: AtlasQuest-Classic
+## Notes: Shows the Quests for the instance.
+## Notes-deDE: Zeigt die Quests, die es f\195\188r die jeweiligen Instanzen gibt.
+## Notes-koKR: Shows the Quests for the instance.
+## Notes-zhCN: 显示副本任务
+## Author: Thandrenn
+## Original Author: Asurn
+## Updated by: Ctank
+## Updated by: Cabro
+## Updated by: Loather
+## Updated by: Rabidmax
+## Updated by: Thandrenn (aka Mystery8)
+## CLI by: Dazerdude
+## Version: 1.0(4.2)
+## X-eMail: admin@c-tank.cn
+## X-Website: https://github.com/ctank/wow-classic-atlas
+## X-Category: MYADDONS_CATEGORY_MAP
+## X-Date: Sept 7, 2019
+## X-Help: AtlasQuestHelp
+## RequiredDeps: 
+## OptionalDeps: Atlas, AlphaMap, myAddOns
+## LoadOnDemand: 0
+## SavedVariablesPerCharacter:
+## SavedVariables: AtlasQuest_Options,
+## Dependencies:
+
+Locale\localization.en.lua
+Locale\localization.de.lua
+Locale\localization.cn.lua
+
+AtlasQuest_InsideFrame.xml
+AtlasQuest.xml
