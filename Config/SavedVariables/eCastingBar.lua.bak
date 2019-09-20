@@ -1,0 +1,3 @@
+
+eCastingBar_Settings = {
+}

@@ -1,0 +1,2 @@
+
+CombatIndicator_Config = nil

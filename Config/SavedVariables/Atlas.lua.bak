@@ -1,0 +1,10 @@
+
+AtlasDB = {
+	["profileKeys"] = {
+		["神灬嘉静 - 赫洛德"] = "Default",
+	},
+	["profiles"] = {
+		["Default"] = {
+		},
+	},
+}

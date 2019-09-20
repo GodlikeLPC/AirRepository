@@ -1,0 +1,3 @@
+
+MobHealthDB = nil
+MobHealthConfig = nil

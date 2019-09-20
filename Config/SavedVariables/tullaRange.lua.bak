@@ -1,0 +1,3 @@
+
+TULLARANGE_COLORS = {
+}

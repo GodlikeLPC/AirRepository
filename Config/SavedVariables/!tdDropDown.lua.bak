@@ -1,0 +1,12 @@
+
+tdDropDownDB = {
+	["BrowseName"] = {
+		"敏捷", -- [1]
+		"金棘草", -- [2]
+		"水下呼吸", -- [3]
+	},
+	["FriendsFrameBroadcastInput"] = {
+	},
+	["SendMailNameEditBox"] = {
+	},
+}

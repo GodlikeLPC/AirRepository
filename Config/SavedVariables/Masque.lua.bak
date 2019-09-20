@@ -1,0 +1,126 @@
+
+MasqueDB = {
+	["profileKeys"] = {
+		["神灬嘉静 - 赫洛德"] = "Default",
+	},
+	["profiles"] = {
+		["Default"] = {
+			["Groups"] = {
+				["Bagnon"] = {
+					["Inherit"] = false,
+				},
+				["Bartender4_StanceBar"] = {
+					["Inherit"] = false,
+				},
+				["Bagnon_guildbank - bags"] = {
+					["Inherit"] = false,
+				},
+				["饰品增强"] = {
+					["Inherit"] = false,
+				},
+				["暴雪动作条按钮_右侧动作条1"] = {
+					["Inherit"] = false,
+				},
+				["Bartender4_1"] = {
+					["Inherit"] = false,
+				},
+				["Bartender4_3"] = {
+					["Inherit"] = false,
+				},
+				["Bagnon_guildbank - items"] = {
+					["Inherit"] = false,
+				},
+				["Dominos_Pet Bar"] = {
+					["Inherit"] = false,
+				},
+				["Bartender4_4"] = {
+					["Inherit"] = false,
+				},
+				["Dominos_Action Bar"] = {
+					["Inherit"] = false,
+				},
+				["Bagnon_inventory - bags"] = {
+					["Inherit"] = false,
+				},
+				["Dominos"] = {
+					["Inherit"] = false,
+				},
+				["Bartender4_PetBar"] = {
+					["Inherit"] = false,
+				},
+				["Bagnon_voidstorage - bags"] = {
+					["Inherit"] = false,
+				},
+				["TellMeWhen_分组: 1"] = {
+					["Inherit"] = false,
+				},
+				["暴雪动作条按钮_右下动作条"] = {
+					["Inherit"] = false,
+				},
+				["Bartender4_6"] = {
+					["Inherit"] = false,
+				},
+				["Bagnon_inventory - items"] = {
+					["Inherit"] = false,
+				},
+				["暴雪动作条按钮_控制动作条"] = {
+					["Inherit"] = false,
+				},
+				["Bartender4_Vehicle"] = {
+					["Inherit"] = false,
+				},
+				["暴雪动作条按钮_宠物动作条"] = {
+					["Inherit"] = false,
+				},
+				["Bartender4_2"] = {
+					["Inherit"] = false,
+				},
+				["TellMeWhen"] = {
+					["Inherit"] = false,
+				},
+				["暴雪动作条按钮_左下动作条"] = {
+					["Inherit"] = false,
+				},
+				["饰品增强_饰品选择菜单"] = {
+					["Inherit"] = false,
+				},
+				["暴雪动作条按钮_主动作条"] = {
+					["Inherit"] = false,
+				},
+				["饰品增强_饰品按钮"] = {
+					["Inherit"] = false,
+				},
+				["Dominos_Bag Bar"] = {
+					["Inherit"] = false,
+				},
+				["Bartender4"] = {
+					["Inherit"] = false,
+				},
+				["Bagnon_bank - bags"] = {
+					["Inherit"] = false,
+				},
+				["暴雪动作条按钮_右侧动作条2"] = {
+					["Inherit"] = false,
+				},
+				["暴雪动作条按钮_姿态动作条"] = {
+					["Inherit"] = false,
+				},
+				["Bartender4_BagBar"] = {
+					["Inherit"] = false,
+				},
+				["Bartender4_5"] = {
+					["Inherit"] = false,
+				},
+				["Bagnon_voidstorage - items"] = {
+					["Inherit"] = false,
+				},
+				["Bagnon_bank - items"] = {
+					["Inherit"] = false,
+				},
+				["暴雪动作条按钮"] = {
+					["Inherit"] = false,
+				},
+			},
+		},
+	},
+}

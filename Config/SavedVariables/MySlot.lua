@@ -1,0 +1,3 @@
+
+MySlot_SavedDb = {
+}

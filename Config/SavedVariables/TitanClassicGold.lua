@@ -1,0 +1,13 @@
+
+GoldSave = {
+	["神灬嘉静_木喉要塞::Alliance"] = {
+		["show"] = true,
+		["name"] = "神灬嘉静",
+		["gold"] = 0,
+	},
+	["神灬嘉静_赫洛德::Horde"] = {
+		["show"] = true,
+		["name"] = "神灬嘉静",
+		["gold"] = 2079190,
+	},
+}
