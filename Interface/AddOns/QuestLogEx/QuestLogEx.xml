@@ -288,7 +288,7 @@
               <Anchors>
                 <Anchor point="TOPRIGHT">
                   <Offset>
-                    <AbsDimension x="-449" y="0"/>
+                    <AbsDimension x="-64" y="0"/>
                   </Offset>
                 </Anchor>
               </Anchors>
@@ -312,7 +312,7 @@
               <Anchors>
                 <Anchor point="BOTTOMRIGHT">
                   <Offset>
-                    <AbsDimension x="-449" y="128"/>
+                    <AbsDimension x="-64" y="128"/>
                   </Offset>
                 </Anchor>
               </Anchors>
@@ -947,18 +947,6 @@
             <Anchor point="BOTTOMRIGHT"/>
           </Anchors>
         </Texture>
-        <FontString name="QuestLogExDescriptionTitleText" inherits="GameFontHighlight" text="(请通过左侧标题栏拖动)" parentKey="Text">
-          <Size>
-            <AbsDimension x="300" y="14"/>
-          </Size>
-          <Anchors>
-            <Anchor point="TOP" relativeTo="QuestLogExFrameDescription" relativePoint="TOP">
-              <Offset>
-                <AbsDimension x="0" y="-15"/>
-              </Offset>
-            </Anchor>
-          </Anchors>
-        </FontString>
       </Layer>
     </Layers>
     <Frames>
@@ -1338,57 +1326,6 @@
         <Scripts>
           <OnClick>
             HideUIPanel(QuestLogExFrame);
-          </OnClick>
-        </Scripts>
-      </Button>
-      <Button name="QuestLogExDetailResetButton" inherits="UIPanelButtonTemplate" text="重置">
-        <Size>
-          <AbsDimension x="80" y="21"/>
-        </Size>
-        <Anchors>
-          <Anchor point="RIGHT" relativeTo="QuestLogExDetailExitButton" relativePoint="LEFT">
-            <Offset>
-              <AbsDimension x="0" y="0"/>
-            </Offset>
-          </Anchor>
-        </Anchors>
-        <Scripts>
-          <OnClick>
-            CodexQuest:ResetAll();
-          </OnClick>
-        </Scripts>
-      </Button>
-      <Button name="QuestLogExDetailHideButton" inherits="UIPanelButtonTemplate" text="隐藏">
-        <Size>
-          <AbsDimension x="80" y="21"/>
-        </Size>
-        <Anchors>
-          <Anchor point="RIGHT" relativeTo="QuestLogExDetailResetButton" relativePoint="LEFT">
-            <Offset>
-              <AbsDimension x="0" y="0"/>
-            </Offset>
-          </Anchor>
-        </Anchors>
-        <Scripts>
-          <OnClick>
-            CodexQuest:HideCurrentQuest();
-          </OnClick>
-        </Scripts>
-      </Button>
-      <Button name="QuestLogExDetailShowButton" inherits="UIPanelButtonTemplate" text="显示">
-        <Size>
-          <AbsDimension x="80" y="21"/>
-        </Size>
-        <Anchors>
-          <Anchor point="RIGHT" relativeTo="QuestLogExDetailHideButton" relativePoint="LEFT">
-            <Offset>
-              <AbsDimension x="0" y="0"/>
-            </Offset>
-          </Anchor>
-        </Anchors>
-        <Scripts>
-          <OnClick>
-            CodexQuest:ShowCurrentQuest();
           </OnClick>
         </Scripts>
       </Button>

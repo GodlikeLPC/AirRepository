@@ -320,8 +320,6 @@ local function OnEvent(self, event, arg1, arg2)
 		SetMoveHandler(ScrappingMachineFrame);
 	elseif arg1 == "Blizzard_Communities" then
 		SetMoveHandler(CommunitiesFrame);
-	elseif arg1 == "QuestLogEx" then
-		SetMoveHandler(QuestLogExFrame)
 	end
 
 end
