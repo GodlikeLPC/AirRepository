@@ -1,0 +1,34 @@
+## Interface: 11302
+## X-Min-Interface: 11302
+## Title:|cffffe00a<|r|cffff7d0aDBM|r|cffffe00a>|r |cff0055FFCore|r
+## Title-zhCN: |cffffe00a<|r|cffff7d0aDBM|r|cffffe00a>|r |cff0055FF核心|r
+## Title-zhTW: |cffffe00a<|r|cffff7d0aDBM|r|cffffe00a>|r |cff0055FF核心|r
+## Notes: |cffbc8f8fDeadly Boss Mods.|r
+## Notes-zhCN: |cff00ff00DBM-Core|r|n|cffbc8f8f首领报警。|r
+## Notes-zhTW: |cff00ff00DBM-Core|r|n|cffbc8f8f首領報警。|r
+## Dependencies: DBM-StatusBarTimers, DBM-DefaultSkin
+## SavedVariables: DBM_AllSavedOptions, DBM_MinimapIcon
+## SavedVariablesPerCharacter: DBM_UsedProfile, DBM_UseDualProfile, DBM_CharSavedRevision
+## Author: Tandanu and Nitram and MysticalOS
+## X-Website: http://www.deadlybossmods.com
+## X-Curse-Project-ID: 3358
+## X-WoWI-ID: 24921
+## Version: 1.13.12
+## X-Revision: BigFoot
+## LoadOnDemand: 1
+
+Libs\LibLatency\LibLatency.lua
+Libs\LibDurability\LibDurability.lua
+Libs\ThreatClassic-1.0\lib.xml
+
+localization.en.lua
+localization.cn.lua
+localization.tw.lua
+
+DBM-Core.lua
+DBM-Arrow.lua
+DBM-Flash.lua
+DBM-RangeCheck.lua
+DBM-InfoFrame.lua
+DBM-HudMap.lua
+DBM-Nameplate.lua
