@@ -63,21 +63,12 @@ hooksecurefunc("GuildStatus_Update", function()
 end)
 
 local function updateFriends(button)
-	if button.index >= FriendsFrameFriendsScrollFrame.numFriendListEntries then return end
 	local nameText,infoText
-	local myZone = GetRealZoneText()
 	if button:IsShown() then
-		if button.buttonType == FRIENDS_BUTTON_TYPE_WOW then
-			local info = C_FriendList.GetFriendInfoByIndex(button.index)
-			if info and info.connected then
-				local name = colorString(info.name, BC[info.className])
-				local level = colorString(info.level)
-				local class = colorString(info.className, BC[info.className])
-				nameText = name .. ", Lv" .. level .. "  " .. class
-				if info.area and info.area == myZone then infoText = format("|cff00ff00%s|r", info.area) end
-			end
-		elseif button.buttonType == FRIENDS_BUTTON_TYPE_BNET then
-			local _, presenceName, _, _, _, toonID, client, isOnline = BNGetFriendInfo(button.index)
+		local myZone = GetRealZoneText()
+		-- print(button.index,button.id,button.buttonType)
+		if button.buttonType == FRIENDS_BUTTON_TYPE_BNET then	-- 战网
+			local _, presenceName, _, _, _, toonID, client, isOnline = BNGetFriendInfo(button.id)
 			if isOnline and client == BNET_CLIENT_WOW then
 				local _, toonName, _, _, _, _, _, class, _, zoneName, level = BNGetGameAccountInfo(toonID)
 				if presenceName and toonName then
@@ -87,12 +78,20 @@ local function updateFriends(button)
 				end
 				if zoneName and zoneName == myZone then infoText = format("|cff00ff00%s|r", zoneName) end
 			end
+		elseif button.buttonType == FRIENDS_BUTTON_TYPE_WOW then		-- 游戏好友
+			local info = C_FriendList.GetFriendInfoByIndex(button.id)
+			if info and info.connected then
+				local name = colorString(info.name, BC[info.className])
+				local level = colorString(info.level)
+				local class = colorString(info.className, BC[info.className])
+				nameText = name .. ", Lv" .. level .. "  " .. class
+				if info.area and info.area == myZone then infoText = format("|cff00ff00%s|r", info.area) end
+			end
 		end
 	end
 	if nameText then button.name:SetText(nameText) end
 	if infoText then button.info:SetText(infoText) end
 end
-
 hooksecurefunc("FriendsFrame_UpdateFriendButton", updateFriends)
 
 hooksecurefunc("WhoList_Update", function()
