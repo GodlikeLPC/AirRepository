@@ -107,7 +107,8 @@ local setting =
 	talentIconXGap = 8,
 	talentIconYGap = 8,
 	talentIconXToBorder = 10,
-	talentIconYToBorder = 10,
+	talentIconYToTop = 5,
+	talentIconYToBottom = 10,
 	talentIconFont = NumberFont_Shadow_Med:GetFont(),--="Fonts\ARHei.ttf"
 	--"Fonts\\FRIZQT__.TTF",
 	talentIconFontSize = 11,
@@ -150,7 +151,7 @@ local setting =
 };
 setting.talentFrameXSizeSingle = setting.talentIconSize * MAX_NUM_COL + setting.talentIconXGap * (MAX_NUM_COL - 1) + setting.talentIconXToBorder * 2;
 setting.talentFrameXSizeTriple = setting.talentFrameXSizeSingle * 3;
-setting.talentFrameYSize = setting.talentFrameHeaderYSize + setting.talentIconSize * MAX_NUM_TIER + setting.talentIconYGap * (MAX_NUM_TIER - 1) + setting.talentIconYToBorder * 2 + setting.talentFrameFooterYSize;
+setting.talentFrameYSize = setting.talentFrameHeaderYSize + setting.talentIconSize * MAX_NUM_TIER + setting.talentIconYGap * (MAX_NUM_TIER - 1) + setting.talentIconYToTop  + setting.talentIconYToBottom+ setting.talentFrameFooterYSize;
 setting.mainFrameXSizeDefault_Style1 = setting.talentFrameXSizeTriple + setting.talentFrameXToBorder * 2;
 setting.mainFrameYSizeDefault_Style1 = setting.talentFrameYSize + setting.talentFrameYToBorder * 2 + setting.mainFrameHeaderYSize + setting.mainFrameFooterYSize;
 setting.mainFrameXSizeDefault_Style2 = setting.talentFrameXSizeSingle + setting.talentFrameXToBorder * 2;
@@ -205,7 +206,7 @@ local TEXTURE_SET =
 	SPEC_INDICATOR_COORD = { 0.10, 0.90, 0.08, 0.92, },
 	SPEC_INDICATOR_COLOR = { 0.0, 1.0, 1.0, },
 	INSPECT = ARTWORK_PATH .. "pvp-banner-emblem-45",
-	INSPECT_COLOR = { 1.0, 0.0, 1.0, 1.0, },
+	INSPECT_COLOR = { 0.0, 1.0, 0.0, 1.0, },
 	APPLY = ARTWORK_PATH .. "readycheck-ready",
 	IMPORT = ARTWORK_PATH .. "vehicle-alliancemageportal",
 	IMPORT_COORD = { 5 / 32, 27 / 32, 5 / 32, 27 / 32, },
@@ -220,6 +221,9 @@ local TEXTURE_SET =
 	CLASS_INDICATOR = ARTWORK_PATH .. "eventnotificationglow",
 	CLASS_INDICATOR_COORD = { 4 / 64, 60 / 64, 5 / 64, 61 / 64, },
 	CLASS_INDICATOR_COLOR = { 0.0, 1.0, 0.0, 1.0, },
+
+	INSPECT_BUTTON = ARTWORK_PATH .. "pvp-banner-emblem-45",
+	INSPECT_BUTTON_COLOR = { 0.0, 1.0, 0.0, 1.0, },
 };
 ----------------------------------------------------------------------------------------------------main
 local function _log_(...)
@@ -1029,7 +1033,7 @@ function emu.EmuSub_UpdateLabelText(mainFrame)
 	local objects = mainFrame.objects;
 	if mainFrame.name then
 		objects.label:SetText(mainFrame.name .. L.labelPointsChanged);
-		objects.resetToEmu:Hide();
+		--objects.resetToEmu:Hide();
 		objects.resetToSetButton:Show();
 	end
 	objects.curPointsUsed:SetText(mainFrame.totalUsedPoints);
@@ -2135,7 +2139,7 @@ function emu.CreateTalentIcons(talentFrame)
 	local posY = 0;
 	for id = 1, MAX_NUM_ICONS_PER_SPEC do
 		local icon = emu.CreateTalentIcon(talentFrame, id);
-		icon:SetPoint("TOP", talentFrame, "TOP", (setting.talentIconSize + setting.talentIconXGap) * (posX - MAX_NUM_COL * 0.5 + 0.5), - setting.talentFrameHeaderYSize - setting.talentIconYToBorder - (setting.talentIconSize + setting.talentIconYGap) * posY);
+		icon:SetPoint("TOP", talentFrame, "TOP", (setting.talentIconSize + setting.talentIconXGap) * (posX - MAX_NUM_COL * 0.5 + 0.5), - setting.talentFrameHeaderYSize - setting.talentIconYToTop - (setting.talentIconSize + setting.talentIconYGap) * posY);
 		icon:Hide();
 
 		talentIcons[id] = icon;
@@ -2575,6 +2579,21 @@ function emu.CreateMainFrameSubObject(mainFrame)
 		label:SetPoint("CENTER", mainFrame, "TOP", 0, - setting.mainFrameHeaderYSize * 0.5);
 		objects.label = label;
 
+		local resetToEmu = CreateFrame("Button", nil, mainFrame);
+		resetToEmu:SetSize(setting.controlButtonSize, setting.controlButtonSize);
+		resetToEmu:SetNormalTexture(TEXTURE_SET.CLOSE);
+		resetToEmu:GetNormalTexture():SetTexCoord(TEXTURE_SET.CLOSE_COORD[1], TEXTURE_SET.CLOSE_COORD[2], TEXTURE_SET.CLOSE_COORD[3], TEXTURE_SET.CLOSE_COORD[4]);
+		resetToEmu:SetPushedTexture(TEXTURE_SET.CLOSE);
+		resetToEmu:GetPushedTexture():SetTexCoord(TEXTURE_SET.CLOSE_COORD[1], TEXTURE_SET.CLOSE_COORD[2], TEXTURE_SET.CLOSE_COORD[3], TEXTURE_SET.CLOSE_COORD[4]);
+		resetToEmu:GetPushedTexture():SetVertexColor(TEXTURE_SET.CONTROL_PUSHED_COLOR[1], TEXTURE_SET.CONTROL_PUSHED_COLOR[2], TEXTURE_SET.CONTROL_PUSHED_COLOR[3], TEXTURE_SET.CONTROL_PUSHED_COLOR[4]);
+		resetToEmu:SetHighlightTexture(TEXTURE_SET.NORMAL_HIGHLIGHT);
+		resetToEmu:SetPoint("RIGHT", label, "LEFT", 0, 0);
+		resetToEmu:SetScript("OnClick", resetToEmu_OnClick);
+		resetToEmu:SetScript("OnEnter", Info_OnEnter);
+		resetToEmu:SetScript("OnLeave", Info_OnLeave);
+		resetToEmu.information = L.resetToEmu;
+		objects.resetToEmu = resetToEmu;
+
 		local resetToSetButton = CreateFrame("Button", nil, mainFrame);
 		resetToSetButton:SetSize(setting.controlButtonSize, setting.controlButtonSize);
 		resetToSetButton:SetNormalTexture(TEXTURE_SET.RESET);
@@ -2589,21 +2608,6 @@ function emu.CreateMainFrameSubObject(mainFrame)
 		resetToSetButton:SetScript("OnLeave", Info_OnLeave);
 		resetToSetButton.information = L.resetToSetButton;
 		objects.resetToSetButton = resetToSetButton;
-
-		local resetToEmu = CreateFrame("Button", nil, mainFrame);
-		resetToEmu:SetSize(setting.controlButtonSize, setting.controlButtonSize);
-		resetToEmu:SetNormalTexture(TEXTURE_SET.CLOSE);
-		resetToEmu:GetNormalTexture():SetTexCoord(TEXTURE_SET.CLOSE_COORD[1], TEXTURE_SET.CLOSE_COORD[2], TEXTURE_SET.CLOSE_COORD[3], TEXTURE_SET.CLOSE_COORD[4]);
-		resetToEmu:SetPushedTexture(TEXTURE_SET.CLOSE);
-		resetToEmu:GetPushedTexture():SetTexCoord(TEXTURE_SET.CLOSE_COORD[1], TEXTURE_SET.CLOSE_COORD[2], TEXTURE_SET.CLOSE_COORD[3], TEXTURE_SET.CLOSE_COORD[4]);
-		resetToEmu:GetPushedTexture():SetVertexColor(TEXTURE_SET.CONTROL_PUSHED_COLOR[1], TEXTURE_SET.CONTROL_PUSHED_COLOR[2], TEXTURE_SET.CONTROL_PUSHED_COLOR[3], TEXTURE_SET.CONTROL_PUSHED_COLOR[4]);
-		resetToEmu:SetHighlightTexture(TEXTURE_SET.NORMAL_HIGHLIGHT);
-		resetToEmu:SetPoint("LEFT", label, "RIGHT", 0, 0);
-		resetToEmu:SetScript("OnClick", resetToEmu_OnClick);
-		resetToEmu:SetScript("OnEnter", Info_OnEnter);
-		resetToEmu:SetScript("OnLeave", Info_OnLeave);
-		resetToEmu.information = L.resetToEmu;
-		objects.resetToEmu = resetToEmu;
 	end
 	--</header>
 
@@ -3450,6 +3454,32 @@ end
 --/run ATEMU.ImportCode("4Mv8i:sdWw7gm7R4JMw0");
 --ATEMU.Query("Destinyless")
 
+----------------------------------------------------------------------------------------------------
+local locale = GetLocale();
+if locale == "zhCN" then
+    UnitPopupButtons["EMU_INSPECT"] = { text = "查询天赋", };
+elseif locale == "zhTW" then
+    UnitPopupButtons["EMU_INSPECT"] = { text = "查詢天賦", };
+else
+    UnitPopupButtons["EMU_INSPECT"] = { text = "Inspect talent", };
+end
+
+tinsert(UnitPopupMenus["FRIEND"], 1, "EMU_INSPECT");
+--tinsert(UnitPopupMenus["FRIEND_OFFLINE"], 1, "EMU_INSPECT");
+tinsert(UnitPopupMenus["PLAYER"], 1, "EMU_INSPECT");
+tinsert(UnitPopupMenus["PARTY"], 1, "EMU_INSPECT");
+tinsert(UnitPopupMenus["RAID_PLAYER"], 1, "EMU_INSPECT");
+tinsert(UnitPopupMenus["CHAT_ROSTER"], 1, "EMU_INSPECT");
+tinsert(UnitPopupMenus["GUILD"], 1, "EMU_INSPECT");
+
+hooksecurefunc("UnitPopup_OnClick", function(self)
+	local name = UIDROPDOWNMENU_INIT_MENU.name;
+    if (self.value == "EMU_INSPECT") then
+        emu.Emu_Query(name);
+    end
+end)
+
+----------------------------------------------------------------------------------------------------
 local temp_unkFrame_id = 1;
 local function hookUnitFrame(unitFrame)
 	local unitFrameName = unitFrame:GetName();
@@ -3461,9 +3491,13 @@ local function hookUnitFrame(unitFrame)
 	unitFrameButton:Show();
 	unitFrameButton:SetAlpha(0.0);
 	unitFrameButton:EnableMouse(false);
-	unitFrameButton:SetHighlightTexture(TEXTURE_SET.NORMAL_HIGHLIGHT);
-	unitFrameButton:GetHighlightTexture():SetTexCoord(0.125, 0.875, 0.125, 0.875);
-	unitFrameButton:LockHighlight();
+	unitFrameButton:SetNormalTexture(TEXTURE_SET.INSPECT_BUTTON);
+	unitFrameButton:GetNormalTexture():SetVertexColor(TEXTURE_SET.INSPECT_BUTTON_COLOR[1], TEXTURE_SET.INSPECT_BUTTON_COLOR[2], TEXTURE_SET.INSPECT_BUTTON_COLOR[3], TEXTURE_SET.INSPECT_BUTTON_COLOR[4]);
+	unitFrameButton:SetPushedTexture(TEXTURE_SET.INSPECT_BUTTON);
+	unitFrameButton:GetPushedTexture():SetVertexColor(TEXTURE_SET.INSPECT_BUTTON_COLOR[1], TEXTURE_SET.INSPECT_BUTTON_COLOR[2], TEXTURE_SET.INSPECT_BUTTON_COLOR[3], TEXTURE_SET.INSPECT_BUTTON_COLOR[4]);
+	-- unitFrameButton:SetHighlightTexture(TEXTURE_SET.NORMAL_HIGHLIGHT);
+	-- unitFrameButton:GetHighlightTexture():SetTexCoord(0.125, 0.875, 0.125, 0.875);
+	-- unitFrameButton:LockHighlight();
 	-- unitFrameButton:SetBackdrop({
 	-- 	bgFile = "Interface\\raidframe\\shield-fill",	--"Interface\\TargetingFrame\\UI-TargetingFrame-LevelBackground",	--"Interface\\Tooltips\\UI-Tooltip-Background",
 	-- 	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -3480,13 +3514,13 @@ local function hookUnitFrame(unitFrame)
 	else
 		unitFrameButton:SetPoint("TOP", unitFrame, "TOP");
 	end
-	local unitFrameButtonFontString = unitFrameButton:CreateFontString(unitFrameButton:GetName() .. "FontString", "ARTWORK");
-	local font, size, outline = PlayerFrame.healthbar.TextString:GetFont();
-	unitFrameButtonFontString:SetFont(font, 32, "OUTLINE");
-	unitFrameButtonFontString:SetPoint("CENTER");
-	unitFrameButtonFontString:SetTextColor(0.0, 1.0, 0.0, 1.0);
-	unitFrameButtonFontString:SetText("TE");
-	unitFrameButtonFontString:Show();
+	-- local unitFrameButtonFontString = unitFrameButton:CreateFontString(unitFrameButton:GetName() .. "FontString", "ARTWORK");
+	-- local font, size, outline = PlayerFrame.healthbar.TextString:GetFont();
+	-- unitFrameButtonFontString:SetFont(font, 32, "OUTLINE");
+	-- unitFrameButtonFontString:SetPoint("CENTER");
+	-- unitFrameButtonFontString:SetTextColor(0.0, 1.0, 0.0, 1.0);
+	-- unitFrameButtonFontString:SetText("TE");
+	-- unitFrameButtonFontString:Show();
 	unitFrameButton:SetScript("OnUpdate", function(self, elasped)
 		if config.inspectButtonOnUnitFrame then
 			if (emu.inspectButtonKeyFunc and emu.inspectButtonKeyFunc()) and self.unitFrame:IsShown() and UnitIsPlayer(self.unitFrame.unit) then
