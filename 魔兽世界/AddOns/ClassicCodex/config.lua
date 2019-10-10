@@ -7,7 +7,7 @@ DefaultCodexConfig = {
     ["trackingMethod"] = 1, -- 1: All Quests; 2: Tracked Quests; 3: Manual; 4: Hide
     ["autoAccept"] = false, -- Auto-accept quests
     ["autoTurnin"] = false, -- Auto-turnin quests
-    ["nameplateIcon"] = false, -- Show quest icon above nameplates
+    ["nameplateIcon"] = true, -- Show quest icon above nameplates
     ["allQuestGivers"] = true, -- Show available quest givers
     ["currentQuestGivers"] = true, -- Show current quest giver nodes
     ["showLowLevel"] = false, -- Show low level quest giver nodes
@@ -31,10 +31,10 @@ function textFactory(parent, value, size)
     return text
 end
 
-function buttonFactory(parent, name, description, onClick)
+function buttonFactory(width, parent, name, description, onClick)
     local button = CreateFrame("Button", name, parent, "UIPanelButtonTemplate")
     button:SetHeight(25)
-    button:SetWidth(400)
+    button:SetWidth(width)
     button:SetText(name)
     button.tooltipText = description
     button:SetScript("OnClick", function(self)
@@ -173,6 +173,7 @@ function UpdateConfigPanel(configPanel)
     configPanel.showHighLevelCheckbox:SetChecked(CodexConfig.showHighLevel)
     configPanel.showFestivalCheckbox:SetChecked(CodexConfig.showFestival)
     configPanel.colorBySpawnCheckbox:SetChecked(CodexConfig.colorBySpawn)
+    configPanel.alwaysShowIdCheckbox:SetChecked(CodexConfig.alwaysShowId)
 
     configPanel.questMarkerSizeSlider:SetValue(CodexConfig.questMarkerSize)
     configPanel.questMarkerSizeSlider.editBox:SetCursorPosition(0)
@@ -249,7 +250,7 @@ function createConfigPanel(parent)
     end)
     config.showHighLevelCheckbox:SetPoint("TOPLEFT", 10, -245)
 
-    config.showFestivalCheckbox = checkboxFactory(config, L["Show Festival Quests"], L["If selected, quests related to WoW festive seasons will be displayed on the map"], function(self)
+    config.showFestivalCheckbox = checkboxFactory(config, L["Show Festival/PVP/Misc Quests"], L["If selected, quests related to WoW festive seasons or PVP or not available at the current stage will be displayed on the map"], function(self)
         CodexConfig.showFestival = self:GetChecked()
         CodexQuest:ResetAll()
     end)
@@ -261,25 +262,47 @@ function createConfigPanel(parent)
     end)
     config.colorBySpawnCheckbox:SetPoint("TOPLEFT", 10, -315)
 
+    config.alwaysShowIdCheckbox = checkboxFactory(config, L["Always Show ID In Browser"], L["If selected, the item/object/unit/quest ID will be displayed when you searching something in ClassicCodex Browser."], function(self)
+        CodexConfig.alwaysShowId = self:GetChecked()
+        CodexBrowser.input:Search()
+    end)
+    config.alwaysShowIdCheckbox:SetPoint("TOPLEFT", 250, -35)
+
     config.questMarkerSizeSlider = sliderFactory(config, "questMarkerSize", L["Quest Marker Size"], 10, 25, 1, function(self)
         CodexConfig.questMarkerSize = tonumber(self:GetValue())
         CodexMap:UpdateNodes()
     end)
-    config.questMarkerSizeSlider:SetPoint("TOPLEFT", 45, -400)
+    config.questMarkerSizeSlider:SetPoint("TOPLEFT", 45, -395)
 
     config.spawnMarkerSizeSlider = sliderFactory(config, "spawnMarkerSize", L["Spawn Marker Size"], 6, 20, 1, function(self)
         CodexConfig.spawnMarkerSize = tonumber(self:GetValue())
         CodexMap:UpdateNodes()
     end)
-    config.spawnMarkerSizeSlider:SetPoint("TOPLEFT", 325, -400)
+    config.spawnMarkerSizeSlider:SetPoint("TOPLEFT", 325, -395)
 
     config.minimumDropChanceSlider = sliderFactory(config, "minimumDropChance", L["Hide items with a drop probability less than (%)"], 0, 100, 1, function(self)
         CodexConfig.minimumDropChance = tonumber(self:GetValue())
         CodexQuest:ResetAll()
     end, 424)
-    config.minimumDropChanceSlider:SetPoint("TOPLEFT", 45, -460)
+    config.minimumDropChanceSlider:SetPoint("TOPLEFT", 45, -447)
 
-    config.showAllHiddenQuests = buttonFactory(config, L["Show All Quests You Manually Hide"], L["Show all the quests you have hidden by shift + click."].."\n"..
+    config.listHiddenQuests = buttonFactory(250, config, L["List Manually Hidden Quests"], nil, function(self)
+        if CodexBrowser then
+            CodexBrowser.input:SetText('!')
+            CodexBrowser:OpenView('quests')
+        end
+    end)
+    config.listHiddenQuests:SetPoint("TOPLEFT", 15, -485)
+
+    config.listCompletedQuests = buttonFactory(250, config, L["List Completed Quests"], nil, function(self)
+        if CodexBrowser then
+            CodexBrowser.input:SetText('@')
+            CodexBrowser:OpenView('quests')
+        end
+    end)
+    config.listCompletedQuests:SetPoint("TOPLEFT", 280, -485)
+    
+    config.showAllHiddenQuests = buttonFactory(400, config, L["Show All Quests You Manually Hide Again"], L["Show all the quests you have hidden by shift + click."].."\n"..
                                                        L["Hide a quest by holding the shift key and clicking on the quest icon on the minimap or world map."], function(self)
         local size = Codex:tablelen(CodexHiddenQuests)
         CodexHiddenQuests = {}
@@ -290,7 +313,7 @@ function createConfigPanel(parent)
             print(string.format(L["ClassicCodex: %d hidden quests will be able to show again."], size))
         end
     end)
-    config.showAllHiddenQuests:SetPoint("TOPLEFT", 15, -505)
+    config.showAllHiddenQuests:SetPoint("TOPLEFT", 15, -515)
 
     -- Marker Colors
     -- config.markerColorsTitle = textFactory(config, "Map Marker Colors", 20)
