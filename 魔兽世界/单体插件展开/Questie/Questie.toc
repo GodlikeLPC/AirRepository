@@ -1,10 +1,8 @@
 ## Interface: 11302
-#Do not modify the title manually, create a new version by doing "git tag vX.X.X"
-## Title: |cFFFFFFFFQuestie|r|cFF00FF00 v4.1.2_dff5a12|r|cFFFF0000 BETA|r
+## Title: |cFFFFFFFFQuestie|r|cFF00FF00 v4.2.1_0f28ee6|r
 ## Author: Aero/Logon/Muehe/Dyaxler/Schaka/Zoey/Everyone else
 ## Notes: A standalone Classic QuestHelper
-#Do not modify the version manually, create a new version by doing "git tag vX.X.X"
-## Version: 4.1.2 BETA 121 dff5a12
+## Version: 4.2.1 0 0f28ee6
 ## RequiredDeps:
 ## OptionalDeps: Ace3, LibDataBroker-1.1, LibCompress
 ## SavedVariables: QuestieConfig
@@ -34,9 +32,14 @@ Database\itemDB.lua
 #Localization
 Locale\QuestieLocale.lua
 Locale\enUS\locale.xml
+Locale\esES\locale.xml
+Locale\deDE\locale.xml
 Locale\zhCN\locale.xml
 Locale\zhTW\locale.xml
-
+Locale\frFR\locale.xml
+Locale\koKR\locale.xml
+Locale\ptBR\locale.xml
+Locale\ruRU\locale.xml
 
 ##Libs
 Modules\Libs\QuestieLib.lua
@@ -53,10 +56,13 @@ Modules\QuestieNameplate.lua
 Modules\QuestieCoordinates.lua
 Modules\QuestieJourney.lua
 #Modules\QuestieComms.lua
+Modules\QuestieSearchResults.lua
 Modules\QuestieSearch.lua
 Modules\QuestieTracker.lua
 Modules\QuestieOptions.lua
 Modules\QuestieProfessions.lua
+Modules\QuestieReputation.lua
+Modules\QuestieDBMIntegration.lua
 
 #Main
 Questie.lua
