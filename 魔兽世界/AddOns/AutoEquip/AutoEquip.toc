@@ -1,6 +1,6 @@
 ﻿## Interface: 11302
 ## Title: [BF] AutoEquip
-## Title-zhCN: [大脚]装备管理
+## Title-zhCN: [大脚]装备管理-弃用
 ## Title-zhTW: [大腳]裝備管理
 ## Notes: |cffbc8f8fConvenient implementation of equipment management settings.|r
 ## Notes-zhCN: |cff00ff00AutoEquip|r|n|cffbc8f8f方便快捷的实现装备管理设置。|r
@@ -9,5 +9,3 @@
 ## LoadOnDemand: 1
 ## X-Revision: BigFoot
 ## SavedVariables: AutoEquip_Config
-
-AutoEquip.xml

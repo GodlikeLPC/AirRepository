@@ -8,6 +8,9 @@ local L = NS.L;
 if not L then return;end
 ----------------------------------------------------------------------------------------------------
 local math, table, string, pairs, type, select, tonumber, tostring, unpack = math, table, string, pairs, type, select, tonumber, tostring, unpack;
+local min, max, ceil, floor = min, max, ceil, floor;
+local tinsert, tremove = tinsert, tremove;
+local strfind, gsub, strmatch, strsub, strupper, strlower = strfind, gsub, strmatch, strsub, strupper, strlower;
 local _G = _G;
 local _ = nil;
 ----------------------------------------------------------------------------------------------------
@@ -346,6 +349,66 @@ local emu = {
 };
 
 
+local _DB = NS._DB;
+local _indexToClass = NS._indexToClass;
+local _classToIndex = NS._classToIndex;
+local _classTalent = NS._classTalent;
+local _talentTabIcon = NS._talentTabIcon;
+
+
+local extern = {  };
+function extern.wowhead(url)
+	--[[
+		https://classic.wowhead.com/talent-calc/embed/warrior/05004-055001-55250110500001051
+		https://classic.wowhead.com/talent-calc/warrior/05004-055001-55250110500001051
+			"^.*classic%.wowhead%.com/talent%-calc.*/([^/]+)/(%d.+)$"
+	]]
+	local _, _, class, data = string.find(url, "classic%.wowhead%.com/talent%-calc.*/([^/]+)/([0-9%-]+)");
+	if class and data then
+		class = string.lower(class);
+		local DB = _DB[class];
+		local classTalent = _classTalent[class];
+		if DB and classTalent then
+			--(%d*)[%-]*(%d*)[%-]*(%d*)
+			local _, _, d1, d2, d3 = string.find(data, "(%d*)[%-]?(%d*)[%-]?(%d*)");
+			if d1 and d2 and d3 then
+				if d1 == "" and d2 == "" and d3 == "" then
+					return class, "", 60;
+				elseif d2 == "" and d3 == "" then
+					return d1;
+				else
+					local l1 = #DB[classTalent[1]];
+					if l1 > string.len(d1) then
+						data = d1 .. string.rep("0", l1 - string.len(d1));
+					else
+						data = d1;
+					end
+					local l2  = #DB[classTalent[2]];
+					if l2 > string.len(d2) then
+						data = data .. d2 .. string.rep("0", l2 - string.len(d2)) .. d3;
+					else
+						data = data .. d2 .. d3;
+					end
+					return class, data, 60;
+				end
+			end
+		end
+	end
+	return nil;
+end
+function extern.nfu(url)
+	--http://www.nfuwow.com/talents/60/warrior/tal/1331511131241111111100000000000000040000000000000000
+	--           nfuwow%.com/talents/60/([^/]+)/tal/(%d+)
+	local _, _, class, data = string.find(url, "nfuwow%.com/talents/60/([^/]+)/tal/(%d+)");
+	if class and data then
+		class = string.lower(class);
+		if _DB[class] then
+			return class, data, 60;
+		end
+	end
+	return nil;
+end
+
 function emu.winMan_GetWin(winId)
 	local mainFrames = emu.mainFrames;
 	local mainFrame = nil;
@@ -531,13 +594,6 @@ function emu.processApplyTalents(mainFrame)
 end
 
 
-local _DB = NS._DB;
-local _indexToClass = NS._indexToClass;
-local _classToIndex = NS._classToIndex;
-local _classTalent = NS._classTalent;
-local _talentTabIcon = NS._talentTabIcon;
-
-
 function emu.GetPontsReqLevel(numPoints)
 	return math.max(10, 9 + numPoints);
 end
@@ -578,6 +634,12 @@ function emu.EmuCore_InitCodeTable()
 	end
 end
 function emu.EmuCore_Decoder(code, useCodeLevel)
+	for media, func in pairs(extern) do
+		local class, data, level = func(code);
+		if class then
+			return class, data, level;
+		end
+	end
 	local data = "";
 	local revCodeTable = emu.revCodeTable;
 	local classIndex = revCodeTable[string.sub(code, 1, 1)];
@@ -2813,7 +2875,7 @@ function emu.CreateMainFrameSubObject(mainFrame)
 		editBox:SetScript("OnEscapePressed", function(self) self:SetText(""); self:ClearFocus(); self:Hide(); end);
 		editBox:SetScript("OnShow", function(self) self.type = nil; self.charChanged = nil; end);
 		editBox:SetScript("OnHide", function(self) self.type = nil; self.charChanged = nil; end);
-		editBox:SetScript("OnChar", function(self) self.charChanged = true; print("OnChar"); end);
+		editBox:SetScript("OnChar", function(self) self.charChanged = true; end);
 		local texture = editBox:CreateTexture(nil, "ARTWORK");
 		texture:SetPoint("TOPLEFT");
 		texture:SetPoint("BOTTOMRIGHT");

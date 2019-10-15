@@ -183,4 +183,4 @@ function AutoEquipConfigFunc()
 	end
 end
 
-BigFoot_AddCollector(AutoEquipConfigFunc)
+-- BigFoot_AddCollector(AutoEquipConfigFunc)
