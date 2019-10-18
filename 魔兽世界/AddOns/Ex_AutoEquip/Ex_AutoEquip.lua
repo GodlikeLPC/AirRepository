@@ -633,3 +633,15 @@ function ExAE_OnHide(self)
 		self.isMoving = false;
 	end
 end
+
+function AutoEquip_Toggle(switch)
+	if (switch) then
+		ExAE_Frame:Show();
+	else
+		ExAE_Frame:Hide();
+	end
+end
+
+function AutoEquip_KeyBinding()
+	BigFoot_ShowKeyBindingFrame("HEADER_ExAE_TITLE");
+end
