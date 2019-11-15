@@ -1,0 +1,46 @@
+lightweight tag 0a0e9cb3c35a58a7c39db84b77ad136c32bd484b 2.13
+Author:	GitHub <noreply@github.com>
+Date:	Thu Sep 19 11:50:32 2019 +0200
+
+commit 0a0e9cb3c35a58a7c39db84b77ad136c32bd484b
+Author: Aviana <winblocker@gmx.de>
+Date:   Thu Sep 19 11:50:32 2019 +0200
+
+    Update YaHT.lua
+    
+    Fix #30
+    Fix #27
+    Fix #20
+    Fix #28
+    Fix #26
+
+commit 5ffaba3b8ac1d6ec28a27ca0a4866f3dfcecd33b
+Author: Aviana <winblocker@gmx.de>
+Date:   Thu Sep 19 11:33:57 2019 +0200
+
+    Update YaHT.lua
+    
+    Close #34
+    Close #31
+    Close #32
+    Close #33
+    Close #29
+
+commit 87a2c979d363e3c9fd07b24f8bedb49633629f46
+Author: Alexander Schwedler <7202192+slow-loris@users.noreply.github.com>
+Date:   Wed Sep 18 13:22:45 2019 +0200
+
+    set default value for CastingBarFrame.maxValue to avoid nil value
+
+commit 87a2c979d363e3c9fd07b24f8bedb49633629f46
+Author: Alexander Schwedler <7202192+slow-loris@users.noreply.github.com>
+Date:   Wed Sep 18 13:22:45 2019 +0200
+
+    set default value for CastingBarFrame.maxValue to avoid nil value
+
+commit 7f5ff8601af73d56b57669f7d06e5795bfaecf4d
+Author: Alexander Schwedler <alexander.schwedler@gmail.com>
+Date:   Wed Sep 18 13:14:38 2019 +0200
+
+    fixed indent
+
