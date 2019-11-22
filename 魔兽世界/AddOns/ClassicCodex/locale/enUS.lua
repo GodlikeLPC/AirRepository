@@ -42,7 +42,10 @@ L["|cff33ffcc/codex|cffffffff quests |cffcccccc - Show all quests on the map"] =
 L["|cff33ffcc/codex|cffffffff meta <relation> [min, [max]] |cffcccccc - Show related objects on the map"] = true
 L["|cff33ffcc/codex|cffffffff clean |cffcccccc - Clean map"] = true
 L["|cff33ffcc/codex|cffffffff reset |cffcccccc - Reset map"] = true
-L["|cff33ffcc ->|cffffffff Available relations:  |cff33ffccchests|r, |cff33ffccherbs|r, |cff33ffccmines|r"] = true
+L["|cff33ffcc    ->|cffffffff Available relations:  |cff33ffccchests|r, |cff33ffccherbs|r, |cff33ffccmines|r"] = true
+L["|cff33ffcc/codexcfg|cffcccccc - Show options"] = true
+L["|cff33ffcc/codexcfg|cffffffff <optionName>|cffcccccc - Toggle option"] = true
+L["|cff33ffcc/codexcfg|cffffffff <optionName> <value>|cffcccccc - Set option"] = true
 
 -- config.lua
 L["CONFIG_TEXT_FONT"] = "Fonts/FRIZQT__.ttf"
@@ -74,8 +77,18 @@ L["ClassicCodex: You have no manually hidden quests. You can hold the shift key 
 L["ClassicCodex: %d hidden quests will be able to show again."] = true
 L["List Manually Hidden Quests"] = true
 L["List Completed Quests"] = true
-L["Always Show ID In Browser"] = true
-L["If selected, the item/object/unit/quest ID will be displayed when you searching something in ClassicCodex Browser."] = true
+L["Show ID in Codex Browser"] = true
+L["If selected, the item/object/unit/quest ID will be displayed when you searching something in Codex browser."] = true
+L["Show Minimap Button"] = true
+L["Show a button on the edge of the minimap, click to open Codex browser"] = true
+L["Show Markers on Continent Maps"] = true
+L["Show markers on the top two levels of the world map"] = true
+L["Boss Marker Size"] = true
+L["Display a larger icon for the boss or a single target to help you find it"] = true
+L["Open Codex Browser"] = true
+L["Show Markers on Zone Maps"] = true
+L["Show markers on the third and subsequent levels of the world map"] = true
+L["Show Markers on the Minimap"] = true
 
 -- map.lua
 L["Buy"] = true
