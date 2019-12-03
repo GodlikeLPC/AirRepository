@@ -1,0 +1,10 @@
+## Interface: 11302
+## Title: Titan Panel Classic [|ccff7fff7Mail|r] |cff00aa00 v1.0.0.0|r
+## Notes: A Titan Plugin to let you know you have mail.  Also remembers any Auction alerts.
+## Author: Yunohu
+## SavedVariables: TITAN_MAIL_SETTINGS
+## Dependencies: TitanClassic
+## OptionalDeps: 
+## Version: 1.0.0.0
+## X-Child-Of: TitanClassic
+TitanClassicMail.xml
