@@ -1,0 +1,13 @@
+## Interface: 11302
+## Title: SilverDragon (Classic)
+## Notes: Mobs for Classic
+## Version: v4.0.18c
+## Author: Kemayo
+## eMail: kemayo at gmail dot com
+## X-Category: Interface Enhancements
+## X-Donate: PayPal:kemayo AT gmail DOT com
+## Dependencies: SilverDragon
+## LoadManagers: AddonLoader
+## X-LoadOn-Always: delayed
+
+module.lua
