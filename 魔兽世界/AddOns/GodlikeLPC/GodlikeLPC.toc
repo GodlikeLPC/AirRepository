@@ -1,0 +1,8 @@
+ ## Interface: 11302
+ ## Title:GodlikeLPC
+ ## Description:Godlike插件集合
+ ## Author: GodlikeLPC
+ ## DefaultState: Enabled
+ ## Version: 1.0.0
+
+ GodlikeLPC.xml

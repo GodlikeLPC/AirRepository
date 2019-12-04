@@ -1,0 +1,29 @@
+<Ui xmlns="[http://www.blizzard.com/wow/ui/"] xmlns:xsi="[http://www.w3.org/2001/XMLSchema-instance"] xsi:schemaLocation="[http://www.blizzard.com/wow/ui/] ..\FrameXML\UI.xsd">
+
+    <Frame name="GodlikeConfig" parent="UIParent" hidden="false">
+
+        <Size x="300" y="150" />
+
+        <Anchors>
+            <Anchor point="CENTER" />
+        </Anchors>
+
+        <Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border">
+            <BackgroundInsets>
+                <AbsInset left="11" right="12" top="12" bottom="11" />
+            </BackgroundInsets>
+        </Backdrop>
+
+        <Layers>
+            <Layer level="ARTWORK">
+                <FontString inherits="GameFontNormal" text="欢迎进入Godlike帝国!">
+                    <Anchors>
+                        <Anchor point="CENTER" relativeTo="GodlikeConfig" />
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
+
+    </Frame>
+
+</Ui>
