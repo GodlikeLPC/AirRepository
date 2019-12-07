@@ -1,5 +1,5 @@
 ## Interface: 11302
-## Version: 3.1 Release
+## Version: 4.1 Release
 ## Title: [|cff9966ffD4KiR|r] Healer Protection
 ## Notes: Say important info to chat when healer is in danger (OOM, Aggro)
 ## Author: D4KiR
@@ -17,6 +17,9 @@ locale/enEN.lua
 locale/deDE.lua
 locale/ruRU.lua
 locale/frFR.lua
+locale/zhCN.lua
+locale/krKR.lua
+locale/esES.lua
 
 config.lua
 

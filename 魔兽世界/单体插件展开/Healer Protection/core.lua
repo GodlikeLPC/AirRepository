@@ -40,9 +40,9 @@ function ToCurrentChat(msg)
 		suffix = ""
 	end
 
-	-- if GetNumGroupMembers() > 0 or GetNumSubgroupMembers() > 0 then
+	if GetNumGroupMembers() > 0 or GetNumSubgroupMembers() > 0 or _channel == "SAY" or _channel == "YELL" then
 		SendChatMessage(prefix .. msg .. suffix, _channel)
-	-- end
+	end
 end
 
 local setup = false
@@ -51,7 +51,7 @@ function SetupHP()
 		setup = true
 		print("|cff8888ffSetup " .. D4_HP.name)
 
-		warning_aggro = CreateFrame("FRAME", nil, UIParent)
+		warning_aggro = CreateFrame("Frame", nil, UIParent)
 		warning_aggro:SetFrameStrata("BACKGROUND")
 		warning_aggro:SetWidth(128)
 		warning_aggro:SetHeight(64)
@@ -81,6 +81,15 @@ function SetupHP()
 		elseif GetLocale() == "frFR" then
 			D4_HP.msg("Language detected: frFR (French)")
 			D4_HP.Lang_frFR()
+		elseif GetLocale() == "esES" then
+			D4_HP.msg("Language detected: esES (Spanish)")
+			D4_HP.Lang_esES()
+		elseif GetLocale() == "zhCN" then
+			D4_HP.msg("Language detected: zhCN (Simplified Chinese)")
+			D4_HP.Lang_zhCN()
+		elseif GetLocale() == "krKR" then
+			D4_HP.msg("Language detected: krKR (Korean)")
+			D4_HP.Lang_krKR()
 		else
 			D4_HP.msg("Language not found (" .. GetLocale() .. "), using English one!")
 			D4_HP.msg("If you want your language, please visit the cursegaming site of this project!")
@@ -162,8 +171,27 @@ function pChat()
 				local manamax = UnitPowerMax("player")
 				local manaperc = math.round((mana / manamax) * 100, 1)
 
+				-- OOM
+				if D4_HP.GetConfig("OOM", true) then
+					if manaperc <= D4_HP.GetConfig("OOMPercentage", true) and not oom then
+						oom = true
+						local tab = {}
+						tab["MANA"] = manaperc
+						if D4_HP.GetConfig("NEAROOM", true) then
+							if D4_HP.GetConfig("showoomchat", true) then
+								ToCurrentChat(D4_HP.GT("outofmana") .. " (" .. D4_HP.GT("xmana", tab) .. ").")
+							end
+							if D4_HP.GetConfig("showoomemote", true) then
+								DoEmote("oom")
+							end
+						end
+					elseif manaperc > D4_HP.GetConfig("OOMPercentage", true) + 20 and oom then
+						oom = false
+					end
+				end
+
 				-- Near OOM
-				if D4_HP.GetConfig("NEAROOM", true) then
+				if D4_HP.GetConfig("NEAROOM", true) and not oom then
 					if manaperc <= D4_HP.GetConfig("NEAROOMPercentage", true) and not nearoom then
 						nearoom = true
 						local tab = {}
@@ -178,25 +206,6 @@ function pChat()
 						nearoom = false
 					end
 				end
-
-				-- OOM
-				if D4_HP.GetConfig("OOM", true) then
-					if manaperc <= D4_HP.GetConfig("OOMPercentage", true) and not oom then
-						oom = true
-						local tab = {}
-						tab["MANA"] = manaperc
-						if D4_HP.GetConfig("OOM", true) then
-							if D4_HP.GetConfig("showoomchat", true) then
-								ToCurrentChat(D4_HP.GT("outofmana") .. " (" .. D4_HP.GT("xmana", tab) .. ").")
-							end
-							if D4_HP.GetConfig("showoomemote", true) then
-								DoEmote("oom")
-							end
-						end
-					elseif manaperc > D4_HP.GetConfig("OOMPercentage", true) + 20 and oom then
-						oom = false
-					end
-				end
 			end
 		end
 	end
@@ -204,9 +213,9 @@ end
 C_Timer.NewTicker(1, pChat)
 
 local locs = {}
-local frame = CreateFrame("Frame")
-frame.past = {}
-frame:SetScript("OnEvent",function(self, event, id)
+local f_loc = CreateFrame("FRAME")
+f_loc.past = {}
+f_loc:SetScript("OnEvent",function(self, event, id)
 	local loctype, _, text, _, _, _, duration, _, _, _ = C_LossOfControl.GetEventInfo(id)
 
 	--[[
@@ -258,7 +267,7 @@ frame:SetScript("OnEvent",function(self, event, id)
 
 		if text and (not self.past[text] or GetTime() > self.past[text]) then
 			self.past[text] = GetTime() + duration
-			if D4_HP.GetConfig("showloctext", true) then
+			if D4_HP.GetConfig("showlocchat", true) then
 				ToCurrentChat(D4_HP.GT("loctext", trans))
 			end
 			if D4_HP.GetConfig("showlocemote", true) then
@@ -267,6 +276,21 @@ frame:SetScript("OnEvent",function(self, event, id)
 		end
 	end
 end)
-frame:RegisterEvent("LOSS_OF_CONTROL_ADDED")
+f_loc:RegisterEvent("LOSS_OF_CONTROL_ADDED")
+
+
+
+local function OnEvent(self, event)
+	local _, eventtype, _, _, _, _, _, _, _, _, _, _, _, _, reason = CombatLogGetCurrentEventInfo()
+	if eventtype == "SPELL_CAST_FAILED" then
+		--print(reason .. " (" .. UnitName("target") .. ")")
+	end
+end
+
+local f = CreateFrame("Frame")
+f:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+f:SetScript("OnEvent", OnEvent)
+
+
 
 print("|c0000ffffLoaded |c008888ff" .. D4_HP.name .. "|c0000ffff by |c008888ff" .. D4_HP.author .. "|c0000ffff!")

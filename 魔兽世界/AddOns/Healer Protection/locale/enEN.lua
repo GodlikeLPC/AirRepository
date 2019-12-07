@@ -1,30 +1,30 @@
 -- enEN English
 
 function D4_HP.Lang_enEN()
-	lang.aggro = "仇恨过高"
-	lang.showaggrochat = "仇恨过高聊天消息"
-	lang.showaggroemote = "仇恨过高表情"
+	lang.aggro = "AGGRO"
+	lang.showaggrochat = "AGGRO Chat-Message"
+	lang.showaggroemote = "AGGRO Emote"
 
-	lang.outofmana = "法力耗尽"
-	lang.showoomchat = "法力耗尽聊天消息"
-	lang.showoomemote = "法力耗尽表情"
+	lang.outofmana = "Out of Mana"
+	lang.showoomchat = "OOM Chat-Message"
+	lang.showoomemote = "OOM Emote"
 
-	lang.nearoutofmana = "我需要更多法力"
-	lang.shownearoomchat = "我需要更多法力聊天消息"
-	lang.shownearoomemote = "我需要更多法力表情"
+	lang.nearoutofmana = "Near out of Mana"
+	lang.shownearoomchat = "Near OOM Chat-Message"
+	lang.shownearoomemote = "Near OOM Emote"
 
-	lang.youhaveaggro = "我仇恨过高，注意保护"
-	lang.ihaveaggro = "我仇恨过高，注意保护"
+	lang.youhaveaggro = "You have AGGRO"
+	lang.ihaveaggro = "I have AGGRO"
 
-	lang.underhealthprintmessage = "如果低于 VALUE% 生命值, 发出消息"
-	lang.undermanaprintmessage = "如果低于 VALUE% 法力值, 发出消息"
+	lang.underhealthprintmessage = "If under VALUE% Health, print message"
+	lang.undermanaprintmessage = "If under VALUE% Mana, print message"
 
-	lang.xmana = "MANA% 法力值"
+	lang.xmana = "MANA% Mana"
 
-	lang.showlocchat = "被控制发出消息"
-	lang.showlocemote = "被控制表情"
-	lang.loctext = "被控制(还有X秒)"
+	lang.showlocchat = "Loss of control Chat-Nachricht"
+	lang.showlocemote = "Loss of control Emote"
+	lang.loctext = "ART (For X seconds)"
 
-	lang.prefix = "前缀"
-	lang.suffix = "后缀"
+	lang.prefix = "Prefix"
+	lang.suffix = "Suffix"
 end

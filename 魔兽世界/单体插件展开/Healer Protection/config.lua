@@ -7,7 +7,7 @@ D4_HP.colorname = "|c008888ff"
 D4_HP.author = "D4KiR"
 D4_HP.colorauthor = "|c0000ffff"
 
-SetCVar("ScriptErrors", 0)
+SetCVar("ScriptErrors", 1)
 D4_HP.DEBUG = false
 
 D4HP = D4HP or {}

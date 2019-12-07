@@ -89,6 +89,10 @@ L["Show Markers on the Minimap"] = "在小地圖上顯示圖標"
 L["|cff33ffcc/codexcfg|cffcccccc - Show options"] = "|cff33ffcc/codexcfg|cffcccccc - 列出選項"
 L["|cff33ffcc/codexcfg|cffffffff <optionName>|cffcccccc - Toggle option"] = "|cff33ffcc/codexcfg|cffffffff <optionName>|cffcccccc - 開關/觸發選項"
 L["|cff33ffcc/codexcfg|cffffffff <optionName> <value>|cffcccccc - Set option"] = "|cff33ffcc/codexcfg|cffffffff <optionName> <value>|cffcccccc - 設置選項"
+L["Show Tracking Method Dropdown on the World Map"] = "在世界地圖上顯示任務追踪方式下拉框"
+L["Quest Tracking Method"] = "任務追踪方式"
+L["Show Quest Name in Unit Tooltip"] = "在單位鼠標提示中顯示任務名稱"
+L["Show quest name in mouseover tooltip of units"] = "在任務目標的鼠標指向提示中顯示任務名稱"
 
 -- map.lua
 L["Buy"] = "購買"
