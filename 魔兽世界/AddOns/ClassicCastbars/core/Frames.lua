@@ -9,6 +9,7 @@ local strfind = _G.string.find
 local unpack = _G.unpack
 local min = _G.math.min
 local max = _G.math.max
+local ceil = _G.math.ceil
 local UnitExists = _G.UnitExists
 local UIFrameFadeOut = _G.UIFrameFadeOut
 local UIFrameFadeRemoveFrame = _G.UIFrameFadeRemoveFrame
@@ -87,6 +88,10 @@ function addon:SetCastbarStyle(castbar, cast, db)
     castbar.Icon:SetPoint("LEFT", castbar, db.iconPositionX - db.iconSize, db.iconPositionY)
     castbar.Border:SetVertexColor(unpack(db.borderColor))
 
+    castbar.Flash:ClearAllPoints()
+    castbar.Flash:SetPoint("TOPLEFT", ceil(-db.width / 6.25), db.height-1)
+    castbar.Flash:SetPoint("BOTTOMRIGHT", ceil(db.width / 6.25), -db.height-1)
+
     if db.castBorder == "Interface\\CastingBar\\UI-CastingBar-Border-Small" or db.castBorder == "Interface\\CastingBar\\UI-CastingBar-Border" then -- default border
         castbar.Border:SetAlpha(1)
         if castbar.BorderFrame then
@@ -95,7 +100,7 @@ function addon:SetCastbarStyle(castbar, cast, db)
         end
 
         -- Update border to match castbar size
-        local width, height = castbar:GetWidth() * 1.16, castbar:GetHeight() * 1.16
+        local width, height = ceil(castbar:GetWidth() * 1.16), ceil(castbar:GetHeight() * 1.16)
         castbar.Border:ClearAllPoints()
         castbar.Border:SetPoint("TOPLEFT", width, height)
         castbar.Border:SetPoint("BOTTOMRIGHT", -width, -height)
@@ -237,12 +242,19 @@ function addon:HideCastbar(castbar, noFadeOut)
             end
         end
 
+        castbar.Spark:SetAlpha(0)
+        castbar:SetMinMaxValues(0, 1)
         if not cast.isChanneled then
             castbar:SetStatusBarColor(0, 1, 0)
+            castbar:SetValue(1)
+        else
+            castbar:SetValue(0)
         end
     end
 
-    UIFrameFadeOut(castbar, cast and cast.isInterrupted and 1.5 or 0.2, 1, 0)
+    if castbar:GetAlpha() > 0 then
+        UIFrameFadeOut(castbar, cast and cast.isInterrupted and 1.5 or 0.2, 1, 0)
+    end
 end
 
 function addon:SkinPlayerCastbar()

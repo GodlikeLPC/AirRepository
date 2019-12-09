@@ -32,6 +32,7 @@ local GetTime = _G.GetTime
 local max = _G.math.max
 local abs = _G.math.abs
 local next = _G.next
+local floor = _G.math.floor
 local GetUnitSpeed = _G.GetUnitSpeed
 local CastingInfo = _G.CastingInfo
 local castTimeIncreases = namespace.castTimeIncreases
@@ -40,6 +41,9 @@ local pushbackBlacklist = namespace.pushbackBlacklist
 local BARKSKIN = GetSpellInfo(22812)
 local FOCUSED_CASTING = GetSpellInfo(14743)
 local NATURES_GRACE = GetSpellInfo(16886)
+local MIND_QUICKENING = GetSpellInfo(23723)
+local BLINDING_LIGHT = GetSpellInfo(23733)
+local BERSERKING = GetSpellInfo(20554)
 
 function addon:CheckCastModifier(unitID, cast)
     if not self.db.pushbackDetect or not cast then return end
@@ -47,21 +51,21 @@ function addon:CheckCastModifier(unitID, cast)
 
     -- Debuffs
     if not cast.isChanneled and not cast.hasCastSlowModified and not cast.skipCastSlowModifier then
-    local highestSlow = 0
+        local highestSlow = 0
 
-    for i = 1, 16 do
-        local _, _, _, _, _, _, _, _, _, spellID = UnitAura(unitID, i, "HARMFUL")
-        if not spellID then break end -- no more debuffs
+        for i = 1, 16 do
+            local _, _, _, _, _, _, _, _, _, spellID = UnitAura(unitID, i, "HARMFUL")
+            if not spellID then break end -- no more debuffs
 
             -- TODO: cast times reduced in multiplicative manner?
-        local slow = castTimeIncreases[spellID]
-        if slow and slow > highestSlow then -- might be several slow debuffs
-            highestSlow = slow
+            local slow = castTimeIncreases[spellID]
+            if slow and slow > highestSlow then -- might be several slow debuffs
+                highestSlow = slow
+            end
         end
-    end
 
-    if highestSlow > 0 then
-        cast.endTime = cast.timeStart + (cast.endTime - cast.timeStart) * ((highestSlow / 100) + 1)
+        if highestSlow > 0 then
+            cast.endTime = cast.timeStart + (cast.endTime - cast.timeStart) * ((highestSlow / 100) + 1)
             cast.hasCastSlowModified = true
         end
     end
@@ -69,9 +73,9 @@ function addon:CheckCastModifier(unitID, cast)
     -- Buffs
     -- These will only work for friendly units or if Detect Magic is on the unit
     -- We could detect buffs in the CLEU aswell but this'll have to do for now.
-    if cast.hasBarkskinModifier or cast.hasFocusedCastingModifier then return end
     local _, className = UnitClass(unitID)
-    if className == "DRUID" or className == "PRIEST" then
+    local _, raceFile = UnitRace(unitID)
+    if className == "DRUID" or className == "PRIEST" or className == "MAGE" or className == "PALADIN" or raceFile == "Troll" then
         for i = 1, 32 do
             local name = UnitAura(unitID, i, "HELPFUL")
             if not name then break end -- no more buffs
@@ -79,12 +83,14 @@ function addon:CheckCastModifier(unitID, cast)
             if name == BARKSKIN and not cast.hasBarkskinModifier then
                 cast.endTime = cast.endTime + 1
                 cast.hasBarkskinModifier = true
-            elseif name == NATURES_GRACE and not cast.hasNaturesGraceModifier then
+            elseif name == NATURES_GRACE and not cast.hasNaturesGraceModifier and not cast.isChanneled then
                 cast.endTime = cast.endTime - 0.5
                 cast.hasNaturesGraceModifier = true
+            elseif (name == MIND_QUICKENING or name == BLINDING_LIGHT or name == BERSERKING) and not cast.hasSpeedModifier then
+                cast.endTime = cast.endTime - ((cast.endTime - cast.timeStart) * ((name == BERSERKING and 10 or 33) / 100))
+                cast.hasSpeedModifier = true
             elseif name == FOCUSED_CASTING then
                 cast.hasFocusedCastingModifier = true
-                return
             end
         end
     end
@@ -152,6 +158,7 @@ function addon:StoreCast(unitGUID, spellName, iconTexturePath, castTime, isPlaye
     cast.hasBarkskinModifier = nil
     cast.hasNaturesGraceModifier = nil
     cast.hasFocusedCastingModifier = nil
+    cast.hasSpeedModifier = nil
     cast.skipCastSlowModifier = nil
     cast.pushbackValue = nil
     cast.showCastInfoOnly = nil
@@ -198,6 +205,23 @@ function addon:CastPushback(unitGUID)
         cast.maxValue = cast.maxValue - (cast.maxValue * 25) / 100
         cast.endTime = cast.endTime - (cast.maxValue * 25) / 100
     end
+end
+
+local IsSpellKnown = _G.IsSpellKnown
+local function GetSpellCastTime(spellID)
+    local _, _, icon, castTime = GetSpellInfo(spellID)
+    if not castTime then return end
+
+    if IsSpellKnown(spellID) then
+        local _, _, _, hCastTime = GetSpellInfo(8690) -- Hearthstone, normal cast time 10s
+        if hCastTime and hCastTime ~= 10000 then -- If current cast time is not 10s it means the player has a casting speed modifier debuff applied on himself.
+            -- Since the return values by GetSpellInfo() from spells that the player has learned in their spellbook are affected by the slow,
+            -- we need to remove so it doesn't give slow modified casttimes for other peoples casts.
+            return floor(castTime * (hCastTime / 10000)), icon
+        end
+    end
+
+    return castTime, icon
 end
 
 function addon:ToggleUnitEvents(shouldReset)
@@ -388,6 +412,7 @@ local channeledSpells = namespace.channeledSpells
 local castTimeTalentDecreases = namespace.castTimeTalentDecreases
 local crowdControls = namespace.crowdControls
 local castedSpells = namespace.castedSpells
+local stopCastOnDamageList = namespace.stopCastOnDamageList
 local ARCANE_MISSILES = GetSpellInfo(5143)
 
 function addon:COMBAT_LOG_EVENT_UNFILTERED()
@@ -397,7 +422,7 @@ function addon:COMBAT_LOG_EVENT_UNFILTERED()
         local spellID = castedSpells[spellName]
         if not spellID then return end
 
-        local _, _, icon, castTime = GetSpellInfo(spellID)
+        local castTime, icon = GetSpellCastTime(spellID)
         if not castTime then return end
 
         -- is player or player pet or mind controlled
@@ -433,34 +458,40 @@ function addon:COMBAT_LOG_EVENT_UNFILTERED()
     elseif eventType == "SPELL_CAST_SUCCESS" then
         local channelCast = channeledSpells[spellName]
         local spellID = castedSpells[spellName]
-        if not channelCast and not spellID then return end
+        if not channelCast and not spellID then
+            -- Stop cast on new ability used while castbar is shown
+            if activeTimers[srcGUID] and GetTime() - activeTimers[srcGUID].timeStart > 0.2 then
+                return self:StopAllCasts(srcGUID)
+            end
+            return
+        end
 
         local isPlayer = bit_band(srcFlags, COMBATLOG_OBJECT_CONTROL_PLAYER) > 0
 
         -- Auto correct cast times for mobs
         if not isPlayer and not channelCast then
             if not strfind(srcGUID, "Player-") then -- incase player is mind controlled by NPC
-            local cachedTime = npcCastTimeCache[srcName .. spellName]
-            if not cachedTime then
-                local cast = activeTimers[srcGUID]
-                if not cast or (cast and not cast.hasCastSlowModified and not cast.hasBarkskinModifier and not cast.hasFocusedCastingModifier and not cast.hasNaturesGraceModifier) then
-                    local restoredStartTime = npcCastTimeCacheStart[srcGUID]
-                    if restoredStartTime then
-                        local castTime = (GetTime() - restoredStartTime) * 1000
-                        local origCastTime = 0
-                        if spellID then
-                            local _, _, _, cTime = GetSpellInfo(spellID)
-                            origCastTime = cTime or 0
-                        end
+                local cachedTime = npcCastTimeCache[srcName .. spellName]
+                if not cachedTime then
+                    local cast = activeTimers[srcGUID]
+                    if not cast or (cast and not cast.hasCastSlowModified and not cast.hasSpeedModifier) then
+                        local restoredStartTime = npcCastTimeCacheStart[srcGUID]
+                        if restoredStartTime then
+                            local castTime = (GetTime() - restoredStartTime) * 1000
+                            local origCastTime = 0
+                            if spellID then
+                                local cTime = GetSpellCastTime(spellID)
+                                origCastTime = cTime or 0
+                            end
 
-                        local castTimeDiff = abs(castTime - origCastTime)
-                        if castTimeDiff <= 4000 and castTimeDiff > 250 then -- heavy lag might affect this so only store time if the diff isn't too big
-                            npcCastTimeCache[srcName .. spellName] = castTime
+                            local castTimeDiff = abs(castTime - origCastTime)
+                            if castTimeDiff <= 4000 and castTimeDiff > 250 then -- heavy lag might affect this so only store time if the diff isn't too big
+                                npcCastTimeCache[srcName .. spellName] = castTime
+                            end
                         end
                     end
                 end
             end
-        end
         end
 
         -- Channeled spells are started on SPELL_CAST_SUCCESS instead of stopped
@@ -501,7 +532,14 @@ function addon:COMBAT_LOG_EVENT_UNFILTERED()
         return self:DeleteCast(dstGUID, eventType == "SPELL_INTERRUPT")
     elseif eventType == "SWING_DAMAGE" or eventType == "ENVIRONMENTAL_DAMAGE" or eventType == "RANGE_DAMAGE" or eventType == "SPELL_DAMAGE" then
         if bit_band(dstFlags, COMBATLOG_OBJECT_TYPE_PLAYER) > 0 then -- is player, and not pet
-            return self:CastPushback(dstGUID)
+            local cast = activeTimers[dstGUID]
+            if cast then
+                if stopCastOnDamageList[cast.spellName] then
+                    return self:DeleteCast(dstGUID)
+                end
+
+                return self:CastPushback(dstGUID)
+            end
         end
     end
 end

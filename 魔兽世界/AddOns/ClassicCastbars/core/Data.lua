@@ -208,9 +208,9 @@ local castSpellIDs = {
     21048, -- Curse of the Tribes
     5267, -- Dalaran Wizard Disguise
     27723, -- Dark Desire
-    19799, -- Dark Iron Bomb
+    19784, -- Dark Iron Bomb
     5268, -- Dark Iron Dwarf Disguise
-    16588, -- Dark Mending
+    19775, -- Dark Mending
     7106, -- Dark Restore
     3335, -- Dark Sludge
     16587, -- Dark Whispers
@@ -1141,7 +1141,8 @@ local castSpellIDs = {
     24422, -- Zandalar Signet of Might
     24421, -- Zandalar Signet of Mojo
     24420, -- Zandalar Signet of Serenity
-    1050, -- Sacrifice (needs to be last for german clients, see issue #26)
+    1050, -- Sacrific
+    22651, -- Sacrifice 2 (On German client this is named Opfern but other Sacrifice is named Opferung)
     10181, -- Frostbolt (needs to be last for chinese clients, see issue #16)
 
     -- Channeled casts in random order. These are used to retrieve spell icon later on (namespace.channeledSpells only stores spell name)
@@ -1548,6 +1549,21 @@ namespace.pushbackBlacklist = {
     [GetSpellInfo(19769)] = 1,      -- Thorium Grenade
     [GetSpellInfo(13278)] = 1,      -- Gnomish Death Ray
     [GetSpellInfo(20589)] = 1,      -- Escape Artist
+    [GetSpellInfo(20549)] = 1,      -- War Stomp
+}
+
+-- Casts that should be stopped on damage received
+namespace.stopCastOnDamageList = {
+    [GetSpellInfo(8690)] = 1, -- Hearthstone
+    [GetSpellInfo(5784)] = 1, -- Summon Felsteed
+    [GetSpellInfo(23161)] = 1, -- Summon Dreadsteed
+    [GetSpellInfo(13819)] = 1, -- Summon Warhorse
+    [GetSpellInfo(23214)] = 1, -- Summon Charger
+    [GetSpellInfo(2006)] = 1, -- Resurrection
+    [GetSpellInfo(2008)] = 1, -- Ancestral Spirit
+    [GetSpellInfo(7328)] = 1, -- Redemption
+    [GetSpellInfo(22999)] = 1, -- Defibrillate
+    -- First Aid not included here since we track aura removed
 }
 
 -- Addon Savedvariables
@@ -1599,33 +1615,6 @@ namespace.defaultConfig = {
         castBorder = "Interface\\CastingBar\\UI-CastingBar-Border-Small",
         hideIconBorder = false,
         position = { "CENTER", -18, -87 },
-        iconPositionX = -5,
-        iconPositionY = 0,
-        borderColor = { 1, 1, 1, 1 },
-        statusColor = { 1, 0.7, 0, 1 },
-        statusColorChannel = { 0, 1, 0, 1 },
-        textColor = { 1, 1, 1, 1 },
-        textPositionX = 0,
-        textPositionY = 0,
-        frameLevel = 10,
-        statusBackgroundColor = { 0, 0, 0, 0.535 },
-    },
-
-    focus = {
-        enabled = false,
-        width = 150,
-        height = 15,
-        iconSize = 16,
-        showCastInfoOnly = false,
-        showTimer = false,
-        showIcon = true,
-        autoPosition = true,
-        castFont = _G.STANDARD_TEXT_FONT,
-        castFontSize = 10,
-        castStatusBar = "Interface\\TargetingFrame\\UI-StatusBar",
-        castBorder = "Interface\\CastingBar\\UI-CastingBar-Border-Small",
-        hideIconBorder = false,
-        position = { "CENTER", -30, 90 },
         iconPositionX = -5,
         iconPositionY = 0,
         borderColor = { 1, 1, 1, 1 },
