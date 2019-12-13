@@ -97,9 +97,10 @@ end
 function Combuctor:InitProfile()
 	local player, realm = playerName, playerRealm;
 	local numberSlot = 0
-	for i=0,4,1 do
+	for i=0,4 do
 		numberSlot = numberSlot+GetContainerNumSlots(i)
 	end
+	numberSlot = numberSlot+GetContainerNumSlots(-2)
 	local ratio = math.max(math.ceil(math.sqrt(numberSlot))/7,1)
 	local profile = self:GetBaseProfile(ratio)
 
@@ -113,7 +114,7 @@ end
 function Combuctor:GetBaseProfile(ratio)
 	return {
 		inventory = {
-			bags = {0,1, 2, 3, 4},
+			bags = {0, 1, 2, 3, 4, -2},
 			position = {'RIGHT'},
 			showBags = true,	--第一次默认开
 			w = 500*ratio,
@@ -230,6 +231,10 @@ local function toggleBag(bag,configBank,configBackPack)
 	end
 end
 
+local function toggleKeyRing()
+	Combuctor:Toggle(KEYRING_CONTAINER)
+end
+
 local function openAllBags()
 	Combuctor:Show(BACKPACK_CONTAINER)
 end
@@ -272,14 +277,17 @@ end
 function Combuctor:Toggle(bag, auto)
 	for _,frame in pairs(self.frames) do
 		for _,bagID in pairs(frame.sets.bags) do
---	print(bagID,bag)
+	-- print(bagID,bag)
 			if bagID == bag then
 				frame:ToggleFrame(auto)
-				frame:SetSubCategory(L.All)
+				if bag == KEYRING_CONTAINER then
+					frame:SetSubCategory(KEYRING)
+				else
+					frame:SetSubCategory(L.All)
+				end
 				if (_G["ContainerFrame"..bag]) then
 					_G["ContainerFrame"..bag].size = _G["ContainerFrame"..bag].size or (GetContainerNumSlots and GetContainerNumSlots(bag)) or 1
 				end
-				return
 			end
 		end
 	end

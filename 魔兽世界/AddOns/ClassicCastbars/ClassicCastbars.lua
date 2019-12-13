@@ -37,6 +37,7 @@ local GetUnitSpeed = _G.GetUnitSpeed
 local CastingInfo = _G.CastingInfo
 local castTimeIncreases = namespace.castTimeIncreases
 local pushbackBlacklist = namespace.pushbackBlacklist
+local unaffectedCastModsSpells = namespace.unaffectedCastModsSpells
 
 local BARKSKIN = GetSpellInfo(22812)
 local FOCUSED_CASTING = GetSpellInfo(14743)
@@ -48,6 +49,7 @@ local BERSERKING = GetSpellInfo(20554)
 function addon:CheckCastModifier(unitID, cast)
     if not self.db.pushbackDetect or not cast then return end
     if cast.unitGUID == self.PLAYER_GUID then return end -- modifiers already taken into account with CastingInfo()
+    if unaffectedCastModsSpells[cast.spellID] then return end
 
     -- Debuffs
     if not cast.isChanneled and not cast.hasCastSlowModified and not cast.skipCastSlowModifier then
@@ -138,7 +140,7 @@ function addon:StopAllCasts(unitGUID, noFadeOut)
 end
 
 -- Store new cast data for unit, and start castbar(s)
-function addon:StoreCast(unitGUID, spellName, iconTexturePath, castTime, isPlayer, isChanneled)
+function addon:StoreCast(unitGUID, spellName, spellID, iconTexturePath, castTime, isPlayer, isChanneled)
     local currTime = GetTime()
 
     if not activeTimers[unitGUID] then
@@ -147,6 +149,7 @@ function addon:StoreCast(unitGUID, spellName, iconTexturePath, castTime, isPlaye
 
     local cast = activeTimers[unitGUID]
     cast.spellName = spellName
+    cast.spellID = spellID
     cast.icon = iconTexturePath
     cast.maxValue = castTime / 1000
     cast.endTime = currTime + (castTime / 1000)
@@ -207,17 +210,15 @@ function addon:CastPushback(unitGUID)
     end
 end
 
-local IsSpellKnown = _G.IsSpellKnown
-local function GetSpellCastTime(spellID)
+local function GetSpellCastInfo(spellID)
     local _, _, icon, castTime = GetSpellInfo(spellID)
     if not castTime then return end
 
-    if IsSpellKnown(spellID) then
+    if not unaffectedCastModsSpells[spellID] then
         local _, _, _, hCastTime = GetSpellInfo(8690) -- Hearthstone, normal cast time 10s
-        if hCastTime and hCastTime ~= 10000 then -- If current cast time is not 10s it means the player has a casting speed modifier debuff applied on himself.
-            -- Since the return values by GetSpellInfo() from spells that the player has learned in their spellbook are affected by the slow,
-            -- we need to remove so it doesn't give slow modified casttimes for other peoples casts.
-            return floor(castTime * (hCastTime / 10000)), icon
+        if hCastTime and hCastTime ~= 10000 and hCastTime ~= 0 then -- If current cast time is not 10s it means the player has a casting speed modifier debuff applied on himself.
+            -- Since the return values by GetSpellInfo() are affected by the modifier, we need to remove so it doesn't give modified casttimes for other peoples casts.
+            return floor(castTime * 10000 / hCastTime), icon
         end
     end
 
@@ -402,7 +403,6 @@ function addon:GROUP_ROSTER_UPDATE()
         end
     end
 end
-addon.GROUP_LEFT = addon.GROUP_ROSTER_UPDATE
 addon.GROUP_JOINED = addon.GROUP_ROSTER_UPDATE
 
 local bit_band = _G.bit.band
@@ -422,7 +422,7 @@ function addon:COMBAT_LOG_EVENT_UNFILTERED()
         local spellID = castedSpells[spellName]
         if not spellID then return end
 
-        local castTime, icon = GetSpellCastTime(spellID)
+        local castTime, icon = GetSpellCastInfo(spellID)
         if not castTime then return end
 
         -- is player or player pet or mind controlled
@@ -454,13 +454,13 @@ function addon:COMBAT_LOG_EVENT_UNFILTERED()
         end
 
         -- Note: using return here will make the next function (StoreCast) reuse the current stack frame which is slightly more performant
-        return self:StoreCast(srcGUID, spellName, icon, castTime, isPlayer)
+        return self:StoreCast(srcGUID, spellName, spellID, icon, castTime, isPlayer)
     elseif eventType == "SPELL_CAST_SUCCESS" then
         local channelCast = channeledSpells[spellName]
         local spellID = castedSpells[spellName]
         if not channelCast and not spellID then
             -- Stop cast on new ability used while castbar is shown
-            if activeTimers[srcGUID] and GetTime() - activeTimers[srcGUID].timeStart > 0.2 then
+            if activeTimers[srcGUID] and GetTime() - activeTimers[srcGUID].timeStart > 0.25 then
                 return self:StopAllCasts(srcGUID)
             end
             return
@@ -480,7 +480,7 @@ function addon:COMBAT_LOG_EVENT_UNFILTERED()
                             local castTime = (GetTime() - restoredStartTime) * 1000
                             local origCastTime = 0
                             if spellID then
-                                local cTime = GetSpellCastTime(spellID)
+                                local cTime = GetSpellCastInfo(spellID)
                                 origCastTime = cTime or 0
                             end
 
@@ -500,7 +500,7 @@ function addon:COMBAT_LOG_EVENT_UNFILTERED()
             -- Arcane Missiles triggers this event for every tick so ignore after first tick has been detected
             if spellName == ARCANE_MISSILES and activeTimers[srcGUID] and activeTimers[srcGUID].spellName == ARCANE_MISSILES then return end
 
-            return self:StoreCast(srcGUID, spellName, GetSpellTexture(spellID), channelCast, isPlayer, true)
+            return self:StoreCast(srcGUID, spellName, spellID, GetSpellTexture(spellID), channelCast, isPlayer, true)
         end
 
         -- non-channeled spell, finish it.
@@ -548,6 +548,7 @@ local castStopBlacklist = {
     [GetSpellInfo(4068)] = 1,       -- Iron Grenade
     [GetSpellInfo(19769)] = 1,      -- Thorium Grenade
     [GetSpellInfo(13808)] = 1,      -- M73 Frag Grenade
+    [GetSpellInfo(6405)] = 1,       -- Furgbolg Form
 }
 
 local refresh = 0

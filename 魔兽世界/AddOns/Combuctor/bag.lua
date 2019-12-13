@@ -311,8 +311,8 @@ function Bag:OnClick(button)
 			if CursorHasItem() and not InvData:IsCachedBag(bagID, player) then
 				if bagID == BACKPACK_CONTAINER then
 					PutItemInBackpack()
-				-- elseif bagID == KEYRING_CONTAINER then
-					-- PutKeyInKeyRing()
+				elseif bagID == KEYRING_CONTAINER then
+					PutKeyInKeyRing()
 				elseif bagID == REAGENTBANK_CONTAINER then		--
 					PutItemInBackpack()
 				else
@@ -446,8 +446,8 @@ function Bag:OnEnter()
 	elseif bagID == BANK_CONTAINER then
 		GameTooltip:SetText(L.Bank, 1, 1, 1)
 	--keyring specific code...again
-	-- elseif bagID == KEYRING_CONTAINER then
-		-- GameTooltip:SetText(KEYRING, 1, 1, 1)
+	elseif bagID == KEYRING_CONTAINER then
+		GameTooltip:SetText(KEYRING, 1, 1, 1)
 	--cached bags
 	elseif InvData:IsCachedBag(bagID, player) then
 		if BagnonDB then

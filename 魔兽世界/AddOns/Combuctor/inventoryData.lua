@@ -91,6 +91,10 @@ function InvData:IsCachedBag(bag, player)
 	return currentPlayer ~= (player or currentPlayer) or (self:IsBankBag(bag) and not self:AtBank())
 end
 
+function InvData:IsInventoryBag(bag)
+	return bag == KEYRING_CONTAINER or (bag > -1 and bag < 5)
+end
+
 function InvData:IsBankBag(bag)
 	return (bag == BANK_CONTAINER or bag == REAGENTBANK_CONTAINER or bag > 4)
 end

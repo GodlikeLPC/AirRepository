@@ -904,6 +904,7 @@ function InventoryFrame:OnFrameShow()
 		for i=0,4,1 do
 			count=count+GetContainerNumSlots(i)
 		end
+		count=count+GetContainerNumSlots(-2) --for KeyRing
 		return count
 	end
 
