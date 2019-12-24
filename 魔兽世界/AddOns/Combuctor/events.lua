@@ -195,7 +195,7 @@ function BagEvents:UpdateBagSizesAndTypes()
 			self:UpdateBagType(bag)
 		end
 	end
-	self:UpdateBagSize(KEYRING_CONTAINER)
+	-- self:UpdateBagSize(KEYRING_CONTAINER)
 end
 
 --[[ Events ]]--
@@ -210,8 +210,8 @@ function BagEvents:OnEnable()
 	self:RegisterEvent('PLAYERBANKBAGSLOTS_CHANGED')
 	-- self:RegisterEvent('PLAYERREAGENTBANKSLOTS_CHANGED')
 
-	self:UpdateBagSize(KEYRING_CONTAINER)
-	self:UpdateItems(KEYRING_CONTAINER)
+	-- self:UpdateBagSize(KEYRING_CONTAINER)
+	-- self:UpdateItems(KEYRING_CONTAINER)
 
 	self:UpdateBagSize(BACKPACK_CONTAINER)
 	self:UpdateItems(BACKPACK_CONTAINER)
@@ -258,14 +258,14 @@ end
 
 function BagEvents:ITEM_LOCK_CHANGED()
 	if self:AtBank() then
-		for bag = -2, GetNumBankSlots() + 4 do
+		for bag = BANK_CONTAINER, GetNumBankSlots() + 4 do
 			self:UpdateLocks(bag)
 		end
 	else
 		for bag = 0, 4 do
 			self:UpdateLocks(bag)
 		end
-		self:UpdateLocks(KEYRING_CONTAINER)
+		-- self:UpdateLocks(KEYRING_CONTAINER)
 	end
 end
 

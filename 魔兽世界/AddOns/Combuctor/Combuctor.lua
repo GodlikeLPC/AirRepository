@@ -100,7 +100,7 @@ function Combuctor:InitProfile()
 	for i=0,4 do
 		numberSlot = numberSlot+GetContainerNumSlots(i)
 	end
-	numberSlot = numberSlot+GetContainerNumSlots(-2)
+	-- numberSlot = numberSlot+GetContainerNumSlots(KEYRING_CONTAINER)
 	local ratio = math.max(math.ceil(math.sqrt(numberSlot))/7,1)
 	local profile = self:GetBaseProfile(ratio)
 
@@ -114,7 +114,7 @@ end
 function Combuctor:GetBaseProfile(ratio)
 	return {
 		inventory = {
-			bags = {0, 1, 2, 3, 4, -2},
+			bags = {0, 1, 2, 3, 4},
 			position = {'RIGHT'},
 			showBags = true,	--第一次默认开
 			w = 500*ratio,
@@ -198,8 +198,12 @@ end
 
 local function toggleBag(bag,configBank,configBackPack)
 	if configBank == 1 and configBackPack == 1 then --integrate for both bank and backpack
-		Combuctor:Toggle(bag)
-		ContainerFrame_Update =function() end
+		if bag ~= KEYRING_CONTAINER then
+			Combuctor:Toggle(bag)
+			ContainerFrame_Update =function() end
+		else
+			ToggleBag_ORIG(bag)
+		end
 	elseif configBank == 1 then --integrate for bank only
 		if bag == -1 or bag > 4 then
 			Combuctor:Toggle(bag)
@@ -229,10 +233,6 @@ local function toggleBag(bag,configBank,configBackPack)
 		ToggleBag_ORIG(bag)
 		ContainerFrame_Update = ContainerFrame_Update_ORIG
 	end
-end
-
-local function toggleKeyRing()
-	Combuctor:Toggle(KEYRING_CONTAINER)
 end
 
 local function openAllBags()
@@ -280,11 +280,11 @@ function Combuctor:Toggle(bag, auto)
 	-- print(bagID,bag)
 			if bagID == bag then
 				frame:ToggleFrame(auto)
-				if bag == KEYRING_CONTAINER then
-					frame:SetSubCategory(KEYRING)
-				else
+				-- if bag == KEYRING_CONTAINER then
+					-- frame:SetSubCategory(KEYRING)
+				-- else
 					frame:SetSubCategory(L.All)
-				end
+				-- end
 				if (_G["ContainerFrame"..bag]) then
 					_G["ContainerFrame"..bag].size = _G["ContainerFrame"..bag].size or (GetContainerNumSlots and GetContainerNumSlots(bag)) or 1
 				end

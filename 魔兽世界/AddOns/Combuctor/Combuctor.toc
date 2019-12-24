@@ -6,7 +6,7 @@
 ## Notes-zhCN: |cff00ff00Combuctor|r|n|cffbc8f8f背包整合与分类。|r
 ## Notes-zhTW: |cff00ff00Combuctor|r|n|cffbc8f8f背包整合與分類。|r
 ## Author: Tuller
-## Version: 604
+## Version: 605
 ## SavedVariables: CombuctorDB4,BF_VoidStorageDB
 ## Dependencies: BigFoot
 ## X-Revision: BigFoot

@@ -899,12 +899,12 @@ function InventoryFrame:SetItemFrameSize(width)
 end
 
 function InventoryFrame:OnFrameShow()
-	local getBackPackSize=function()
-		local count =0
-		for i=0,4,1 do
-			count=count+GetContainerNumSlots(i)
+	local getBackPackSize = function()
+		local count = 0
+		for i=0,4 do
+			count = count + GetContainerNumSlots(i)
 		end
-		count=count+GetContainerNumSlots(-2) --for KeyRing
+		-- count=count+GetContainerNumSlots(KEYRING_CONTAINER) --for KeyRing
 		return count
 	end
 

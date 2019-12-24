@@ -41,6 +41,8 @@
 	<Script file="HereBeDragons\HereBeDragons-Migrate.lua" /><!-- HandyNotes -->
 	<Include file="LibClassicDurations\LibClassicDurations.xml"/>
 	<Include file="ThreatClassic-1.0\lib.xml"/>
+	
+	<Script file="LibTotemInfo-1.0\GetTotemInfo.lua" />
 
 	<Script>
 		LoadAddOn("BigFoot")

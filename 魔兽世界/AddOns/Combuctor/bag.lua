@@ -103,6 +103,12 @@ function Bag:Set(parent, id)
 	self:SetID(id)
 	self:SetParent(parent)
 
+	-- if id == KEYRING_CONTAINER then
+		-- SetItemButtonTexture(self, 'Interface/Buttons/UI-Button-KeyRing')
+		-- SetItemButtonTextureVertexColor(self, 1, 1, 1)
+		-- local icon = self.Icon or self.icon or _G[self:GetName().."IconTexture"];
+		-- icon:SetTexCoord(0, 0.5625, 0, 0.609375)
+	-- else
 	if id == BACKPACK_CONTAINER or id == BANK_CONTAINER then
 		SetItemButtonTexture(self, 'Interface/Buttons/Button-Backpack-Up')
 		SetItemButtonTextureVertexColor(self, 1, 1, 1)
@@ -311,8 +317,8 @@ function Bag:OnClick(button)
 			if CursorHasItem() and not InvData:IsCachedBag(bagID, player) then
 				if bagID == BACKPACK_CONTAINER then
 					PutItemInBackpack()
-				elseif bagID == KEYRING_CONTAINER then
-					PutKeyInKeyRing()
+				-- elseif bagID == KEYRING_CONTAINER then
+					-- PutKeyInKeyRing()
 				elseif bagID == REAGENTBANK_CONTAINER then		--
 					PutItemInBackpack()
 				else
@@ -446,8 +452,8 @@ function Bag:OnEnter()
 	elseif bagID == BANK_CONTAINER then
 		GameTooltip:SetText(L.Bank, 1, 1, 1)
 	--keyring specific code...again
-	elseif bagID == KEYRING_CONTAINER then
-		GameTooltip:SetText(KEYRING, 1, 1, 1)
+	-- elseif bagID == KEYRING_CONTAINER then
+		-- GameTooltip:SetText(KEYRING, 1, 1, 1)
 	--cached bags
 	elseif InvData:IsCachedBag(bagID, player) then
 		if BagnonDB then

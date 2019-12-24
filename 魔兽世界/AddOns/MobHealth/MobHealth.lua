@@ -31,8 +31,15 @@ function MobHealth_Display()
 	__healthPercFrame = _G["MobHealthPercFrame"]
 	__healthPercBG = _G["MobHealthPercFrameBG"]
 
-	local __health = UnitHealth("target");
-	local __healthMax = UnitHealthMax("target");
+	local __health = 0
+	local __healthMax = 0
+
+	if RealMobHealth and RealMobHealth.GetUnitHealth then
+		__health, __healthMax = RealMobHealth.GetUnitHealth("target")
+	else
+		__health = UnitHealth("target")
+		__healthMax = UnitHealthMax("target")
+	end
 
 	local __mana = UnitPower("target");
 	local __manaMax = UnitPowerMax("target");
@@ -41,7 +48,7 @@ function MobHealth_Display()
 	local __manaText = "";
 	local __healthPercText = ""
 
-	--ÏÔÊ¾ÉúÃüÊıÖµ
+	--æ˜¾ç¤ºç”Ÿå‘½æ•°å€¼
 	if MobHealth_ShowHealth and __healthMax > 0 then
 		if __health >= 0 then
 			if MobHealth_UseFormatted then
@@ -56,7 +63,7 @@ function MobHealth_Display()
 		__healthOb:Hide()
 	end
 
-	--ÏÔÊ¾Ä§·¨ÊıÖµ
+	--æ˜¾ç¤ºé­”æ³•æ•°å€¼
 	if MobHealth_ShowMana and __manaMax > 0 then
 		if  __mana >= 0 then
 			if MobHealth_UseFormatted then
@@ -73,7 +80,7 @@ function MobHealth_Display()
 
 	local __percent = math.floor(__health*100/__healthMax);
 	__healthText = __percent .. "%";
-	--ÏÔÊ¾°Ù·Ö±ÈÊıÖµ
+	--æ˜¾ç¤ºç™¾åˆ†æ¯”æ•°å€¼
 	if MobHealth_ShowHealthPercent then
 		__healthPercOb:SetText(__healthText)
 		__healthPercFrame:Show()
@@ -82,6 +89,13 @@ function MobHealth_Display()
 	else
 		-- TargetFrameNumericalThreat:SetPoint("BOTTOM","TargetFrame","TOP",-50,-22)
 		__healthPercFrame:Hide()
+	end
+
+	-- éšè—æ¸¸æˆè‡ªå¸¦æ•°å€¼
+	TargetFrameHealthBar.TextString:SetAlpha(0);
+	TargetFrameManaBar.TextString:SetAlpha(0);
+	if TargetFrameTextureFrameDeadText then
+		TargetFrameTextureFrameDeadText:SetAlpha(0)
 	end
 end
 
