@@ -1,7 +1,7 @@
 ## Interface: 11303
 ## Title: ClassicThreatMeter
-## Title-zhCN: [大脚][集]仇恨统计
-## Title-zhTW: [大腳][集]仇恨統計
+## Title-zhCN: [大脚][集]仇恨统计(弃用)
+## Title-zhTW: [大腳][集]仇恨統計(弃用)
 ## Notes: |cff00ff00ClassicThreatMeter|r|n|cffbc8f8fSimple threat meter for WoW Classic.|r
 ## Author: Es (EsreverWoW)
 ## X-Curse-Project-ID: 336512
@@ -13,5 +13,3 @@
 ## X-Website: https://github.com/EsreverWoW/ClassicThreatMeter
 ## Dependencies: BigFoot
 ## X-Revision: BigFoot
-
-ClassicThreatMeter.xml
