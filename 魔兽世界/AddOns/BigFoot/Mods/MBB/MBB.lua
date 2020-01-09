@@ -52,6 +52,8 @@ local ignored = {
 	["QuestPointerPOI"] = true,
 	["LibDBIcon10_bfModelChange"] = true,
 	["LibDBIcon10_HandyNotes_NPCs"] = true,
+	["Questie"] = true,
+	["Atlas"] = true,
 }
 
 local options = {
