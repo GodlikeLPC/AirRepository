@@ -168,6 +168,23 @@ RegEvent("PLAYER_LOGIN", function()
     end
 
     do
+        local b = createCheckbox(L["Battle Mini Map unit color"], "map_unit_color", true)
+        b:SetPoint("TOPLEFT", f, 15, nextpos())
+    end    
+
+    do
+        local b = CreateFrame("Button", nil, f, "GameMenuButtonTemplate")
+        b:SetWidth(200)
+        b:SetHeight(25)
+        b:SetPoint("BOTTOMLEFT", 15, 40)
+        b:SetText(L["Reset win rate statistics data"])
+        b:SetScript("OnClick", function()
+            BatteInfoStat = nil
+            C_UI.Reload()
+        end)
+    end
+
+    do
         local b = CreateFrame("Button", nil, f, "GameMenuButtonTemplate")
         b:SetWidth(200)
         b:SetHeight(25)
