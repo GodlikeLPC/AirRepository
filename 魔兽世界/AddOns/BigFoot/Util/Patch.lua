@@ -85,6 +85,7 @@ do
 			SetCVar("chatClassColorOverride", "0")				--显示聊天职业颜色
 			SetCVar("ShowClassColorInNameplate", "1")			--显示姓名版职业颜色
 			SetCVar("ShowClassColorInFriendlyNameplate", "1")	--显示友方姓名版职业颜色
+			SetCVar("profanityFilter", "0")						--取消聊天文字和谐
 
 			BigFoot_SysTemSetTab['UtilsPatchVersion'] = patchVersion
 		end
