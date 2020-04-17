@@ -82,6 +82,11 @@ local QuestiePlayer = QuestieLoader:ImportModule("QuestiePlayer");
 local QuestieQuestTimers = QuestieLoader:ImportModule("QuestieQuestTimers")
 ---@type QuestieCombatQueue
 local QuestieCombatQueue = QuestieLoader:ImportModule("QuestieCombatQueue")
+---@type QuestieCorrections
+local QuestieCorrections = QuestieLoader:ImportModule("QuestieCorrections")
+---@type QuestieSlash
+local QuestieSlash = QuestieLoader:CreateModule("QuestieSlash")
+
 
 -- check if user has updated but not restarted the game (todo: add future new source files to this)
 if  (not LQuestie_EasyMenu) or
@@ -126,7 +131,7 @@ if  (not LQuestie_EasyMenu) or
     (not QuestieStreamLib) or
     (not QuestieTooltips) or
     (not QuestieSearchResults) or
-    (not QuestieCombatQueue) or 
+    (not QuestieCombatQueue) or
     (not QuestieTracker) then
     --Delay the warning.
     C_Timer.After(8, function()
@@ -200,8 +205,14 @@ function Questie:OnInitialize()
     Questie:RegisterEvent("QUEST_GREETING", QuestieAuto.QUEST_GREETING)
     --If an escort quest is taken by people close by
     Questie:RegisterEvent("QUEST_ACCEPT_CONFIRM", QuestieAuto.QUEST_ACCEPT_CONFIRM)
+    -- Called twice when the stopping to talk to an NPC
+    Questie:RegisterEvent("GOSSIP_CLOSED", QuestieAuto.GOSSIP_CLOSED)
     --When complete window shows
     Questie:RegisterEvent("QUEST_COMPLETE", QuestieAuto.QUEST_COMPLETE)
+    Questie:RegisterEvent("QUEST_FINISHED", QuestieEventHandler.QUEST_FINISHED)
+
+    Questie:RegisterEvent("PLAYER_REGEN_DISABLED", QuestieEventHandler.PLAYER_REGEN_DISABLED)
+    Questie:RegisterEvent("PLAYER_REGEN_ENABLED", QuestieEventHandler.PLAYER_REGEN_ENABLED)
 
     -- todo move this call into loader
     QuestieTooltips:Initialize()
@@ -221,13 +232,13 @@ function Questie:OnInitialize()
     QuestieJourney.Initialize();
 
     -- Register Slash Commands
-    Questie:RegisterChatCommand("questieclassic", "QuestieSlash")
-    Questie:RegisterChatCommand("questie", "QuestieSlash")
+    Questie:RegisterChatCommand("questieclassic", "HandleSlash")
+    Questie:RegisterChatCommand("questie", "HandleSlash")
 
     QuestieOptions:Initialize();
 
     --Initialize the DB settings.
-    Questie:debug(DEBUG_DEVELOP, QuestieLocale:GetUIString('DEBUG_CLUSTER', Questie.db.global.clusterLevelHotzone))
+    Questie:Debug(DEBUG_DEVELOP, QuestieLocale:GetUIString('DEBUG_CLUSTER', Questie.db.global.clusterLevelHotzone))
     QUESTIE_CLUSTER_DISTANCE = Questie.db.global.clusterLevelHotzone;
 
     -- Creating the minimap config icon
@@ -280,64 +291,8 @@ function Questie:OnDisable()
     -- Called when the addon is disabled
 end
 
-function Questie:QuestieSlash(input)
-
-    input = string.trim(input, " ");
-
-    -- /questie
-    if input == "" or not input then
-        QuestieOptions:OpenConfigWindow();
-
-        if QuestieJourney:IsShown() then
-            QuestieJourney.ToggleJourneyWindow();
-        end
-        return ;
-    end
-
-    -- /questie help || /questie ?
-    if input == "help" or input == "?" then
-        print(Questie:Colorize(QuestieLocale:GetUIString('SLASH_HEAD'), 'yellow'));
-        print(Questie:Colorize(QuestieLocale:GetUIString('SLASH_CONFIG'), 'yellow'));
-        print(Questie:Colorize(QuestieLocale:GetUIString('SLASH_TOGGLE_QUESTIE'), 'yellow'));
-        print(Questie:Colorize(QuestieLocale:GetUIString('SLASH_MINIMAP'), 'yellow'));
-        print(Questie:Colorize(QuestieLocale:GetUIString('SLASH_JOURNEY'), 'yellow'));
-        return;
-    end
-
-    -- /questie toggle
-    if input == "toggle" then
-        QuestieQuest:ToggleNotes();
-
-        -- CLose config window if it's open to avoid desyncing the Checkbox
-        QuestieOptions:HideFrame();
-        return;
-    end
-
-    if input == "reload" then
-        QuestieQuest:SmoothReset()
-        return
-    end
-
-    -- /questie minimap
-    if input == "minimap" then
-        Questie.db.profile.minimap.hide = not Questie.db.profile.minimap.hide;
-
-        if Questie.db.profile.minimap.hide then
-            Questie.minimapConfigIcon:Hide("Questie");
-        else
-            Questie.minimapConfigIcon:Show("Questie");
-        end
-        return;
-    end
-
-    -- /questie journey
-    if input == "journey" then
-        QuestieJourney.ToggleJourneyWindow();
-        QuestieOptions:HideFrame();
-        return;
-    end
-
-    print(Questie:Colorize("[Questie] :: ", 'yellow') .. QuestieLocale:GetUIString('SLASH_INVALID') .. Questie:Colorize('/questie help', 'yellow'));
+function Questie:HandleSlash(input)
+    QuestieSlash:HandleCommands(input)
 end
 
 function Questie:Colorize(str, color)
@@ -363,7 +318,6 @@ function Questie:Colorize(str, color)
 end
 
 function Questie:GetClassColor(class)
-
     class = string.lower(class);
 
     if class == 'druid' then
@@ -393,10 +347,6 @@ function Questie:Error(...)
     Questie:Print("|cffff0000[ERROR]|r", ...)
 end
 
-function Questie:error(...)
-    Questie:Error(...)
-end
-
 function Questie:Debug(...)
     if(Questie.db.global.debugEnabled) then
         -- Exponents are defined by `debugLevel.values` in QuestieOptionsAdvanced.lua
@@ -419,8 +369,4 @@ function Questie:Debug(...)
             Questie:Print(...)
         end
     end
-end
-
-function Questie:debug(...)
-    Questie:Debug(...)
 end

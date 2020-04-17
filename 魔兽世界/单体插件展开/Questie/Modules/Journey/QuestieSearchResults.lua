@@ -1,21 +1,25 @@
 ---@class QuestieSearchResults
-local QuestieSearchResults = QuestieLoader:CreateModule("QuestieSearchResults");
+local QuestieSearchResults = QuestieLoader:CreateModule("QuestieSearchResults")
 -------------------------
 --Import modules.
 -------------------------
 ---@type QuestieQuest
-local QuestieQuest = QuestieLoader:ImportModule("QuestieQuest");
+local QuestieQuest = QuestieLoader:ImportModule("QuestieQuest")
 ---@type QuestieJourney
-local QuestieJourney = QuestieLoader:ImportModule("QuestieJourney");
+local QuestieJourney = QuestieLoader:ImportModule("QuestieJourney")
 local _QuestieJourney = QuestieJourney.private
 ---@type QuestieJourneyUtils
-local QuestieJourneyUtils = QuestieLoader:ImportModule("QuestieJourneyUtils");
+local QuestieJourneyUtils = QuestieLoader:ImportModule("QuestieJourneyUtils")
 ---@type QuestieSearch
-local QuestieSearch = QuestieLoader:ImportModule("QuestieSearch");
+local QuestieSearch = QuestieLoader:ImportModule("QuestieSearch")
 ---@type QuestieMap
-local QuestieMap = QuestieLoader:ImportModule("QuestieMap");
+local QuestieMap = QuestieLoader:ImportModule("QuestieMap")
 ---@type QuestieDB
-local QuestieDB = QuestieLoader:ImportModule("QuestieDB");
+local QuestieDB = QuestieLoader:ImportModule("QuestieDB")
+---@type QuestieCorrections
+local QuestieCorrections = QuestieLoader:ImportModule("QuestieCorrections")
+---@type QuestieLib
+local QuestieLib = QuestieLoader:ImportModule("QuestieLib")
 
 local AceGUI = LibStub("AceGUI-3.0");
 
@@ -30,7 +34,11 @@ local function AddParagraph(frame, lookupObject, firstKey, secondKey, header, lo
     if lookupObject[firstKey][secondKey] then
         QuestieJourneyUtils:AddLine(frame,  yellow .. header .. "|r")
         for _,id in pairs(lookupObject[firstKey][secondKey]) do
-            QuestieJourneyUtils:AddLine(frame, lookupDB[id][lookupKey].." ("..id..")")
+            if lookupDB[id] then
+                QuestieJourneyUtils:AddLine(frame, lookupDB[id][lookupKey].." ("..id..")")
+            else
+                Questie:Error("[QuestieSearchResults:AddParagraph] lookupDB[id] is nil for quest ", lookupObject[1], "and itemId", id)
+            end
         end
     end
 end
@@ -89,7 +97,7 @@ local function GetRacesString(raceMask)
         return "Horde"
     else
         local raceString = ""
-        local raceTable = UnpackBinary(raceMask)
+        local raceTable = QuestieLib:UnpackBinary(raceMask)
         local stringTable = {
             'Human',
             'Orc',

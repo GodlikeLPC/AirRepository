@@ -1,9 +1,10 @@
-QuestieQuestFixes = {...}
+---@class QuestieQuestFixes
+local QuestieQuestFixes = QuestieLoader:CreateModule("QuestieQuestFixes")
 -------------------------
 --Import modules.
 -------------------------
 ---@type QuestieDB
-local QuestieDB = QuestieLoader:ImportModule("QuestieDB");
+local QuestieDB = QuestieLoader:ImportModule("QuestieDB")
 
 -- Further information on how to use this can be found at the wiki
 -- https://github.com/AeroScripts/QuestieDev/wiki/Corrections
@@ -26,6 +27,9 @@ function QuestieQuestFixes:Load()
         [24] = {
             [QuestieDB.questKeys.startedBy] = {{12677},nil,{16304}},
         },
+        [25] = {
+            [QuestieDB.questKeys.triggerEnd] = {"Scout the gazebo on Mystral Lake that overlooks the nearby Alliance outpost.",{[331]={{48.92,69.56},},},},
+        },
         [26] = { -- Switch Alliance and Horde Druid quest IDs #948
             [QuestieDB.questKeys.startedBy] = {{4217,},nil,nil,},
             [QuestieDB.questKeys.requiredRaces] = 8,
@@ -38,7 +42,6 @@ function QuestieQuestFixes:Load()
         },
         [33] = {
             [QuestieDB.questKeys.preQuestSingle] = {},
-            [QuestieDB.questKeys.exclusiveTo] = {5261},
         },
         [46] = {
             [QuestieDB.questKeys.preQuestSingle] = {39},
@@ -55,6 +58,9 @@ function QuestieQuestFixes:Load()
         --[104] = { -- bad race data (actually this is correct)
         --    [QuestieDB.questKeys.requiredRaces] = 77,
         --},
+        [123] = {
+            [QuestieDB.questKeys.startedBy] = {{100},nil,{1307}},
+        },
         [148] = {
             [QuestieDB.questKeys.preQuestSingle] = {}, -- #1173
         },
@@ -70,8 +76,14 @@ function QuestieQuestFixes:Load()
         [165] = {
             [QuestieDB.questKeys.exclusiveTo] = {148}, --#1173
         },
+        [235] = {
+            [QuestieDB.questKeys.exclusiveTo] = {742,6382,6383,},
+        },
         [254] = {
-            [QuestieDB.questKeys.parentQuest] = {253},
+            [QuestieDB.questKeys.parentQuest] = 253,
+        },
+        [273] = {
+            [QuestieDB.questKeys.triggerEnd] = {"Find Huldar, Miran, and Saean",{[38]={{51.16, 68.96},},},},
         },
         [308] = {
             [QuestieDB.questKeys.exclusiveTo] = {311}, -- distracting jarven can't be completed once you get the followup
@@ -91,6 +103,9 @@ function QuestieQuestFixes:Load()
         },
         [369] = {
             [QuestieDB.questKeys.requiredRaces] = 178, -- #888
+        },
+        [373] = {
+            [QuestieDB.questKeys.startedBy] = {{639},nil,{2874}},
         },
         [374] = {
             [QuestieDB.questKeys.preQuestSingle] = {427}, -- proof of demise requires at war with the scarlet crusade
@@ -113,8 +128,14 @@ function QuestieQuestFixes:Load()
             [QuestieDB.questKeys.preQuestSingle] = {366}, -- #638
             [QuestieDB.questKeys.exclusiveTo] = {411}, -- #752
         },
+        [437] = {
+            [QuestieDB.questKeys.triggerEnd] = {"Enter the Dead Fields",{[130]={{45.91, 21.27},},},},
+        },
         [463] = {
             [QuestieDB.questKeys.exclusiveTo] = {276}, --greenwarden cant be completed if you have trampling paws
+        },
+        [464] = {
+            [QuestieDB.questKeys.preQuestSingle] = {}, -- #809
         },
         [467] = {
             [QuestieDB.questKeys.startedBy] = {{1340,2092,},nil,nil,}, -- #1379
@@ -123,7 +144,7 @@ function QuestieQuestFixes:Load()
             [QuestieDB.questKeys.preQuestSingle] = {455}, -- #809
         },
         [484] = {
-            [QuestieDB.questKeys.requiredMinRep] = {}, -- #1501
+            [QuestieDB.questKeys.requiredMinRep] = nil, -- #1501
         },
         [510] = {
             [QuestieDB.questKeys.startedBy] = {nil,{1740},nil}, -- #1512
@@ -199,6 +220,18 @@ function QuestieQuestFixes:Load()
         },
         [738] = {
             [QuestieDB.questKeys.preQuestSingle] = {}, -- #1289
+        },
+        [742] = {
+            [QuestieDB.questKeys.exclusiveTo] = {235,6382,6383,},
+        },
+        [754] = {
+            [QuestieDB.questKeys.triggerEnd] = {"Cleanse the Winterhoof Water Well", {[215]={{53.61, 66.2},},},},
+        },
+        [758] = {
+            [QuestieDB.questKeys.triggerEnd] = {"Cleanse the Thunderhorn Water Well", {[215]={{44.52, 45.46},},},},
+        },
+        [760] = {
+            [QuestieDB.questKeys.triggerEnd] = {"Cleanse the Wildmane Well", {[215]={{42.75, 14.16,},},},},
         },
         [769] = {
             [QuestieDB.questKeys.requiredSkill] = {165,10},
@@ -276,8 +309,14 @@ function QuestieQuestFixes:Load()
         [1026] = {
             [QuestieDB.questKeys.requiredSourceItems] = {5475},
         },
+        [1061] = {
+            [QuestieDB.questKeys.exclusiveTo] = {1062}, -- #1803
+        },
         [1085] = {
             [QuestieDB.questKeys.preQuestSingle] = {1070},
+        },
+        [1090] = {
+            [QuestieDB.questKeys.triggerEnd] = {"Keep Piznik safe while he mines the mysterious ore", {[406]={{71.76, 60.22},},},},
         },
         [1100] = {
             [QuestieDB.questKeys.startedBy] = {nil,{19861},{5791},}, -- #1189
@@ -303,11 +342,20 @@ function QuestieQuestFixes:Load()
         [1131] = {
             [QuestieDB.questKeys.preQuestSingle] = {}, -- #1065
         },
+        [1132] = {
+            [QuestieDB.questKeys.exclusiveTo] = {1133}, -- #1738
+        },
+        [1133] = {
+            [QuestieDB.questKeys.preQuestSingle] = {}, -- #1738
+        },
         [1193] = {
             [QuestieDB.questKeys.specialFlags] = 1, -- #1348
         },
         [1204] = {
             [QuestieDB.questKeys.preQuestSingle] = {}, -- #938
+        },
+        [1260] = {
+            [QuestieDB.questKeys.exclusiveTo] = {1204},
         },
         [1265] = {
             [QuestieDB.questKeys.triggerEnd] = {"Sentry Point explored",{[15]={{59.92,40.9},}}},
@@ -342,6 +390,9 @@ function QuestieQuestFixes:Load()
         [1392] = {
             [QuestieDB.questKeys.startedBy] = {{5477},nil,{6196}},
         },
+        [1395] = {
+            [QuestieDB.questKeys.preQuestSingle] = {}, -- #1727
+        },
         [1418] = {
             [QuestieDB.questKeys.exclusiveTo] = {1419,1420}, -- #1594
         },
@@ -360,6 +411,10 @@ function QuestieQuestFixes:Load()
         [1434] = {
             [QuestieDB.questKeys.preQuestSingle] = {1432}, -- #1536
         },
+        [1436] = {
+            [QuestieDB.questKeys.preQuestSingle] = {},
+            [QuestieDB.questKeys.preQuestGroup] = {1434,1480},
+        },
         [1442] = {
             [QuestieDB.questKeys.parentQuest] = 1654,
         },
@@ -372,8 +427,14 @@ function QuestieQuestFixes:Load()
         [1473] = {
             [QuestieDB.questKeys.exclusiveTo] = {1501},
         },
+        [1477] = {
+            [QuestieDB.questKeys.exclusiveTo] = {1395}, -- #1727
+        },
         [1478] = {
             [QuestieDB.questKeys.exclusiveTo] = {1506}, -- #1427
+        },
+        [1483] = {
+            [QuestieDB.questKeys.exclusiveTo] = {1093},
         },
         [1485] = {
             [QuestieDB.questKeys.exclusiveTo] = {1470}, -- #999
@@ -386,6 +447,9 @@ function QuestieQuestFixes:Load()
         },
         [1506] = {
             [QuestieDB.questKeys.exclusiveTo] = {1478}, -- #1427
+        },
+        [1580] = {
+            [QuestieDB.questKeys.requiredSkill] = {356,30},
         },
         [1581] = { -- bad race data
             [QuestieDB.questKeys.requiredRaces] = 77,
@@ -422,16 +486,17 @@ function QuestieQuestFixes:Load()
             [QuestieDB.questKeys.exclusiveTo] = {4485,4486},
         },
         [1679] = {
-            [QuestieDB.questKeys.exclusiveTo] = {},
+            [QuestieDB.questKeys.exclusiveTo] = {1680}, -- #1724
+        },
+        [1680] = {
+            [QuestieDB.questKeys.preQuestSingle] = {}, -- #1724
+            [QuestieDB.questKeys.exclusiveTo] = {1681}, -- #1724
         },
         [1684] = {
             [QuestieDB.questKeys.exclusiveTo] = {},
         },
         [1708] = {
             [QuestieDB.questKeys.preQuestSingle] = {}, -- #1230
-        },
-        [1710] = {
-            [QuestieDB.questKeys.preQuestSingle] = {}, -- #1231
         },
         [1718] = {
             [QuestieDB.questKeys.startedBy] = {{3041,3354,4595,5113,5479,},nil,nil,}, -- #1034
@@ -480,8 +545,17 @@ function QuestieQuestFixes:Load()
         [2260] = {
             [QuestieDB.questKeys.preQuestSingle] = {},
         },
+        [2281] = {
+            [QuestieDB.questKeys.exclusiveTo] = {2299}, -- #1817
+        },
+        [2299] = {
+            [QuestieDB.questKeys.exclusiveTo] = {2281}, -- #1817
+        },
         [2358] = { -- bad race data
             [QuestieDB.questKeys.requiredRaces] = 77,
+        },
+        [2480] = {
+            [QuestieDB.questKeys.triggerEnd] = {"Cure Completed",{[267]={{61.57, 19.21}},},},
         },
         [2501] = {
             [QuestieDB.questKeys.preQuestSingle] = {}, -- #1541
@@ -500,8 +574,20 @@ function QuestieQuestFixes:Load()
         [2873] = {
             [QuestieDB.questKeys.preQuestSingle] = {}, -- #1566
         },
+        [2882] = {
+            [QuestieDB.questKeys.zoneOrSort] = 440, -- #1780
+        },
         [2922] = {
             [QuestieDB.questKeys.preQuestSingle] = {}, -- Save Techbot's Brain doesn't need the Tinkmaster Overspark breadcrumb #687
+        },
+        [2925] = {
+            [QuestieDB.questKeys.exclusiveTo] = {2924},
+        },
+        [2931] = {
+            [QuestieDB.questKeys.exclusiveTo] = {2930},
+        },
+        [2945] = {
+            [QuestieDB.questKeys.startedBy] = {{6212},nil,{9326}},
         },
         [2951] = {
             [QuestieDB.questKeys.preQuestSingle] = {4601,4602},
@@ -546,6 +632,9 @@ function QuestieQuestFixes:Load()
         [3375] = {
             [QuestieDB.questKeys.parentQuest] = 2201,
         },
+        [3377] = {
+            [QuestieDB.questKeys.triggerEnd] = {"Zamael Story",{[51]={{29.59, 26.38},},},},
+        },
         [3385] = {
             [QuestieDB.questKeys.requiredSkill] = {197,226}, -- You need to be an Artisan for this quest
         },
@@ -578,7 +667,7 @@ function QuestieQuestFixes:Load()
             [QuestieDB.questKeys.exclusiveTo] = {1275}, -- corruption abroad breadcrumb
         },
         [3791] = {
-            [QuestieDB.questKeys.preQuestSingle] = {3788}, -- #885
+            [QuestieDB.questKeys.preQuestSingle] = {3787,3788}, -- #885
         },
         [3903] = {
             [QuestieDB.questKeys.preQuestSingle] = {18},
@@ -652,6 +741,9 @@ function QuestieQuestFixes:Load()
         [4224] = {
             [QuestieDB.questKeys.triggerEnd] = {"Ragged John's Story",{[46]={{64,23},},},},
         },
+        [4245] = {
+            [QuestieDB.questKeys.triggerEnd] = {"Protect A-Me 01 until you reach Karna Remtravel",{[490]={{46.43, 13.78},},},},
+        },
         [4285] = {
             [QuestieDB.questKeys.triggerEnd] = {"Discover and examine the Northern Crystal Pylon",{[490]={{56,12},},},},
         },
@@ -710,6 +802,12 @@ function QuestieQuestFixes:Load()
         [4881] = {
             [QuestieDB.questKeys.startedBy] = {{10617},nil,{12564}},
         },
+        [4907] = {
+            [QuestieDB.questKeys.exclusiveTo] = {4734},
+        },
+        [5057] = {
+            [QuestieDB.questKeys.requiredRaces] = 178,
+        },
         [5059] = {
             [QuestieDB.questKeys.preQuestSingle] = {5058}, -- #922
         },
@@ -725,11 +823,20 @@ function QuestieQuestFixes:Load()
         [5068] = {
             [QuestieDB.questKeys.specialFlags] = 1, -- #1335
         },
+        [5082] = {
+            [QuestieDB.questKeys.preQuestSingle] = {}, -- #1824
+        },
+        [5089] = {
+            [QuestieDB.questKeys.startedBy] = {{9568},nil,{12780}},
+        },
         [5122] = {
             [QuestieDB.questKeys.specialFlags] = 1, -- #1140
         },
         [5123] = {
             [QuestieDB.questKeys.startedBy] = {{10738},nil,{12842}},
+        },
+        [5124] = {
+            [QuestieDB.questKeys.requiredSkill] = {164,275},
         },
         [5166] = {
             [QuestieDB.questKeys.specialFlags] = 1, -- #1335
@@ -743,8 +850,17 @@ function QuestieQuestFixes:Load()
         [5234] = { -- bad race data
             [QuestieDB.questKeys.requiredRaces] = 178,
         },
+        [5261] = {
+            [QuestieDB.questKeys.exclusiveTo] = {33}, -- #1726
+        },
+        [5262] = {
+            [QuestieDB.questKeys.startedBy] = {{10813},nil,{13250}},
+        },
         [5421] = {
             [QuestieDB.questKeys.questLevel] = 25,
+        },
+        [5582] = {
+            [QuestieDB.questKeys.startedBy] = {{10678},nil,{13920}},
         },
         [5634] = {
             [QuestieDB.questKeys.startedBy] = {{11401,},nil,nil,},
@@ -822,27 +938,66 @@ function QuestieQuestFixes:Load()
             [QuestieDB.questKeys.questLevel] = 55,
         },
         -----------------------
+        [6065] = {
+            [QuestieDB.questKeys.exclusiveTo] = {6066,6067,6061},
+        },
+        [6066] = {
+            [QuestieDB.questKeys.exclusiveTo] = {6065,6067,6061},
+        },
+        [6067] = {
+            [QuestieDB.questKeys.exclusiveTo] = {6065,6066,6061},
+        },
+        [6068] = {
+            [QuestieDB.questKeys.exclusiveTo] = {6069,6070,6062}, -- #1795
+        },
         [6069] = {
             [QuestieDB.questKeys.startedBy] = {{11814,},nil,nil,}, -- #1523
+            [QuestieDB.questKeys.exclusiveTo] = {6068,6070,6062}, -- #1795
         },
         -- "The Hunter's Path" now started by "Kary Thunderhorn" in Thunder Bluff
         [6070] = {
             [QuestieDB.questKeys.startedBy] = {{3038,},nil,nil,},
+            [QuestieDB.questKeys.exclusiveTo] = {6068,6069,6062}, -- #1795
+        },
+        [6071] = {
+            [QuestieDB.questKeys.exclusiveTo] = {6072,6073,6721,6722,6063},
+        },
+        [6072] = {
+            [QuestieDB.questKeys.exclusiveTo] = {6071,6073,6721,6722,6063},
         },
         [6073] = {
             [QuestieDB.questKeys.startedBy] = {{5515,},nil,nil,},
+            [QuestieDB.questKeys.exclusiveTo] = {6071,6072,6721,6722,6063},
         },
         [6074] = {
             [QuestieDB.questKeys.startedBy] = {{5516,},nil,nil,},
+            [QuestieDB.questKeys.exclusiveTo] = {6075,6076,6064},
         },
         [6075] = {
             [QuestieDB.questKeys.startedBy] = {{11807,},nil,nil,},
+            [QuestieDB.questKeys.exclusiveTo] = {6074,6076,6064},
+        },
+        [6076] = {
+            [QuestieDB.questKeys.exclusiveTo] = {6074,6075,6064},
         },
         [6136] = {
             [QuestieDB.questKeys.preQuestSingle] = {6133}, -- #1572
         },
+        [6141] = {
+            [QuestieDB.questKeys.exclusiveTo] = {261}, -- #1744
+        },
         [6144] = {
             [QuestieDB.questKeys.preQuestSingle] = {6135,6136}, -- #1572
+        },
+        [6382] = {
+            [QuestieDB.questKeys.preQuestSingle] = {882},
+            [QuestieDB.questKeys.exclusiveTo] = {235,742,},
+        },
+        [6383] = {
+            [QuestieDB.questKeys.preQuestSingle] = {},
+        },
+        [6522] = {
+            [QuestieDB.questKeys.startedBy] = {{4421},nil,{17008}},
         },
         [6564] = {
             [QuestieDB.questKeys.startedBy] = {{4802},nil,{16790}},
@@ -856,11 +1011,19 @@ function QuestieQuestFixes:Load()
         [6609] = {
             [QuestieDB.questKeys.exclusiveTo] = {6607}, -- #1154
         },
+        [6623] = {
+            [QuestieDB.questKeys.exclusiveTo] = {6622},
+        },
+        [6625] = {
+            [QuestieDB.questKeys.exclusiveTo] = {6624}, -- #1723
+        },
         [6721] = {
             [QuestieDB.questKeys.startedBy] = {{5116},nil,nil},
+            [QuestieDB.questKeys.exclusiveTo] = {6071,6072,6073,6722,6063},
         },
         [6722] = {
             [QuestieDB.questKeys.startedBy] = {{1231},nil,nil},
+            [QuestieDB.questKeys.exclusiveTo] = {6071,6072,6073,6721,6063},
         },
         [6861] = {
             [QuestieDB.questKeys.objectivesText] = {},
@@ -868,8 +1031,14 @@ function QuestieQuestFixes:Load()
         [6862] = {
             [QuestieDB.questKeys.objectivesText] = {},
         },
+        [6922] = {
+            [QuestieDB.questKeys.startedBy] = {{12876},nil,{16782}},
+        },
         [6961] = {
             [QuestieDB.questKeys.exclusiveTo] = {7021,7024},
+        },
+        [6981] = {
+            [QuestieDB.questKeys.startedBy] = {{3654},nil,{10441}},
         },
         [6982] = {
             [QuestieDB.questKeys.questLevel] = 55,
@@ -973,11 +1142,23 @@ function QuestieQuestFixes:Load()
         [7485] = {
             [QuestieDB.questKeys.preQuestSingle] = {7481},
         },
+        [7488] = {
+            [QuestieDB.questKeys.preQuestSingle] = {}, -- #1740
+        },
         [7489] = {
             [QuestieDB.questKeys.preQuestSingle] = {}, -- #1514
         },
         [7492] = {
             [QuestieDB.questKeys.startedBy] = {{10879,10880,10881,},nil,nil,}, -- #1350
+        },
+        [7507] = {
+            [QuestieDB.questKeys.requiredClasses] = 3,
+        },
+        [7508] = {
+            [QuestieDB.questKeys.requiredClasses] = 3,
+        },
+        [7509] = {
+            [QuestieDB.questKeys.requiredClasses] = 3,
         },
         [7541] = {
             [QuestieDB.questKeys.questLevel] = 40, -- #1320
@@ -1010,6 +1191,7 @@ function QuestieQuestFixes:Load()
             [QuestieDB.questKeys.requiredRaces] = 178,                      -- Any race can take on quest
             [QuestieDB.questKeys.requiredClasses] = 64,                     -- This quest is for the Shaman class
             [QuestieDB.questKeys.zoneOrSort] = -141,                        -- <0: QuestSort.dbc ID
+            [QuestieDB.questKeys.specialFlags] = 1,
         },
         [7670] = { -- #1432
             [QuestieDB.questKeys.name] = "Lord Grayson Shadowbreaker",
@@ -1026,6 +1208,15 @@ function QuestieQuestFixes:Load()
         },
         [7761] = {
             [QuestieDB.questKeys.startedBy] = {{9046},nil,{18987}},
+        },
+        [7785] = {
+            [QuestieDB.questKeys.requiredClasses] = 15,
+        },
+        [7786] = {
+            [QuestieDB.questKeys.requiredClasses] = 15,
+        },
+        [7787] = {
+            [QuestieDB.questKeys.requiredClasses] = 15,
         },
         [7838] = {
             [QuestieDB.questKeys.specialFlags] = 1, -- #1589
@@ -1046,17 +1237,60 @@ function QuestieQuestFixes:Load()
             [QuestieDB.questKeys.startedBy] = {{14733},nil,nil},
             [QuestieDB.questKeys.finishedBy] = {{14733},nil,},
         },
+        [7946] = {
+            [QuestieDB.questKeys.questLevel] = 60,
+            [QuestieDB.questKeys.specialFlags] = 1,
+        },
+        [8105] = {
+            [QuestieDB.questKeys.specialFlags] = 0,
+        },
+        [8114] = {
+            [QuestieDB.questKeys.requiredMinRep] = {509,3000},
+        },
+        [8115] = {
+            [QuestieDB.questKeys.requiredMinRep] = {509,42000},
+        },
+        [8120] = {
+            [QuestieDB.questKeys.specialFlags] = 0,
+        },
+        [8121] = {
+            [QuestieDB.questKeys.requiredMinRep] = {510,3000},
+        },
+        [8122] = {
+            [QuestieDB.questKeys.requiredMinRep] = {510,42000},
+        },
         [8149] = { -- bad race data
             [QuestieDB.questKeys.requiredRaces] = 77,
         },
         [8150] = { -- bad race data
             [QuestieDB.questKeys.requiredRaces] = 178,
         },
+        [8166] = {
+            [QuestieDB.questKeys.specialFlags] = 0,
+        },
+        [8167] = {
+            [QuestieDB.questKeys.specialFlags] = 0,
+        },
+        [8168] = {
+            [QuestieDB.questKeys.specialFlags] = 0,
+        },
+        [8169] = {
+            [QuestieDB.questKeys.specialFlags] = 0,
+        },
+        [8170] = {
+            [QuestieDB.questKeys.specialFlags] = 0,
+        },
+        [8171] = {
+            [QuestieDB.questKeys.specialFlags] = 0,
+        },
         [8271] = {
             [QuestieDB.questKeys.requiredRaces] = 77,
         },
         [8272] = { -- bad race data
             [QuestieDB.questKeys.requiredRaces] = 178,
+        },
+        [8286] = {
+            [QuestieDB.questKeys.triggerEnd] = {"Discover the Brood of Nozdormu.",{[440]={{63.43, 50.61},},},},
         },
         [8289] = { -- #1435
             [QuestieDB.questKeys.startedBy] = {{14733},nil,nil},
@@ -1070,8 +1304,14 @@ function QuestieQuestFixes:Load()
         [8368] = {
             [QuestieDB.questKeys.exclusiveTo] = {8426,8427,8428,8429,8430},
         },
+        [8371] = {
+            [QuestieDB.questKeys.zoneOrSort] = 3358,
+        },
         [8372] = {
             [QuestieDB.questKeys.exclusiveTo] = {8399,8400,8401,8402,8403},
+        },
+        [8385] = {
+            [QuestieDB.questKeys.zoneOrSort] = 3358,
         },
         [8399] = {
             [QuestieDB.questKeys.exclusiveTo] = {8372,8400,8401,8402,8403},
@@ -1087,6 +1327,9 @@ function QuestieQuestFixes:Load()
         },
         [8403] = {
             [QuestieDB.questKeys.exclusiveTo] = {8372,8399,8400,8401,8402},
+        },
+        [8423] = {
+            [QuestieDB.questKeys.preQuestSingle] = {8417},
         },
         [8426] = {
             [QuestieDB.questKeys.exclusiveTo] = {8368,8427,8428,8429,8430},
@@ -1206,6 +1449,81 @@ function QuestieQuestFixes:Load()
         [8798] = {
             [QuestieDB.questKeys.requiredSkill] = {202,250},
         },
+        [8863] = {
+            [QuestieDB.questKeys.specialFlags] = 1,
+        },
+        [8864] = {
+            [QuestieDB.questKeys.specialFlags] = 1,
+        },
+        [8865] = {
+            [QuestieDB.questKeys.specialFlags] = 1,
+        },
+        [8867] = {
+            [QuestieDB.questKeys.requiredSourceItems] = {21557,21558,21559,21571,21574,21576,},
+        },
+        [8870] = {
+            [QuestieDB.questKeys.exclusiveTo] = {8867,8871,8872},
+        },
+        [8871] = {
+            [QuestieDB.questKeys.exclusiveTo] = {8867,8870,8872},
+        },
+        [8872] = {
+            [QuestieDB.questKeys.exclusiveTo] = {8867,8870,8871},
+        },
+        [8873] = {
+            [QuestieDB.questKeys.exclusiveTo] = {8867,8874,8875},
+        },
+        [8874] = {
+            [QuestieDB.questKeys.exclusiveTo] = {8867,8873,8875},
+        },
+        [8875] = {
+            [QuestieDB.questKeys.exclusiveTo] = {8867,8873,8874},
+        },
+        [8876] = {
+            [QuestieDB.questKeys.specialFlags] = 1,
+        },
+        [8877] = {
+            [QuestieDB.questKeys.specialFlags] = 1,
+        },
+        [8878] = {
+            [QuestieDB.questKeys.specialFlags] = 1,
+        },
+        [8879] = {
+            [QuestieDB.questKeys.specialFlags] = 1,
+        },
+        [8880] = {
+            [QuestieDB.questKeys.specialFlags] = 1,
+        },
+        [8881] = {
+            [QuestieDB.questKeys.specialFlags] = 1,
+        },
+        [8882] = {
+            [QuestieDB.questKeys.specialFlags] = 1,
+        },
+        [8897] = {
+            [QuestieDB.questKeys.exclusiveTo] = {8898,8899,8903},
+        },
+        [8898] = {
+            [QuestieDB.questKeys.exclusiveTo] = {8897,8899,8903},
+        },
+        [8899] = {
+            [QuestieDB.questKeys.exclusiveTo] = {8897,8898,8903},
+        },
+        [8900] = {
+            [QuestieDB.questKeys.exclusiveTo] = {8901,8902,8904},
+        },
+        [8901] = {
+            [QuestieDB.questKeys.exclusiveTo] = {8900,8902,8904},
+        },
+        [8902] = {
+            [QuestieDB.questKeys.exclusiveTo] = {8900,8901,8904},
+        },
+        [8903] = {
+            [QuestieDB.questKeys.preQuestSingle] = {},
+        },
+        [8904] = {
+            [QuestieDB.questKeys.preQuestSingle] = {},
+        },
         [8980] = { -- bad race data
             [QuestieDB.questKeys.requiredRaces] = 178,
         },
@@ -1214,6 +1532,9 @@ function QuestieQuestFixes:Load()
         },
         [9033] = { -- bad race data
             [QuestieDB.questKeys.requiredRaces] = 178,
+        },
+        [9063] = {
+            [QuestieDB.questKeys.zoneOrSort] = 493,
         },
         [9261] = { -- bad race data
             [QuestieDB.questKeys.requiredRaces] = 77,

@@ -1,4 +1,5 @@
-QuestieItemFixes = {...}
+---@class QuestieItemFixes
+local QuestieItemFixes = QuestieLoader:CreateModule("QuestieItemFixes")
 -------------------------
 --Import modules.
 -------------------------
@@ -24,8 +25,32 @@ function QuestieItemFixes:Load()
         [1206] = {
             [QuestieDB.itemKeys.npcDrops] = {},
         },
+        [1262] = {
+            [QuestieDB.itemKeys.name] = "Keg of Thunderbrew",
+            [QuestieDB.itemKeys.relatedQuests] = {116,117},
+            [QuestieDB.itemKeys.npcDrops] = {239},
+            [QuestieDB.itemKeys.objectDrops] = {},
+        },
         [1529] = {
             [QuestieDB.itemKeys.npcDrops] = {},
+        },
+        [1939] = {
+            [QuestieDB.itemKeys.name] = "Skin of Sweet Rum",
+            [QuestieDB.itemKeys.relatedQuests] = {116},
+            [QuestieDB.itemKeys.npcDrops] = {465},
+            [QuestieDB.itemKeys.objectDrops] = {},
+        },
+        [1941] = {
+            [QuestieDB.itemKeys.name] = "Cask of Merlot",
+            [QuestieDB.itemKeys.relatedQuests] = {116},
+            [QuestieDB.itemKeys.npcDrops] = {277},
+            [QuestieDB.itemKeys.objectDrops] = {},
+        },
+        [1942] = {
+            [QuestieDB.itemKeys.name] = "Bottle of Moonshine",
+            [QuestieDB.itemKeys.relatedQuests] = {116},
+            [QuestieDB.itemKeys.npcDrops] = {274},
+            [QuestieDB.itemKeys.objectDrops] = {},
         },
         [2318] = {
             [QuestieDB.itemKeys.npcDrops] = {},
@@ -159,7 +184,7 @@ function QuestieItemFixes:Load()
         [4904] = {
             [QuestieDB.itemKeys.name] = "Venomtail Antidote",
             [QuestieDB.itemKeys.relatedQuests] = {812},
-            [QuestieDB.itemKeys.npcDrops] = {},
+            [QuestieDB.itemKeys.npcDrops] = {3189},
             [QuestieDB.itemKeys.objectDrops] = {},
         },
         [5051] = {
@@ -306,6 +331,24 @@ function QuestieItemFixes:Load()
             [QuestieDB.itemKeys.relatedQuests] = {},
             [QuestieDB.itemKeys.npcDrops] = {6909},
             [QuestieDB.itemKeys.objectDrops] = {},
+        },
+        [7769] = {
+            [QuestieDB.itemKeys.name] = "Filled Brown Waterskin",
+            [QuestieDB.itemKeys.relatedQuests] = {1535},
+            [QuestieDB.itemKeys.npcDrops] = {},
+            [QuestieDB.itemKeys.objectDrops] = {107046},
+        },
+        [7770] = {
+            [QuestieDB.itemKeys.name] = "Filled Blue Waterskin",
+            [QuestieDB.itemKeys.relatedQuests] = {1534},
+            [QuestieDB.itemKeys.npcDrops] = {},
+            [QuestieDB.itemKeys.objectDrops] = {107047},
+        },
+        [7771] = {
+            [QuestieDB.itemKeys.name] = "Filled Red Waterskin",
+            [QuestieDB.itemKeys.relatedQuests] = {1536},
+            [QuestieDB.itemKeys.npcDrops] = {},
+            [QuestieDB.itemKeys.objectDrops] = {107045},
         },
         [7867] = { -- #1469
             [QuestieDB.itemKeys.name] = "Vessel of Dragon's Blood",
@@ -562,6 +605,9 @@ function QuestieItemFixes:Load()
             [QuestieDB.itemKeys.npcDrops] = {10321}, -- #1175
             [QuestieDB.itemKeys.objectDrops] = {},
         },
+        [12334] = {
+            [QuestieDB.itemKeys.objectDrops] = {175324},
+        },
         [12347] = {
             [QuestieDB.itemKeys.name] = "Filled Cleansing Bowl",
             [QuestieDB.itemKeys.relatedQuests] = {},
@@ -766,6 +812,54 @@ function QuestieItemFixes:Load()
         [18956] = {
             [QuestieDB.itemKeys.npcDrops] = {5357,5358,5359,5360,5361,14603,14604,14638,14639,14640}, -- #1470
         },
+        [19061]= {
+            [QuestieDB.itemKeys.name] = "Vessel of Rebirth",
+            [QuestieDB.itemKeys.relatedQuests] = {7785,},
+            [QuestieDB.itemKeys.npcDrops] = {14347},
+            [QuestieDB.itemKeys.objectDrops] = {},
+        },
+        [20023] = {
+            [QuestieDB.itemKeys.npcDrops] = {8766},
+        },
+        [21557] = {
+            [QuestieDB.itemKeys.name] = "Small Red Rocket",
+            [QuestieDB.itemKeys.relatedQuests] = {8867,},
+            [QuestieDB.itemKeys.npcDrops] = {15898},
+            [QuestieDB.itemKeys.objectDrops] = {},
+        },
+        [21558] = {
+            [QuestieDB.itemKeys.name] = "Small Blue Rocket",
+            [QuestieDB.itemKeys.relatedQuests] = {8867,},
+            [QuestieDB.itemKeys.npcDrops] = {15898},
+            [QuestieDB.itemKeys.objectDrops] = {},
+        },
+        [21559] = {
+            [QuestieDB.itemKeys.name] = "Small Green Rocket",
+            [QuestieDB.itemKeys.relatedQuests] = {8867,},
+            [QuestieDB.itemKeys.npcDrops] = {15898},
+            [QuestieDB.itemKeys.objectDrops] = {},
+        },
+        [21571] = {
+            [QuestieDB.itemKeys.name] = "Blue Rocket Cluster",
+            [QuestieDB.itemKeys.relatedQuests] = {8867,},
+            [QuestieDB.itemKeys.npcDrops] = {15898},
+            [QuestieDB.itemKeys.objectDrops] = {},
+        },
+        [21574] = {
+            [QuestieDB.itemKeys.name] = "Green Rocket Cluster",
+            [QuestieDB.itemKeys.relatedQuests] = {8867,},
+            [QuestieDB.itemKeys.npcDrops] = {15898},
+            [QuestieDB.itemKeys.objectDrops] = {},
+        },
+        [21576] = {
+            [QuestieDB.itemKeys.name] = "Red Rocket Cluster",
+            [QuestieDB.itemKeys.relatedQuests] = {8867,},
+            [QuestieDB.itemKeys.npcDrops] = {15898},
+            [QuestieDB.itemKeys.objectDrops] = {},
+        },
+        [22435] = {
+            [QuestieDB.itemKeys.npcDrops] = {6551,6554}, -- #1771
+        },
     }
 end
 
@@ -810,6 +904,20 @@ end
 
 _AddMissingItemIDs = function()
     local missingItemIDs = {
+        1262,
+        1939,
+        1941,
+        1942,
+        -- Small Rockets
+        21557,
+        21558,
+        21559,
+        -- Rocket Cluster
+        21571,
+        21574,
+        21576,
+        --
+        19061,
         9254,
         5475,
         11040,
@@ -901,6 +1009,9 @@ _AddMissingItemIDs = function()
         16969,
         3713,
         14645,
+        7769,
+        7770,
+        7771,
     }
 
     for _, id in pairs(missingItemIDs) do

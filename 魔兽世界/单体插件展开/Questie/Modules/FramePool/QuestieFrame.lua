@@ -4,6 +4,8 @@ local QuestieFramePool = QuestieLoader:ImportModule("QuestieFramePool");
 local QuestieMap = QuestieLoader:ImportModule("QuestieMap");
 ---@type QuestieDBMIntegration
 local QuestieDBMIntegration = QuestieLoader:ImportModule("QuestieDBMIntegration");
+---@type QuestieQuest
+local QuestieQuest = QuestieLoader:ImportModule("QuestieQuest");
 
 local HBDPins = LibStub("HereBeDragonsQuestie-Pins-2.0")
 
@@ -106,8 +108,9 @@ function QuestieFramePool.Qframe:New(frameId, OnEnter)
     newFrame.FakeUnhide = _Qframe.FakeUnhide
     newFrame.OnShow = _Qframe.OnShow
     newFrame.OnHide = _Qframe.OnHide
+    newFrame.ShouldBeHidden = _Qframe.ShouldBeHidden
 
-    newFrame.data = {}
+    newFrame.data = nil
     newFrame:Hide()
 
     return newFrame
@@ -142,7 +145,7 @@ end
 
 function _Qframe:OnClick(button)
     --_QuestieFramePool:Questie_Click(self)
-    if self and self.data and self.data.UiMapID and WorldMapFrame and WorldMapFrame:IsShown() then
+    if self and self.UiMapID and WorldMapFrame and WorldMapFrame:IsShown() then
         if button == "RightButton" then
             local currentMapParent = WorldMapFrame:GetMapID()
             if currentMapParent then
@@ -152,8 +155,8 @@ function _Qframe:OnClick(button)
                 end
             end
         else
-            if self.data.UiMapID ~= WorldMapFrame:GetMapID() then
-                WorldMapFrame:SetMapID(self.data.UiMapID);
+            if self.UiMapID ~= WorldMapFrame:GetMapID() then
+                WorldMapFrame:SetMapID(self.UiMapID);
             end
         end
         if self.data.Type == "available" and IsShiftKeyDown() then
@@ -163,12 +166,12 @@ function _Qframe:OnClick(button)
             QuestieMap:UnloadManualFrames(self.data.id)
         end
     end
-    if self and self.data and self.data.UiMapID and IsControlKeyDown() and TomTom and TomTom.AddWaypoint then
+    if self and self.UiMapID and IsControlKeyDown() and TomTom and TomTom.AddWaypoint then
         -- tomtom integration (needs more work, will come with tracker
         if Questie.db.char._tom_waypoint and TomTom.RemoveWaypoint then -- remove old waypoint
             TomTom:RemoveWaypoint(Questie.db.char._tom_waypoint)
         end
-        Questie.db.char._tom_waypoint = TomTom:AddWaypoint(self.data.UiMapID, self.x/100, self.y/100, {title = self.data.Name, crazy = true})
+        Questie.db.char._tom_waypoint = TomTom:AddWaypoint(self.UiMapID, self.x/100, self.y/100, {title = self.data.Name, crazy = true})
     elseif self.miniMapIcon then
         local _, _, _, x, y = self:GetPoint()
         Minimap:PingLocation(x, y)
@@ -270,6 +273,12 @@ function _Qframe:Unload()
     self:SetFrameStrata("FULLSCREEN");
     self:SetFrameLevel(0);
 
+    -- Reset questIdFrames so they won't be toggled again
+    local frameName = self:GetName()
+    if frameName and self.data.Id and QuestieMap.questIdFrames[self.data.Id] and QuestieMap.questIdFrames[self.data.Id][frameName] then
+        QuestieMap.questIdFrames[self.data.Id][frameName] = nil
+    end
+
     --We are reseting the frames, making sure that no data is wrong.
     if self ~= nil and self.hidden and self._show ~= nil and self._hide ~= nil then -- restore state to normal (toggle questie)
         self.hidden = false
@@ -311,6 +320,7 @@ function _Qframe:Unload()
     self.x = nil
     self.y = nil
     self.AreaID = nil
+    self.UiMapID = nil
     QuestieFramePool:RecycleFrame(self)
 end
 
@@ -369,4 +379,22 @@ function _Qframe:FakeUnhide()
             self:Show();
         end
     end
+end
+
+---Checks wheather the frame/icon should be hidden or not
+---@return boolean @True if the frame/icon should be hidden and :FakeHide should be called, false otherwise
+function _Qframe:ShouldBeHidden()
+    local questieGlobalDB = Questie.db.global
+    if ((not questieGlobalDB.enableObjectives) and (self.data.Type == "monster" or self.data.Type == "object" or self.data.Type == "event" or self.data.Type == "item"))
+        or ((not questieGlobalDB.enableTurnins) and self.data.Type == "complete")
+        or ((not questieGlobalDB.enableAvailable) and self.data.Type == "available")
+        or ((not questieGlobalDB.enableMapIcons) and (not self.miniMapIcon))
+        or ((not questieGlobalDB.enableMiniMapIcons) and (self.miniMapIcon))
+        or (self.data.ObjectiveData and self.data.ObjectiveData.HideIcons)
+        or (self.data.QuestData and self.data.QuestData.HideIcons and self.data.Type ~= "complete") then
+
+        return true
+    end
+
+    return false
 end

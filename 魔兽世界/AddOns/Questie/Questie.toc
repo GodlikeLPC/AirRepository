@@ -1,8 +1,8 @@
-## Interface: 11303
-## Title: |cFFFFFFFFQuestie|r|cFF00FF00 v5.5.1|r
+## Interface: 11304
+## Title: |cFFFFFFFFQuestie|r|cFF00FF00 v5.9.0_2c5620fe|r
 ## Author: Aero/Logon/Muehe/TheCrux(BreakBB)/Dyaxler/Schaka/Zoey/Everyone else
 ## Notes: A standalone Classic QuestHelper
-## Version: 5.5.1
+## Version: 5.9.0 0 2c5620fe
 ## RequiredDeps:
 ## OptionalDeps: Ace3, LibDataBroker-1.1, LibCompress
 ## SavedVariables: QuestieConfig
@@ -42,15 +42,7 @@ Database\Corrections\QuestieEvent.lua
 #Localization
 Locale\QuestieLocale.lua
 Locale\enUS\locale.xml
-Locale\esES\locale.xml
-Locale\esMX\locale.xml
-Locale\deDE\locale.xml
 Locale\zhCN\locale.xml
-Locale\zhTW\locale.xml
-Locale\frFR\locale.xml
-Locale\koKR\locale.xml
-Locale\ptBR\locale.xml
-Locale\ruRU\locale.xml
 
 ##Libs
 Modules\Libs\QuestieLib.lua
@@ -61,9 +53,13 @@ Modules\Libs\QuestieCombatQueue.lua
 Modules\Libs\QuestieHash.lua
 
 ##Modules
-Modules\QuestieAuto.lua
 Modules\QuestieTooltips.lua
 Modules\QuestieEventHandler.lua
+
+#Auto
+Modules\Auto\QuestieAuto.lua
+Modules\Auto\Privates.lua
+Modules\Auto\DisallowedIDs.lua
 
 #FramePool
 Modules\FramePool\QuestieFramePool.lua
@@ -109,6 +105,7 @@ Modules\Tracker\QuestieQuestTimers.lua
 Modules\QuestieProfessions.lua
 Modules\QuestieReputation.lua
 Modules\QuestieDBMIntegration.lua
+Modules\QuestieSlash.lua
 
 #Options
 Modules\Options\QuestieOptions.lua
