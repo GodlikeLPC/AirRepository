@@ -22,6 +22,7 @@ local tremove	= _G.table.remove
 local sort		= _G.table.sort
 local wipe		= _G.table.wipe
 
+local GetTime			= _G.GetTime
 local GetNumGroupMembers	= _G.GetNumGroupMembers
 local GetNumSubgroupMembers	= _G.GetNumSubgroupMembers
 local GetInstanceInfo		= _G.GetInstanceInfo
@@ -34,15 +35,18 @@ local UnitIsFriend			= _G.UnitIsFriend
 local UnitIsPlayer			= _G.UnitIsPlayer
 local UnitName				= _G.UnitName
 local UnitReaction			= _G.UnitReaction
+local UnitIsUnit 			= _G.UnitIsUnit
+
+local lastCheckStatusTime 	= 0
+local callCheckStatus		= false
 
 local FACTION_BAR_COLORS	= _G.FACTION_BAR_COLORS
-local RAID_CLASS_COLORS		= _G.RAID_CLASS_COLORS
+local RAID_CLASS_COLORS		= (_G.CUSTOM_CLASS_COLORS or _G.RAID_CLASS_COLORS)
 
 -- other
 TC2.bars = {}
 TC2.threatData = {}
 TC2.colorFallback = {}
-TC2.colorMarker = {}
 TC2.threatColors = {}
 TC2.numGroupMembers = 0
 TC2.playerName = ""
@@ -57,8 +61,8 @@ TC2.classic = _G.WOW_PROJECT_ID == _G.WOW_PROJECT_CLASSIC
 -- depreciation warning for ClassicThreatMeter
 C_Timer.After(3, 
   function() 
-    if IsAddOnLoaded("ClassicThreatMeter2") then
-      print("|cFFFBB709ClassicThreatMeter2|cFFFF6060 was renamed to |cFFFBB709ThreatClassic2|cFFFF6060. Please remove ClassicThreatMeter2 from your Interface\\AddOns folder.")
+    if IsAddOnLoaded("ClassicThreatMeter") then
+      print("Please disable |cFFFBB709ClassicThreatMeter|cFFFF6060 to avoid unnecessary syncing that can negatively impact |cFFFBB709ThreatClassic2|cFFFF6060 and other addons.")
     end
   end
 )
@@ -203,8 +207,9 @@ end
 local function GetColor(unit)
 	if unit then
 		local colorUnit = {}
-		if C.bar.marker and unit == "player" then
-			return TC2.colorMarker
+		
+		if C.playerBarCustomColor.enabled and UnitIsUnit(unit, "player") then
+			return C.playerBarCustomColor.color
 		elseif UnitIsPlayer(unit) then
 			colorUnit = RAID_CLASS_COLORS[select(2, UnitClass(unit))]
 		else
@@ -247,7 +252,11 @@ end
 
 local function CheckVisibility()
 	local instanceType = select(2, GetInstanceInfo())
-	local hide = C.general.hideAlways or (C.general.hideOOC and not InCombatLockdown()) or (C.general.hideSolo and TC2.numGroupMembers == 0) or (C.general.hideInPVP and (instanceType == "arena" or instanceType == "pvp"))
+	local hide = C.general.hideAlways or
+		(C.general.hideOOC and not InCombatLockdown()) or 
+		(C.general.hideSolo and TC2.numGroupMembers == 0) or 
+		(C.general.hideInPVP and (instanceType == "arena" or instanceType == "pvp")) or
+		(C.general.hideOpenWorld and instanceType == "none")
 
 	if hide then
 		return TC2.frame:Hide()
@@ -269,7 +278,19 @@ local function UpdateThreatData(unit)
 	})
 end
 
+local function UpdatePlayerTarget()
+	if UnitExists("target") and not UnitIsFriend("player", "target") then
+		TC2.playerTarget = "target"
+	elseif UnitExists("targettarget") and not UnitIsFriend("player", "targettarget") then
+		TC2.playerTarget = "targettarget"
+	else
+		TC2.playerTarget = "target"
+	end
+end
+
 local function CheckStatus()
+	lastCheckStatusTime = GetTime()
+	callCheckStatus = false
 	if C.frame.test then return end
 
 	CheckVisibility()
@@ -308,6 +329,16 @@ local function CheckStatus()
 		for i = 1, 40 do
 			TC2.bars[i]:Hide()
 		end
+	end
+end
+
+local function CheckStatusDeferred()
+	callCheckStatus = true
+end
+
+local function ThreatUpdated(event, unitGUID, targetGUID, threat)
+	if UnitGUID(TC2.playerTarget) == targetGUID then
+		CheckStatusDeferred()
 	end
 end
 
@@ -554,10 +585,49 @@ local function CheckVersion(onlyOutdated)
 		end
 		table.sort(groupSort)
 		print(L.version_divider)
+		local incompatibleClients = {}
+		local missingClients = {}
+		local outdatedClients = {}
 		for _, v in ipairs(groupSort) do
-			if not onlyOutdated or (not revisions[v] or revisions[v] < (latestRevision or 0)) then
-				print(("%s: %s / %s %s"):format(v, agents[v] or ("|cff666666" .. UNKNOWN .. "|r"), revisions[v] or ("|cff666666" .. UNKNOWN .. "|r"), ThreatLib:IsCompatible(v) and "" or " - |cffff0000" .. L.version_incompatible))
+			local compatible = ThreatLib:IsCompatible(v)
+			local missing = not revisions[v]
+			local outdated = not missing and revisions[v] < (latestRevision or 0)
+			if not onlyOutdated or missing or outdated then
+				print(("%s: %s / %s %s"):format(v, agents[v] or ("|cff666666" .. UNKNOWN .. "|r"), revisions[v] or ("|cff666666" .. UNKNOWN .. "|r"), compatible and "" or " - |cffff0000" .. L.version_incompatible))
 			end
+			if missing then
+				tinsert(missingClients, v)
+			elseif outdated then
+				tinsert(outdatedClients, v)
+			elseif not compatible then
+				tinsert(incompatibleClients, v)
+			end
+		end
+		print("---")
+		if #missingClients > 0 or #outdatedClients > 0 or #incompatibleClients > 0 then
+			if #missingClients > 0 then
+				local s = format("Found %d player(s) without any version: ", #missingClients)
+				for i, v in ipairs(missingClients) do
+					s = s .. (i == 1 and v or format(", %s", v))
+				end
+				print(s)
+			end
+			if #outdatedClients > 0 then
+				local s = format("Found %d player(s) with outdated version: ", #outdatedClients)
+				for i, v in ipairs(outdatedClients) do
+					s = s .. (i == 1 and v or format(", %s", v))
+				end
+				print(s)
+			end
+			if #incompatibleClients > 0 then
+				local s = format("Found %d player(s) with incompatible version: ", #incompatibleClients)
+				for i, v in ipairs(incompatibleClients) do
+					s = s .. (i == 1 and v or format(", %s", v))
+				end
+				print(s)
+			end
+		else
+			print("Every player in your group has the lastest version installed!")
 		end
 	end
 end
@@ -618,6 +688,11 @@ TC2.frame:RegisterEvent("PLAYER_LOGIN")
 TC2.frame:SetScript("OnEvent", function(self, event, ...)
 	return TC2[event] and TC2[event](TC2, event, ...)
 end)
+TC2.frame:SetScript("OnUpdate", function(self, elapsed)
+	if callCheckStatus and GetTime() > lastCheckStatusTime + 0.2 then
+		CheckStatus()
+	end
+end)
 
 function TC2:PLAYER_ENTERING_WORLD(...)
 	self.playerName = UnitName("player")
@@ -629,35 +704,42 @@ function TC2:PLAYER_ENTERING_WORLD(...)
 end
 
 function TC2:PLAYER_TARGET_CHANGED(...)
-	self.playerTarget = UnitExists("target") and (UnitIsFriend("player", "target") and "targettarget" or "target")
+	UpdatePlayerTarget()
 
 	C.frame.test = false
 	CheckStatus()
 end
+
+TC2.UNIT_TARGET = TC2.PLAYER_TARGET_CHANGED
 
 function TC2:GROUP_ROSTER_UPDATE(...)
 	self.numGroupMembers = IsInRaid() and GetNumGroupMembers() or GetNumSubgroupMembers()
 
 	-- CheckVersionOLD(self, ...)
+	CheckStatusDeferred()
+end
+
+function TC2:ZONE_CHANGED_NEW_AREA(...)
 	CheckStatus()
 end
 
 function TC2:PLAYER_REGEN_DISABLED(...)
+	UpdatePlayerTarget() -- for friendly mobs that turn hostile like vaelastrasz
 	C.frame.test = false
-	ThreatLib.RegisterCallback(self, "ThreatUpdated", CheckStatus)
+	ThreatLib.RegisterCallback(self, "ThreatUpdated", ThreatUpdated)
 	CheckStatus()
 end
 
 function TC2:PLAYER_REGEN_ENABLED(...)
 	-- collectgarbage()
 	C.frame.test = false
-	ThreatLib.UnregisterCallback(self, "ThreatUpdated", CheckStatus)
+	ThreatLib.UnregisterCallback(self, "ThreatUpdated", ThreatUpdated)
 	CheckStatus()
 end
 
 function TC2:UNIT_THREAT_LIST_UPDATE(...)
 	C.frame.test = false
-	CheckStatus()
+	CheckStatusDeferred()
 end
 
 function TC2:PLAYER_LOGIN()
@@ -686,7 +768,6 @@ function TC2:PLAYER_LOGIN()
 
 	-- Get Colors
 	TC2.colorFallback = {0.8, 0, 0.8, C.bar.alpha}
-	TC2.colorMarker = {0.8, 0, 0, C.bar.alpha}
 
 	TC2.threatColors = {
 		[0] = C.general.threatColors.good,
@@ -704,15 +785,17 @@ function TC2:PLAYER_LOGIN()
 
 	self.frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	self.frame:RegisterEvent("GROUP_ROSTER_UPDATE")
+	self.frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 	-- self.frame:RegisterEvent("CHAT_MSG_ADDON")
 	self.frame:RegisterEvent("PLAYER_TARGET_CHANGED")
+	self.frame:RegisterUnitEvent("UNIT_TARGET", "target")
 	self.frame:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self.frame:RegisterEvent("PLAYER_REGEN_ENABLED")
 
 	if self.classic then
-		ThreatLib.RegisterCallback(self, "Activate", CheckStatus)
-		ThreatLib.RegisterCallback(self, "Deactivate", CheckStatus)
-		ThreatLib.RegisterCallback(self, "ThreatUpdated", CheckStatus)
+		ThreatLib.RegisterCallback(self, "Activate", CheckStatusDeferred)
+		ThreatLib.RegisterCallback(self, "Deactivate", CheckStatusDeferred)
+		ThreatLib.RegisterCallback(self, "ThreatUpdated", ThreatUpdated)
 		ThreatLib:RequestActiveOnSolo(true)
 	else
 		self.frame:RegisterEvent("UNIT_THREAT_LIST_UPDATE")
@@ -797,6 +880,9 @@ function TC2:SetupMenu()
 		end},
 		{text = L.version_check, notCheckable = true, func = function()
 			CheckVersion(true)
+		end},
+		{text = L.version_notify, notCheckable = true, func = function()
+			NotifyOldClients()
 		end},
 		{text = L.gui_config, notCheckable = true, func = function()
 			LibStub("AceConfigDialog-3.0"):Open("ThreatClassic2")
@@ -893,8 +979,18 @@ TC2.configTable = {
 						CheckStatus()
 					end,
 				},
-				hideAlways = {
+				hideOpenWorld = {
 					order = 9,
+					name = L.visibility_hideOpenWorld,
+					type = "toggle",
+					width = "full",
+					set = function(info, value)
+						C[info[1]][info[2]] = value
+						CheckStatus()
+					end,
+				},
+				hideAlways = {
+					order = 10,
 					name = L.visibility_hideAlways,
 					type = "toggle",
 					width = "full",
@@ -904,24 +1000,24 @@ TC2.configTable = {
 					end,
 				},
 				nameplates = {
-					order = 10,
+					order = 11,
 					name = L.nameplates,
 					type = "header",
 				},
 				nameplateThreat = {
-					order = 11,
+					order = 12,
 					name = L.nameplates_enable,
 					type = "toggle",
 					width = "full",
 				},
 				invertColors = {
-					order = 12,
+					order = 13,
 					name = L.nameplates_invert,
 					type = "toggle",
 					width = "full",
 				},
 				threatColors = {
-					order = 13,
+					order = 14,
 					name = L.nameplates_colors,
 					type = "group",
 					inline = true,
@@ -1109,6 +1205,7 @@ TC2.configTable = {
 							max = 16,
 							step = 1,
 						},
+						
 						-- marker
 						-- texture
 						-- custom color / class color
@@ -1116,8 +1213,47 @@ TC2.configTable = {
 						-- color / colormod
 					},
 				},
-				font = {
+				playerBarCustomColor = {
 					order = 3,
+					name = L.playerBarCustomColor,
+					type = "group",
+					inline = true,
+					args = {
+						enabled = {
+							order = 1,
+							name = L.playerBarCustomColor_enabled,
+							type = "toggle",
+						},
+						barColor = {
+							order = 2,
+							name = L.color,
+							type = "group",
+							inline = false,
+							get = function(info)
+								return unpack(C[info[2]][info[4]])
+							end,
+							set = function(info, r, g, b, a)
+								local cfg = C[info[2]][info[4]]
+								cfg[1] = r
+								cfg[2] = g
+								cfg[3] = b
+								cfg[4] = a
+								TC2:UpdateFrame()
+							end,
+							
+							args = {
+								color = {
+									order = 1,
+									name = L.playerBarCustomColor_color,
+									type = "color",
+									hasAlpha = true,
+								},
+							},
+						},
+					},
+				},
+				font = {
+					order = 4,
 					name = L.font,
 					type = "group",
 					inline = true,
@@ -1151,7 +1287,7 @@ TC2.configTable = {
 					},
 				},
 				reset = {
-					order = 4,
+					order = 5,
 					name = L.reset,
 					type = "execute",
 					func = function(info, value)
@@ -1220,7 +1356,7 @@ TC2.configTable = {
 					name = L.version_check,
 					type = "execute",
 					func = function(info, value)
-						CheckVersion()
+						CheckVersion(true)
 					end,
 				},
 				version_check_all = {
@@ -1228,7 +1364,7 @@ TC2.configTable = {
 					name = L.version_check_all,
 					type = "execute",
 					func = function(info, value)
-						CheckVersion(true)
+						CheckVersion()
 					end,
 				},
 				version_notify = {
@@ -1248,9 +1384,41 @@ SLASH_TC2_SLASHCMD1 = "/tc2"
 SLASH_TC2_SLASHCMD2 = "/threat2"
 SLASH_TC2_SLASHCMD2 = "/threatclassic2"
 SlashCmdList["TC2_SLASHCMD"] = function(arg)
+	arg = arg:lower()
+
 	if arg == "toggle" then
 		C.general.hideAlways = not C.general.hideAlways
 		CheckStatus();
+	elseif arg == "debug" then
+		ThreatLib.DebugEnabled = not ThreatLib.DebugEnabled
+		
+		if ThreatLib.DebugEnabled then
+			print("Debug enabled. Output in Chatframe 4.")
+		else
+			print("Debug disabled.")
+		end
+	elseif arg == "runSolo" then
+		ThreatLib.alwaysRunOnSolo = not ThreatLib.alwaysRunOnSolo
+		if ThreatLib.alwaysRunOnSolo then
+			print("LibThreatClassic2 solo mode enabled.")
+		else
+			print("LibThreatClassic2 solo mode disabled.")
+		end
+	elseif arg == "logThreat" then
+		ThreatLib.LogThreat = not ThreatLib.LogThreat
+		if ThreatLib.LogThreat then
+			print("LibThreatClassic2 logThreat enabled.")
+			if not ThreatLib.DebugEnabled then
+				print("Debug is disabled. Also enabling debug mode.")
+				ThreatLib.DebugEnabled = true
+			end
+		else 
+			print("LibThreatClassic2 LogThreat disabled.")
+		end 
+	elseif arg == "ver" or arg == "version" then
+		CheckVersion()
+	elseif arg == "ver2" or arg == "version2" then
+		NotifyOldClients()
 	else
 		LibStub("AceConfigDialog-3.0"):Open("ThreatClassic2")
 	end	

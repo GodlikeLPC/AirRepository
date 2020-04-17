@@ -73,7 +73,7 @@ do
 	LoaderFrame:RegisterEvent("PLAYER_LOGIN")
 
 	local function LoaderEvents(frame, event, arg1)
-		local patchVersion = '2019-09-11'
+		local patchVersion = '2020-03-26'
 
 		if (BigFoot_SysTemSetTab['UtilsPatchVersion'] ~= patchVersion) then
 			SetCVar("autoLootRate", "0")						--移除自动拾取多件物品时的延迟
@@ -85,6 +85,7 @@ do
 			SetCVar("chatClassColorOverride", "0")				--显示聊天职业颜色
 			SetCVar("ShowClassColorInNameplate", "1")			--显示姓名版职业颜色
 			SetCVar("ShowClassColorInFriendlyNameplate", "1")	--显示友方姓名版职业颜色
+			SetCVar("profanityFilter", "1")						--不良语句过滤 0关 1开
 
 			BigFoot_SysTemSetTab['UtilsPatchVersion'] = patchVersion
 		end

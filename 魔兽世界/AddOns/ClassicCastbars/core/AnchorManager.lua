@@ -88,7 +88,7 @@ local function GetPartyFrameForUnit(unitID)
     -- frames for custom addons
     for i = 1, 40 do
         local frame, frameName = GetUnitFrameForUnit("party", "party"..i, true)
-        if frame and frame.unit and UnitGUID(frame.unit) == guid and frame:IsVisible() then
+        if frame and ((frame.unit and UnitGUID(frame.unit) == guid) or frame.lastGUID == guid) and frame:IsVisible() then
             if useCompact then
                 if strfind(frameName, "PartyMemberFrame") == nil then
                     return frame
@@ -105,8 +105,8 @@ function AnchorManager:GetAnchor(unitID)
         return cache[unitID]
     end
 
-    if unitID == "player" then
-        -- special case for player casting bar
+    if unitID == "player" or unitID == "focus" then
+        -- special case for player/focus casting bar
         return UIParent
     end
 

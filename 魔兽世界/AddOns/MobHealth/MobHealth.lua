@@ -31,15 +31,8 @@ function MobHealth_Display()
 	__healthPercFrame = _G["MobHealthPercFrame"]
 	__healthPercBG = _G["MobHealthPercFrameBG"]
 
-	local __health = 0
-	local __healthMax = 0
-
-	if RealMobHealth and RealMobHealth.GetUnitHealth then
-		__health, __healthMax = RealMobHealth.GetUnitHealth("target")
-	else
-		__health = UnitHealth("target")
-		__healthMax = UnitHealthMax("target")
-	end
+	local __health = UnitHealth("target");
+	local __healthMax = UnitHealthMax("target");
 
 	local __mana = UnitPower("target");
 	local __manaMax = UnitPowerMax("target");
@@ -92,8 +85,12 @@ function MobHealth_Display()
 	end
 
 	-- 隐藏游戏自带数值
-	TargetFrameHealthBar.TextString:SetAlpha(0);
-	TargetFrameManaBar.TextString:SetAlpha(0);
+	if TargetFrameHealthBar.TextString then
+		TargetFrameHealthBar.TextString:SetAlpha(0);
+	end
+	if TargetFrameManaBar.TextString then
+		TargetFrameManaBar.TextString:SetAlpha(0);
+	end
 	if TargetFrameTextureFrameDeadText then
 		TargetFrameTextureFrameDeadText:SetAlpha(0)
 	end
@@ -105,16 +102,24 @@ function MobHealth_Toggle(arg)
 		MobHealth_Eventer:RegisterEvent("PLAYER_TARGET_CHANGED");
 		MobHealth_Eventer:RegisterEvent("UNIT_POWER_UPDATE");
 
-		TargetFrameHealthBar.TextString:SetAlpha(0);
-		TargetFrameManaBar.TextString:SetAlpha(0);
+		if TargetFrameHealthBar.TextString then
+			TargetFrameHealthBar.TextString:SetAlpha(0);
+		end
+		if TargetFrameManaBar.TextString then
+			TargetFrameManaBar.TextString:SetAlpha(0);
+		end
 		if TargetFrameTextureFrameDeadText then
 			TargetFrameTextureFrameDeadText:SetAlpha(0)
 		end
 		MobHealth_Display()
 	else
 		MobHealth_Eventer:UnregisterAllEvent();
-		TargetFrameHealthBar.TextString:SetAlpha(1);
-		TargetFrameManaBar.TextString:SetAlpha(1);
+		if TargetFrameHealthBar.TextString then
+			TargetFrameHealthBar.TextString:SetAlpha(1);
+		end
+		if TargetFrameManaBar.TextString then
+			TargetFrameManaBar.TextString:SetAlpha(1);
+		end
 		if TargetFrameTextureFrameDeadText then
 			TargetFrameTextureFrameDeadText:SetAlpha(1)
 		end

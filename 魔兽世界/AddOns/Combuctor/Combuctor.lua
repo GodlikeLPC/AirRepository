@@ -277,7 +277,6 @@ end
 function Combuctor:Toggle(bag, auto)
 	for _,frame in pairs(self.frames) do
 		for _,bagID in pairs(frame.sets.bags) do
-	-- print(bagID,bag)
 			if bagID == bag then
 				frame:ToggleFrame(auto)
 				-- if bag == KEYRING_CONTAINER then
@@ -288,6 +287,7 @@ function Combuctor:Toggle(bag, auto)
 				if (_G["ContainerFrame"..bag]) then
 					_G["ContainerFrame"..bag].size = _G["ContainerFrame"..bag].size or (GetContainerNumSlots and GetContainerNumSlots(bag)) or 1
 				end
+				return
 			end
 		end
 	end
