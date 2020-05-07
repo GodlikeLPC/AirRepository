@@ -1,6 +1,6 @@
 ﻿## Interface: 11304
 ## Author: Lag
-## Version: v1.4.7
+## Version: v1.5.1
 ## SavedVariables: AtlasLootClassicDB
 ## Title: AtlasLootClassic |cFF22B14C[Core]|r
 ## Notes: Shows the possible loot from the bosses

@@ -1990,6 +1990,18 @@ data["Zul'Farrak"] = {
 				{ 1,  10660 }, -- First Mosh'aru Tablet
 			},
 		},
+		{ -- ZFSandarrDunereaver
+			name = AL["Sandarr Dunereaver"],
+			npcID = 10080,
+			Level = 45,
+			DisplayIDs = {{9291}},
+			IgnoreAsSource = true,
+			--AtlasMapBossID = 2,
+			specialType = "rare",
+			[NORMAL_DIFF] = {
+				{ 1,  9523, [ATLASLOOT_IT_AMOUNT1] = "2-4" }, -- First Mosh'aru Tablet
+			},
+		},
 		{ -- ZFWitchDoctorZumrah
 			name = AL["Witch Doctor Zum'rah"],
 			npcID = 7271,
@@ -2329,7 +2341,7 @@ data["TheTempleOfAtal'Hakkar"] = {
 	AtlasMapFile = { "TheSunkenTemple", "TheSunkenTempleEnt" },
 	ContentType = DUNGEON_CONTENT,
 	LoadDifficulty = NORMAL_DIFF,
-	LevelRange = {45, 50, 56},
+	LevelRange = {45, 50, 60},
 	items = {
 		{ -- STBalconyMinibosses
 			name = AL["Balcony Minibosses"],
@@ -4427,20 +4439,6 @@ data["Scholomance"] = {
 				{ 29, 13920 }, -- Healthy Dragon Scale
 			},
 		},
-		{ -- SCHOLODeathKnight
-			name = AL["Death Knight Darkreaver"],
-			npcID = 14516,
-			ExtraList = true,
-			SubAreaID = 32577,
-			DisplayIDs = {{14591}},
-			AtlasMapBossID = 5,
-			[NORMAL_DIFF] = {
-				{ 1,  18760 }, -- Necromantic Band
-				{ 2,  18761 }, -- Oblivion's Touch
-				{ 3,  18758 }, -- Specter's Blade
-				{ 4,  18759 }, -- Malicious Axe
-			},
-		},
 		{ -- SCHOLOKormok
 			name = AL["Kormok"].." - "..format(AL["Tier %s Sets"], "0.5"),
 			npcID = 16118,
@@ -5710,7 +5708,7 @@ data["Zul'Gurub"] = {
 				{ 19, 19913 }, -- Bloodsoaked Greaves
 				{ 20, 19912 }, -- Overlord's Onyx Band
 				{ 21, 19922 }, -- Arlokk's Hoodoo Stick
-				{ 22, 19914 }, -- Panther Hide Sack
+				{ 23, 19914 }, -- Panther Hide Sack
 			},
 		},
 		{ -- ZGJindo
