@@ -37,12 +37,18 @@ local QuestieObjectFixes = QuestieLoader:ImportModule("QuestieObjectFixes")
 function QuestieCorrections:Initialize()
     for id, data in pairs(QuestieItemFixes:Load()) do
         for key, value in pairs(data) do
+            if not QuestieDB.itemData[id] then
+                QuestieDB.itemData[id] = {}
+            end
             QuestieDB.itemData[id][key] = value
         end
     end
 
     for id, data in pairs(QuestieItemFixes:LoadFactionFixes()) do
         for key, value in pairs(data) do
+            if not QuestieDB.itemData[id] then
+                QuestieDB.itemData[id] = {}
+            end
             QuestieDB.itemData[id][key] = value
         end
     end
@@ -72,6 +78,14 @@ function QuestieCorrections:Initialize()
     end
 
     for id, data in pairs(QuestieQuestFixes:Load()) do
+        for key, value in pairs(data) do
+            if QuestieDB.questData[id] then
+                QuestieDB.questData[id][key] = value
+            end
+        end
+    end
+
+    for id, data in pairs(QuestieQuestFixes:LoadFactionFixes()) do
         for key, value in pairs(data) do
             if QuestieDB.questData[id] then
                 QuestieDB.questData[id][key] = value
