@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("Lucifron", "DBM-MC", 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20200215182107")
+mod:SetRevision("20200610150315")
 mod:SetCreatureID(12118)--, 12119
 mod:SetEncounterID(663)
 mod:SetModelID(13031)
@@ -26,18 +26,28 @@ local warnMC		= mod:NewTargetNoFilterAnnounce(20604, 4)
 local specWarnMC	= mod:NewSpecialWarningYou(20604, nil, nil, nil, 1, 2)
 local yellMC		= mod:NewYell(20604)
 
-local timerCurseCD	= mod:NewCDTimer(20.5, 19703, nil, nil, nil, 3, nil, DBM_CORE_CURSE_ICON)--20-25N)
-local timerDoomCD	= mod:NewCDTimer(20, 19702, nil, nil, nil, 3, nil, DBM_CORE_MAGIC_ICON)--20-25
---local timerDoom		= mod:NewCastTimer(10, 19702, nil, nil, nil, 3, nil, DBM_CORE_MAGIC_ICON)
+local timerCurseCD	= mod:NewCDTimer(20.5, 19703, nil, nil, nil, 3, nil, DBM_CORE_L.CURSE_ICON)--20-25N)
+local timerDoomCD	= mod:NewCDTimer(20, 19702, nil, nil, nil, 3, nil, DBM_CORE_L.MAGIC_ICON)--20-25
+--local timerDoom		= mod:NewCastTimer(10, 19702, nil, nil, nil, 3, nil, DBM_CORE_L.MAGIC_ICON)
 
 mod:AddSetIconOption("SetIconOnMC", 20604, true, false, {1, 2})
+mod:AddSpeedClearOption("MC", true)
 
 mod.vb.lastIcon = 1
+mod.vb.firstEngageTime = nil
 
 function mod:OnCombatStart(delay)
 	self.vb.lastIcon = 1
 	timerDoomCD:Start(7-delay)--7-8
 	timerCurseCD:Start(12-delay)--12-15
+	if not self.vb.firstEngageTime then
+		self.vb.firstEngageTime = GetTime()
+		if self.Options.FastestClear and self.Options.SpeedClearTimer then
+			--Custom bar creation that's bound to core, not mod, so timer doesn't stop when mod stops it's own timers
+			DBM.Bars:CreateBar(self.Options.FastestClear, DBM_CORE_L.SPEED_CLEAR_TIMER_TEXT)
+			DBM:AddMsg("Speed run timer should have started, please report if it didn't on DBM Discord")
+		end
+	end
 end
 
 do

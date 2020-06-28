@@ -1,6 +1,7 @@
 ﻿## Interface: 11304
 ## X-Min-Interface: 11302
 ## Title:|cffffe00a<|r|cffff7d0aDBM|r|cffffe00a>|r |cff69ccf0Temple of Ahn'Qiraj|r
+## Title-zhCN:|cffffe00a<|r|cffff7d0aDBM|r|cffffe00a>|r |cff69ccf0安其拉神殿|r
 ## Title-zhTW:|cffffe00a<|r|cffff7d0aDBM|r|cffffe00a>|r |cff69ccf0安其拉神廟|r
 ## LoadOnDemand: 1
 ## RequiredDeps: DBM-Core
@@ -25,6 +26,6 @@ Sartura.lua
 Fankriss.lua
 Viscidus.lua
 Huhuran.lua
+Ouro.lua
 TwinEmps.lua
 CThun.lua
-Ouro.lua

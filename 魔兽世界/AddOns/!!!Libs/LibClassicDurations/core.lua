@@ -19,7 +19,7 @@ Usage example 1:
 --]================]
 if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then return end
 
-local MAJOR, MINOR = "LibClassicDurations", 53
+local MAJOR, MINOR = "LibClassicDurations", 57
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
@@ -76,6 +76,8 @@ local GetTime = GetTime
 local tinsert = table.insert
 local unpack = unpack
 local GetAuraDurationByUnitDirect
+local GetGUIDAuraTime
+local time = time
 
 if lib.enableEnemyBuffTracking == nil then lib.enableEnemyBuffTracking = false end
 local enableEnemyBuffTracking = lib.enableEnemyBuffTracking
@@ -177,7 +179,7 @@ end
 --------------------------
 
 local function purgeOldGUIDs()
-    local now = GetTime()
+    local now = time()
     local deleted = {}
     for guid, lastAccessTime in pairs(guidAccessTimes) do
         if lastAccessTime + PURGE_THRESHOLD < now then
@@ -194,7 +196,51 @@ local function purgeOldGUIDs()
         guidAccessTimes[guid] = nil
     end
 end
-lib.purgeTicker = lib.purgeTicker or C_Timer.NewTicker( PURGE_INTERVAL, purgeOldGUIDs)
+if lib.purgeTicker then
+    lib.purgeTicker:Cancel()
+end
+lib.purgeTicker = C_Timer.NewTicker( PURGE_INTERVAL, purgeOldGUIDs)
+
+------------------------------------
+-- Restore data if using standalone
+if IsAddOnLoaded("LibClassicDurations") then
+    f:RegisterEvent("PLAYER_LOGIN")
+    f:RegisterEvent("PLAYER_LOGOUT")
+    local function MergeTable(t1, t2)
+        if not t2 then return false end
+        for k,v in pairs(t2) do
+            if type(v) == "table" then
+                if t1[k] == nil then
+                    t1[k] = CopyTable(v)
+                else
+                    MergeTable(t1[k], v)
+                end
+            -- elseif v == "__REMOVED__" then
+                -- t1[k] = nil
+            else
+                t1[k] = v
+            end
+        end
+        return t1
+    end
+    function f:PLAYER_LOGIN()
+        if LCD_Data and LCD_GUIDAccess then
+            local curSessionData = lib.guids
+            lib.guids = LCD_Data
+            guids = lib.guids -- update upvalue
+            MergeTable(guids, curSessionData)
+
+            local curSessionAccessTimes = lib.guidAccessTimes
+            lib.guidAccessTimes = LCD_GUIDAccess
+            guidAccessTimes = lib.guidAccessTimes -- update upvalue
+            MergeTable(guidAccessTimes, curSessionAccessTimes)
+        end
+    end
+    function f:PLAYER_LOGOUT()
+        LCD_Data = guids
+        LCD_GUIDAccess = guidAccessTimes
+    end
+end
 
 --------------------------
 -- DIMINISHING RETURNS
@@ -408,7 +454,7 @@ local function SetTimer(srcGUID, dstGUID, dstName, dstFlags, spellID, spellName,
     end
     applicationTable[4] = comboPoints
 
-    guidAccessTimes[dstGUID] = now
+    guidAccessTimes[dstGUID] = time()
 end
 
 local function FireToUnits(event, dstGUID)
@@ -432,7 +478,7 @@ end
 local eventSnapshot
 castLog.SetLastCast = function(self, srcGUID, spellID, timestamp)
     self[srcGUID] = { spellID, timestamp }
-    guidAccessTimes[srcGUID] = timestamp
+    guidAccessTimes[srcGUID] = time()
 end
 castLog.IsCurrent = function(self, srcGUID, spellID, timestamp, timeWindow)
     local entry = self[srcGUID]
@@ -452,7 +498,7 @@ function f:COMBAT_LOG_EVENT_UNFILTERED(event)
 end
 
 local rollbackTable = setmetatable({}, { __mode="v" })
-local function ProcIndirectRefresh(eventType, spellName, srcGUID, srcFlags, dstGUID, dstFlags, dstName)
+local function ProcIndirectRefresh(eventType, spellName, srcGUID, srcFlags, dstGUID, dstFlags, dstName, isCrit)
     if indirectRefreshSpells[spellName] then
         local refreshTable = indirectRefreshSpells[spellName]
         if refreshTable.events[eventType] then
@@ -461,7 +507,7 @@ local function ProcIndirectRefresh(eventType, spellName, srcGUID, srcFlags, dstG
             local condition = refreshTable.condition
             if condition then
                 local isMine = bit_band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) == COMBATLOG_OBJECT_AFFILIATION_MINE
-                if not condition(isMine) then return end
+                if not condition(isMine, isCrit) then return end
             end
 
             if refreshTable.targetResistCheck then
@@ -496,9 +542,9 @@ function f:CombatLogHandler(...)
     local timestamp, eventType, hideCaster,
     srcGUID, srcName, srcFlags, srcFlags2,
     dstGUID, dstName, dstFlags, dstFlags2,
-    spellID, spellName, spellSchool, auraType = ...
+    spellID, spellName, spellSchool, auraType, _, _, _, _, _, isCrit = ...
 
-    ProcIndirectRefresh(eventType, spellName, srcGUID, srcFlags, dstGUID, dstFlags, dstName)
+    ProcIndirectRefresh(eventType, spellName, srcGUID, srcFlags, dstGUID, dstFlags, dstName, isCrit)
 
     if  eventType == "SPELL_MISSED" and
         bit_band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) == COMBATLOG_OBJECT_AFFILIATION_MINE
@@ -677,30 +723,34 @@ local shouldDisplayAura = function(auraTable)
     return false
 end
 
-local function RegenerateBuffList(dstGUID)
-    local guidTable = guids[dstGUID]
-    if not guidTable then
-        return
-    end
-
+lib.scanTip = lib.scanTip or CreateFrame("GameTooltip", "LibClassicDurationsScanTip", nil, "GameTooltipTemplate")
+local scanTip = lib.scanTip
+scanTip:SetOwner(WorldFrame, "ANCHOR_NONE")
+local function RegenerateBuffList(unit, dstGUID)
     local buffs = {}
-    for spellID, t in pairs(guidTable) do
-        if t.applications then
-            for srcGUID, auraTable in pairs(t.applications) do
-                if auraTable[3] == "BUFF" then
-                    local buffInfo = makeBuffInfo(spellID, auraTable, dstGUID, srcGUID)
-                    if buffInfo then
-                        tinsert(buffs, buffInfo)
-                    end
+    local spellName
+    for i=1, 32 do
+        scanTip:ClearLines()
+        scanTip:SetUnitAura(unit, i, "HELPFUL")
+        spellName = LibClassicDurationsScanTipTextLeft1:GetText()
+        if spellName then
+            local spellID = GetLastRankSpellID(spellName)
+            if spellID then
+                local icon = GetSpellTexture(spellID)
+                local opts = spells[spellID]
+                local buffInfo = { spellName, icon, 0, (opts and opts.buffType), 0, 0, nil, nil, nil, spellID, false, false, false, false, 1 }
+                local isStacking = opts and opts.stacking
+                local srcGUID = nil
+                local duration, expirationTime = GetGUIDAuraTime(dstGUID, spellName, spellID, srcGUID, isStacking)
+                if duration then
+                    buffInfo[5] = duration
+                    buffInfo[6] = expirationTime
                 end
+
+                tinsert(buffs, buffInfo)
             end
         else
-            if t[3] == "BUFF" then
-                local buffInfo = makeBuffInfo(spellID, t, dstGUID)
-                if buffInfo then
-                    tinsert(buffs, buffInfo)
-                end
-            end
+            break
         end
     end
 
@@ -725,7 +775,7 @@ function lib.UnitAuraDirect(unit, index, filter)
         if not unitGUID then return end
         local isValid = buffCacheValid[unitGUID]
         if not isValid or isValid < GetTime() then
-            RegenerateBuffList(unitGUID)
+            RegenerateBuffList(unit, unitGUID)
         end
 
         local buffCacheHit = buffCache[unitGUID]
@@ -780,7 +830,7 @@ end
 ---------------------------
 -- PUBLIC FUNCTIONS
 ---------------------------
-local function GetGUIDAuraTime(dstGUID, spellName, spellID, srcGUID, isStacking, forcedNPCDuration)
+GetGUIDAuraTime = function(dstGUID, spellName, spellID, srcGUID, isStacking, forcedNPCDuration)
     local guidTable = guids[dstGUID]
     if guidTable then
 

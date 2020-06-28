@@ -1,6 +1,6 @@
 if GetLocale()~='zhCN' then return end
 local main= "1.13.3."
-local minor = "50"
+local minor = "56"
 BIGFOOT_VERSION = "zhCN"..main..minor;
 
 function GetMinorVersion()
@@ -8,6 +8,32 @@ function GetMinorVersion()
 end
 
 BigFootChangelog_ah();
+
+	BigFootChangelog_at("2020/06/20 (1.13.3.56)")
+	BigFootChangelog_ar("大脚插件","同步更新整合类插件。")
+
+
+	BigFootChangelog_at("2020/06/11 (1.13.3.55)")
+	BigFootChangelog_ar("大脚插件","同步更新整合类插件。")
+
+
+	BigFootChangelog_at("2020/06/04 (1.13.3.54)")
+	BigFootChangelog_ar("大脚插件","同步更新整合类插件。")
+
+
+	BigFootChangelog_at("2020/05/28 (1.13.3.53)")
+	BigFootChangelog_ar("大脚插件","新增插件-战争游戏(Wargame)。")
+	BigFootChangelog_ar("大脚插件","同步更新整合类插件。")
+
+
+	BigFootChangelog_at("2020/05/20 (1.13.3.52)")
+	BigFootChangelog_ar("大脚插件","同步更新整合类插件。")
+
+
+	BigFootChangelog_at("2020/05/07 (1.13.3.51)")
+	BigFootChangelog_ar("仇恨统计","升级至最新版本(2.18)。")
+	BigFootChangelog_ar("首领报警","升级至最新版本(1.13.44)。")
+
 
 	BigFootChangelog_at("2020/04/30 (1.13.3.50)")
 	BigFootChangelog_ar("大脚插件","同步更新整合类插件。")
@@ -265,4 +291,4 @@ BigFootChangelog_ah();
 BigFootChangelog_af();
 
 
-BF_VERSION_CHECKSUM = "52"
+BF_VERSION_CHECKSUM = "50"

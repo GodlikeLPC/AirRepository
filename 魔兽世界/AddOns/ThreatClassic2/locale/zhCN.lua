@@ -2,7 +2,7 @@ local TC2, C, L, _ = unpack(select(2, ...))
 if TC2.locale ~= "zhCN" then return end
 
 -----------------------------
---	zhCN client (by Qcat of 60Addons)
+--	zhCN client (by Qcat of 60Addons & 阿什坎迪-枫聖)
 -----------------------------
 -- main frame
 L.gui_threat			= "仇恨"
@@ -29,25 +29,30 @@ L.version_incompatible	= "不兼容！"
 
 L.general				= "一般"
 L.general_welcome		= "显示欢迎信息当你登陆时."
-L.general_update		= "更新间隔时间 (秒)"
+L.general_rawPercent    = "显示原始威胁百分比（近战110％/ 130％范围内的总攻击力）"   ---
+L.general_updateFreq    = "更新间隔的时间（以秒为单位）."   --
 L.general_test			= "测试模式."
-L.general_minimap		= "小地图按钮."
-L.general_ignorePets	= "忽略玩家宠物的仇恨."
+--L.general_minimap		= "小地图按钮."
+--L.general_ignorePets	= "忽略玩家宠物的仇恨."
 
 L.visibility			= "可见性"
 L.visibility_hideOOC	= "当脱战时隐藏框架"
 L.visibility_hideSolo	= "当不在队伍中隐藏框架"
 L.visibility_hideInPvP	= "在战场中隐藏框架"
+L.visibility_hideOpenWorld	= "不在团队中隐藏框架 (也隐藏世界BOSS!)."
+L.visibility_hideAlways	= "始终隐藏框架。 /tc2 切换"
 
 L.nameplates			= "姓名版"
 L.nameplates_enable		= "启用仇恨着色 (仅暴雪默认姓名版)."
 L.nameplates_invert		= "颠倒仇恨着色 (便于坦克)."
 L.nameplates_colors		= "仇恨颜色"
 
-L.color					= "颜色"
-L.color_good			= "低"
-L.color_neutral			= "中"
-L.color_bad				= "高"
+L.profiles              = "配置"
+
+L.color					= "颜色设置"
+L.color_good			= "低仇恨"
+L.color_neutral			= "平均仇恨"
+L.color_bad				= "高仇恨"
 
 L.appearance			= "外观"
 
@@ -55,34 +60,54 @@ L.frame					= "框架"
 L.frame_header			= "标题"
 L.frame_bg				= "背景"
 L.frame_test			= "测试模式"
-L.frame_strata			= "Strata"
+L.frame_strata			= "层面"
 L.frame_scale			= "大小"
 L.frame_lock			= "锁定"
 L.frame_headerShow		= "显示标题"
 L.frame_headerColor		= "标题颜色"
-L.frame_width			= "宽度"
+L.frame_position		= "位置"--
+L.frame_width			= "宽"
+L.frame_height			= "高"
+L.frame_xOffset         = "X 偏移"
+L.frame_yOffset         = "Y 偏移"---
 
 L.bar					= "仇恨条"
-L.bar_count				= "最大数量"
-L.bar_descend			= "反向增长"
+--L.bar_count				= "最大数量"
+--L.bar_descend			= "反向增长"
 L.bar_height			= "高度"
 L.bar_padding			= "间隔"
-L.bar_marker			= "你在条中为红色"
+--L.bar_marker			= "你在条中为红色"
 L.bar_texture			= "纹理"
-L.bar_classColor		= "使用职业颜色"
-L.bar_defaultColor		= "自定义颜色"
-L.bar_alpha				= "条透明度"
-L.bar_colorMod			= "颜色调节"
+--L.bar_classColor		= "使用职业颜色"
+--L.bar_defaultColor		= "自定义颜色"
+L.bar_alpha				= "透明度 (默认颜色)"
+--L.bar_colorMod			= "颜色调节"
+
+L.customBarColors 			        = "自定义颜色"
+L.customBarColorsPlayer_enabled	    = "启用自定义玩家颜色"
+L.customBarColorsActiveTank_enabled	= "启用自定义坦克颜色"
+L.customBarColorsOtherUnit_enabled 	= "启用自定义其他玩家颜色"
+L.customBarColorsPlayer_color 	    = "玩家颜色"
+L.customBarColorsActiveTank_color 	= "主坦克颜色"
+L.customBarColorsOtherUnit_color 	= "其他玩家颜色"
 
 L.font					= "字体"
-L.font_name			= "名字"
+L.font_name			    = "字体"
 L.font_size				= "大小"
 L.font_style			= "风格"
 L.font_shadow			= "字体阴影"
 
 L.warnings				= "警报"
+L.warnings_flash		= "启用屏幕闪烁."
 L.warnings_sound		= "启用声音."
-L.warnings_threshold	= "警报仇恨阈值 (0-100%)."
+L.warnings_threshold	= "警报仇恨阈值 (100% = 仇恨)."
+L.warnings_minThreatAmount = "触发警告的最小威胁."
 
 L.warnings_soundFile		= "警报声音文件."
-L.sound_pulledFile		= "获得仇恨警报的声音文件."
+L.warnings_soundChannel	= "声音通道"
+
+L.soundChannel_master = "主"
+L.soundChannel_sfx = "特效"
+L.soundChannel_ambience = "环境"
+L.soundChannel_music = "音乐"
+

@@ -1855,7 +1855,7 @@ namespace.castModifiers = {
 
 -- Addon Savedvariables
 namespace.defaultConfig = {
-    version = "21", -- settings version
+    version = "23", -- settings version
     locale = GetLocale(),
     npcCastUninterruptibleCache = {},
     usePerCharacterSettings = false,
@@ -1890,6 +1890,7 @@ namespace.defaultConfig = {
         textPositionY = 0,
         frameLevel = 10,
         statusBackgroundColor = { 0, 0, 0, 0.535 },
+        ignoreParentAlpha = false,
     },
 
     target = {
@@ -1920,6 +1921,7 @@ namespace.defaultConfig = {
         textPositionY = 0,
         frameLevel = 10,
         statusBackgroundColor = { 0, 0, 0, 0.535 },
+        ignoreParentAlpha = false,
     },
 
     focus = {
@@ -1950,6 +1952,7 @@ namespace.defaultConfig = {
         textPositionY = 0,
         frameLevel = 10,
         statusBackgroundColor = { 0, 0, 0, 0.535 },
+        ignoreParentAlpha = false,
     },
 
     party = {
@@ -1980,6 +1983,7 @@ namespace.defaultConfig = {
         textPositionY = 0,
         frameLevel = 10,
         statusBackgroundColor = { 0, 0, 0, 0.535 },
+        ignoreParentAlpha = false,
     },
 
     player = {
@@ -2010,6 +2014,7 @@ namespace.defaultConfig = {
         textPositionY = 1,
         frameLevel = 10,
         statusBackgroundColor = { 0, 0, 0, 0.535 },
+        ignoreParentAlpha = false,
     },
 }
 
@@ -2053,4 +2058,18 @@ namespace.defaultConfig.npcCastUninterruptibleCache = {
     ["11359" .. GetSpellInfo(16430)] = true, -- Soulflayer Soul Tap
     ["11359" .. GetSpellInfo(22678)] = true, -- Soulflayer Fear
     ["11372" .. GetSpellInfo(24011)] = true, -- Razzashi Adder Venom Spit
+    ["14834" .. GetSpellInfo(24322)] = true, -- Hakkar Blood Siphon
+    ["14509" .. GetSpellInfo(24189)] = true, -- High Priest Thekal Force Punch
+    ["11382" .. GetSpellInfo(24314)] = true, -- Broodlord Mandokir Threatening Gaze
+    ["14750" .. GetSpellInfo(24024)] = true, -- Gurubashi Bat Rider Unstable Concoction
+    ["12259" .. GetSpellInfo(686)] = true, -- Gehennas Shadow Bolt
+    ["11339" .. GetSpellInfo(22908)] = true, -- Hakkari Shadow Hunter Volley
+    ["14507" .. GetSpellInfo(14914)] = true, -- High Priest Venoxis Holy Fire
+    ["13161" .. GetSpellInfo(21188)] = true, -- Aerie Gryphon Stun Bomb Attack
+    ["14943" .. GetSpellInfo(21188)] = true, -- Guse's War Rider Stun Bomb Attack
+    ["14947" .. GetSpellInfo(21188)] = true, -- Ichman's Gryphon Stun Bomb Attack
+    ["14944" .. GetSpellInfo(21188)] = true, -- Jeztor's War Rider Stun Bomb Attack
+    ["14945" .. GetSpellInfo(21188)] = true, -- Mulverick's War Rider Stun Bomb Attack
+    ["12119" .. GetSpellInfo(20604)] = true, -- Flamewaker Protector Dominate Mind
+    ["12459" .. GetSpellInfo(22372)] = true, -- Blackwing Warlock Demon Portal
 }

@@ -1,6 +1,6 @@
 ﻿if GetLocale() ~= "zhTW" then return end
-if not DBM_GUI_Translations then DBM_GUI_Translations = {} end
-local L = DBM_GUI_Translations
+if not DBM_GUI_L then DBM_GUI_L = {} end
+local L = DBM_GUI_L
 
 L.MainFrame	= "Deadly Boss Mods"
 
@@ -105,7 +105,7 @@ L.ShowEngageMessage 		= "在聊天視窗顯示開戰訊息"
 L.ShowDefeatMessage 		= "在聊天視窗顯示戰勝/滅團訊息"
 L.ShowGuildMessages 		= "在聊天視窗顯示的開戰/戰勝/滅團的公會團隊訊息"
 L.ShowGuildMessagesPlus		= "也顯示公會隊伍傳奇+開戰/戰勝/滅團的訊息(需要團隊選項)"
-L.WhisperMessages			= "密語訊息選項"
+L.Area_WhisperMessages		= "密語訊息選項"
 L.AutoRespond 				= "啟用戰鬥中自動密語回覆"
 L.WhisperStats 				= "在密語回應中加入戰勝/滅團狀態"
 L.DisableStatusWhisper 		= "禁用整個團隊狀態密語(需要隊伍隊長)。只套用於普通/英雄/傳奇團隊和傳奇+地城"
@@ -172,7 +172,7 @@ L.KeepBar2					= "(當被模組支援)"
 L.FadeBar					= "清除超出範圍技能的計時條"
 
 -- Tab: Spec Warn Frame
-L.Panel_SpecWarnFrame		= "特別警告"
+L.Panel_SpecWarnFrame		= "特別團隊警告"
 L.Area_SpecWarn				= "特別警告選項"
 L.SpecWarn_ClassColor		= "為特別警告套用職業顏色"
 L.ShowSWarningsInChat 		= "在聊天視窗中顯示特別警告"
@@ -207,11 +207,11 @@ L.SWFAll					= "當特別警告使用所有音效"
 L.SpecWarn_AlwaysVoice		= "總是播放所有語音警告(覆蓋所有特定首領選項)"
 --TODO, maybe add URLS right to GUI panel on where to acquire 3rd party voice packs?
 L.Area_GetVEM				= "取得VEM語言包"
-L.VEMDownload				= "|cFF73C2FBhttps://wow.curseforge.com/projects/dbm-voicepack-vem|r"
+L.VEMDownload				= "|cFF73C2FBhttps://curseforge.com/wow/addons/dbm-voicepack-vem|r"
 L.Area_BrowseOtherVP		= "在Curse上瀏覽其他語言包"
-L.BrowseOtherVPs			= "|cFF73C2FBhttps://wow.curseforge.com/search?search=dbm+voice|r"
+L.BrowseOtherVPs			= "|cFF73C2FBhttps://curseforge.com/wow/addons/search?search=dbm+voice|r"
 L.Area_BrowseOtherCT		= "在Curse上瀏覽倒數包"
-L.BrowseOtherCTs			= "|cFF73C2FBhttps://wow.curseforge.com/search?search=dbm+count+pack|r"
+L.BrowseOtherCTs			= "|cFF73C2FBhttps://curseforge.com/wow/addons/search?search=dbm+count+pack|r"
 
 -- Tab: Event Sounds
 L.Panel_EventSounds			= "事件音效"
@@ -230,10 +230,8 @@ L.EventFilterMythicMusic	= "不要在傳奇/傳奇+的難度中播放戰鬥音�
 
 -- Tab: Global Filter
 L.Panel_SpamFilter			= "DBM全局禁用及過濾"
-L.Area_SpamFilter_Outgoing	= "DBM全局禁用及過濾選項"
 L.SpamBlockNoShowAnnounce	= "不顯示任何提示文字或播放警告音效"
 L.SpamBlockNoShowTgtAnnounce= "不顯示目標的提示文字或播放警告音效 (上列選項會覆蓋此選項)"
-L.SpamBlockNoSpecWarn		= "不顯示特別警告或播放特別警告音效"
 L.SpamBlockNoSpecWarnText	= "不要顯示特別警告文字，但依舊使用語音包 (上列選項會覆蓋此選項)"
 L.SpamBlockNoShowTimers		= "不顯示計時器"
 L.SpamBlockNoShowUTimers	= "不顯示玩家送出的計時器(自訂/拉怪/休息)"
@@ -245,7 +243,6 @@ L.SpamBlockNoNameplate		= "不要顯示名條光環"
 L.SpamBlockNoCountdowns		= "不播放倒數音效"
 L.SpamBlockNoYells			= "不送出大喊至頻道"
 L.SpamBlockNoNoteSync		= "不接受註記分享"
-L.SpamBlockNoReminders		= "不顯示任何登入，推薦或更新訊息(不推薦)"
 
 L.Area_Restore				= "DBM還原選項(DBM是否還原至使用者過去狀態)"
 L.SpamBlockNoIconRestore	= "不在戰鬥結束後記住和還原團隊圖示狀態"

@@ -8,7 +8,7 @@
 ## Notes-zhTW: Deadly Boss Mods的使用者介面
 ## RequiredDeps: DBM-Core
 ## LoadOnDemand: 1
-## Author: Nitram and Tandanu
+## Author: Nitram, Tandanu and QartemisT
 ## URL: http://www.deadlybossmods.com
 ## X-Revision: BigFoot
 
@@ -16,7 +16,25 @@ localization.en.lua
 localization.cn.lua
 localization.tw.lua
 
-DBM-GUI_DropDown.xml
-DBM-GUI_Templates.xml
 DBM-GUI.lua
 DBM-GUI_DropDown.lua
+
+# Modules
+modules\MainFramePrototype.lua
+modules\MainFrame.lua
+modules\ListFrameButtonsPrototype.lua
+modules\PanelPrototype.lua
+
+modules\options\Options.lua
+modules\options\GeneralOptions.lua
+modules\options\Announcements.lua
+modules\options\SpecialAnnouncements.lua
+modules\options\Timers.lua
+modules\options\SpokenAlerts.lua
+modules\options\EventSounds.lua
+modules\options\ChatframeMessages.lua
+modules\options\GlobalDisables.lua
+modules\options\HideBlizzard.lua
+modules\options\Privacy.lua
+modules\options\ExtraFeatures.lua
+modules\options\Profile.lua

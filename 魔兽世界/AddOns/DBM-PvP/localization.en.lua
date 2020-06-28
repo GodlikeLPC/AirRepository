@@ -34,6 +34,8 @@ L:SetOptionLocalization({
 })
 
 L:SetMiscLocalization({
+	BgStart60           = "The battle begins in 1 minute.",
+	BgStart30           = "The battle begins in 30 seconds. Prepare yourselves!",
 	ArenaInvite			= "Arena invite",
 	BasesToWin			= "Bases to win: %d",
 	WinBarText			= "%s wins",
@@ -122,15 +124,18 @@ L:SetMiscLocalization({
 L = DBM:GetModLocalization("z727")
 
 L:SetTimerLocalization({
-	TimerCart	= "Cart respawn"
+	TimerRespawn	= "Cart respawn"
 })
 
 L:SetOptionLocalization({
-	TimerCart	= "Show cart respawn timer"
+	TimerResapwn	= "Show cart respawn timer",
+	TimerCart		= "Show cart cap timer"
 })
 
 L:SetMiscLocalization({
-	Capture	= "has captured"
+	Capture	= "has captured",
+	Arrived	= "has arived",
+	Begun	= "has begun"
 })
 
 -------------------------
