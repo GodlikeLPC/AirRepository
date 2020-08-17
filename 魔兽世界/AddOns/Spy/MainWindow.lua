@@ -497,9 +497,10 @@ function Spy:CreateMainWindow()
 		function()
 			Spy.db.profile.MainWindowVis = false
 		end)
+
+		Spy:UpdateMainWindow()
 	
 		local theFrame = Spy.MainWindow
-	
 		theFrame:SetResizable(true)
 		theFrame:SetMinResize(90, 34)
 		theFrame:SetMaxResize(300, 264)
@@ -670,7 +671,7 @@ function Spy:CreateMainWindow()
 				theFrame.DragTopLeft:SetAlpha(0)
 			end)
 		end
-			
+
 		theFrame.RightButton = CreateFrame("Button", nil, theFrame)
 		theFrame.RightButton:SetNormalTexture("Interface\\AddOns\\Spy\\Textures\\button-right.tga")
 		theFrame.RightButton:SetPushedTexture("Interface\\AddOns\\Spy\\Textures\\button-right.tga")
@@ -813,9 +814,11 @@ function Spy:CreateMainWindow()
 		Spy:UpdateAlertWindow()
 		Spy.AlertWindow:SetHeight(42)
 		Spy.AlertWindow:SetBackdrop({
-			bgFile = "Interface\\AddOns\\Spy\\Textures\\alert-background.tga", tile = true, tileSize = 8,
-			edgeFile = "Interface\\AddOns\\Spy\\Textures\\alert-industrial.tga", edgeSize = 8,
-			insets = { left = 8, right = 8, top = 8, bottom = 8 },
+--			bgFile = "Interface\\AddOns\\Spy\\Textures\\alert-background.tga", tile = true, tileSize = 8,
+--			edgeFile = "Interface\\AddOns\\Spy\\Textures\\alert-industrial.tga", edgeSize = 8,
+--			insets = { left = 8, right = 8, top = 8, bottom = 8 },
+			bgFile = "Interface\\Tooltips\\UI-Tooltip-Background", tile = true, tileSize = 8,edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border", edgeSize = 8,
+			insets = { left = 2, right = 2, top = 2, bottom = 2 },
 		})
 		Spy.Colors:RegisterBackground("Alert", "Background", Spy.AlertWindow)
 
@@ -1015,6 +1018,14 @@ end
 function Spy:RestoreAlertWindowPosition(x, y)
 	Spy.AlertWindow:ClearAllPoints()
 	Spy.AlertWindow:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x, y)
+end
+
+function Spy:UpdateMainWindow()
+	if Spy.InInstance then
+		Spy.MainWindow:SetAlpha(Spy.db.profile.MainWindow.AlphaBG)		
+	else	
+		Spy.MainWindow:SetAlpha(Spy.db.profile.MainWindow.Alpha)
+	end	
 end
 
 function Spy:UpdateAlertWindow()

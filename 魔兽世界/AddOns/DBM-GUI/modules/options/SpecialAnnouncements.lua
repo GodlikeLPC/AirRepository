@@ -1,19 +1,5 @@
 local L = DBM_GUI_L
 
---Hard code STANDARD_TEXT_FONT since skinning mods like to taint it (or worse, set it to nil, wtf?)
-local standardFont
-if LOCALE_koKR then
-	standardFont = "Fonts\\2002.TTF"
-elseif LOCALE_zhCN then
-	standardFont = "Fonts\\ARKai_T.ttf"
-elseif LOCALE_zhTW then
-	standardFont = "Fonts\\blei00d.TTF"
-elseif LOCALE_ruRU then
-	standardFont = "Fonts\\FRIZQT___CYR.TTF"
-else
-	standardFont = "Fonts\\FRIZQT__.TTF"
-end
-
 local specPanel = DBM_GUI_Frame:CreateNewPanel(L.Panel_SpecWarnFrame, "option")
 local specArea = specPanel:CreateArea(L.Area_SpecWarn)
 
@@ -56,7 +42,7 @@ color0.myheight = 74
 local Fonts = DBM_GUI:MixinSharedMedia3("font", {
 	{
 		text	= "Default",
-		value	= standardFont
+		value	= "standardFont"
 	},
 	{
 		text	= "Arial",
@@ -143,22 +129,16 @@ durationSlider.myheight = 0
 
 local Sounds = DBM_GUI:MixinSharedMedia3("sound", {
 	{ text = L.NoSound, value = "" },
-	{ text = "Algalon: Beware!", value = 15391 },
-	{ text = "BB Wolf: Run Away", value = 9278 },
-	{ text = "Blizzard Raid Emote", value = 37666 },
-	{ text = "C'Thun: You Will Die!", value = 8585 },
-	{ text = "Headless Horseman: Laugh", value = 12506 },
-	{ text = "Illidan: Not Prepared", value = 68563 },
-	{ text = "Illidan: Not Prepared2", value = 12506 },
-	{ text = "Kaz'rogal: Marked", value = 11052 },
-	{ text = "Kil'Jaeden: Destruction", value = 12506 },
-	{ text = "Loatheb: I see you", value = 128466 },
-	{ text = "Lady Malande: Flee", value = 11482 },
-	{ text = "Milhouse: Light You Up", value = 49764 },
-	{ text = "Night Elf Bell", value = 11742 },
+	{ text = "Algalon: Beware!", value = "Interface\\AddOns\\DBM-Core\\sounds\\ClassicSupport\\UR_Algalon_BHole01.ogg" },
+	{ text = "BB Wolf: Run Away", value = "Interface\\AddOns\\DBM-Core\\sounds\\ClassicSupport\\HoodWolfTransformPlayer01.ogg" },
+	{ text = "Illidan: Not Prepared", value = "Interface\\AddOns\\DBM-Core\\sounds\\ClassicSupport\\BLACK_Illidan_04.ogg" },
+	{ text = "Illidan: Not Prepared2", value = "Interface\\AddOns\\DBM-Core\\sounds\\ClassicSupport\\VO_703_Illidan_Stormrage_03.ogg" },
+	{ text = "Kil'Jaeden: Destruction", value = "Interface\\AddOns\\DBM-Core\\sounds\\ClassicSupport\\KILJAEDEN02.ogg" },
+	{ text = "Loatheb: I see you", value = "Interface\\AddOns\\DBM-Core\\sounds\\ClassicSupport\\LOA_NAXX_AGGRO02.ogg" },
+	{ text = "Night Elf Bell", value = 6674 },
 	{ text = "PvP Flag", value = 8174 },
-	{ text = "Void Reaver: Marked", value = 11213 },
-	{ text = "Yogg Saron: Laugh", value = 15757 },
+	--{ text = "Void Reaver: Marked", value = 11213 },--Enable in TBC
+	--{ text = "Yogg Saron: Laugh", value = 15757 },--Enable in Wrath
 })
 
 local specWarnOne = specPanel:CreateArea(L.SpecialWarnHeader1)

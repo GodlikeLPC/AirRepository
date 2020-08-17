@@ -155,7 +155,7 @@ function frame:DisplayFrame(frame)
 							else
 								child2:SetPointOld("TOPLEFT", 10, -12)
 							end
-							child2.myheight = mmax(buttonText:GetContentHeight() + 12, 25)
+							child2.myheight = mmax(height + 12, 25)
 							buttonText:SetHeight(child2.myheight)
 						end
 						lastObject = child2
@@ -178,7 +178,14 @@ function frame:DisplayFrame(frame)
 		end
 	end
 	if scrollBar:IsShown() then
-		scrollBar:SetMinMaxValues(0, frameHeight - container:GetHeight())
+		local maxVal = frameHeight - container:GetHeight()
+		if maxVal > 0 then
+			scrollBar:SetMinMaxValues(0, maxVal)
+		else
+			scrollBar:Hide()
+			scrollBar:SetValue(0)
+			scrollBar:SetMinMaxValues(0, 0)
+		end
 	end
 	if DBM.Options.EnableModels then
 		local bossPreview = _G["DBM_BossPreview"]

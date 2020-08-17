@@ -1,4 +1,4 @@
-## Interface: 11304
+## Interface: 11305
 ## Title: Druid Bar Classic
 ## Title-zhCN: [大脚][集]德鲁伊法力监视
 ## Title-zhTW: [大腳][集]德魯伊法力監視
@@ -8,7 +8,7 @@
 ## Current Author: Tek (port to WoW Classic Beta)
 ## Original Authors: SkaDemon (GUI: DiabloHu)
 ## SavedVariables: DruidBarKey
-## Version: 0.7.7
+## Version: 0.7.8
 ## Dependencies: BigFoot
 ## X-Revision: BigFoot
 
