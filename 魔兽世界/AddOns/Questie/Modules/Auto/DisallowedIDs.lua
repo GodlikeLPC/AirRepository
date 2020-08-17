@@ -7,40 +7,11 @@ local _QuestieAuto = QuestieAuto.private
 _QuestieAuto.disallowedNPC = {
     -- AQ
     -- Ally
-    [15446] = true, -- Bonnie Stoneflayer (Light Leather)
     [15458] = true, -- Commander Stronghammer (Alliance Ambassador)
-    [15431] = true, -- Corporal Carnes (Iron Bar)
-    [15432] = true, -- Dame Twinbraid (Thorium Bar)
-    [15453] = true, -- Keeper Moonshade (Runecloth Bandage)
-    [15457] = true, -- Huntress Swiftriver (Spotted Yellowtail)
-    [15450] = true, -- Marta Finespindle (Thick Leather)
-    [15437] = true, -- Master Nightsong (Purple Lotus)
-    [15452] = true, -- Nurse Stonefield (Silk Bandage)
-    [15434] = true, -- Private Draxlegauge (Stranglekelp)
-    [15448] = true, -- Private Porter (Medium Leather)
-    [15456] = true, -- Sarah Sadwhistle (Roast Raptor)
-    [15451] = true, -- Sentinel Silversky (Linen Bandage)
-    [15445] = true, -- Sergeant Major Germaine (Arthas' Tears)
-    [15383] = true, -- Sergeant Stonebrow (Copper Bar)
-    [15455] = true, -- Slicky Gastronome (Rainbow Fin Albacore)
+    [15701] = true, -- Field Marshal Snowfall (War Effort Commander)
     -- Horde
-    [15512] = true, -- Apothecary Jezel (Purple Lotus)
-    [15508] = true, -- Batrider Pele'keiki (Firebloom)
-    [15533] = true, -- Bloodguard Rawtar (Lean Wolf Steak)
-    [15535] = true, -- Chief Sharpclaw (Baked Salmon)
-    [15525] = true, -- Doctor Serratus (Rugged Leather)
-    [15534] = true, -- Fisherman Lin'do (Spotted Yellowtail)
     [15539] = true, -- General Zog (Horde Ambassador)
-    [15460] = true, -- Grunt Maug (Tin Bar)
-    [15528] = true, -- Healer Longrunner (Wool Bandage)
-    [15477] = true, -- Herbalist Proudfeather (Peacebloom)
-    [15529] = true, -- Lady Callow (Mageweave Bandage)
-    [15459] = true, -- Miner Cromwell (Copper Bar)
-    [15469] = true, -- Senior Sergeant T'kelah (Mithril Bar)
-    [15522] = true, -- Sergeant Umala (Thick Leather)
-    [15515] = true, -- Skinner Jamani (Heavy Leather)
-    [15532] = true, -- Stoneguard Clayhoof (Runecloth Bandage)
-
+    [15700] = true, -- Warlord Gorchuk (War Effort Commander)
     -- Commendations
     [15764] = true, -- Officer Ironbeard (Ironforge Commendations)
     [15762] = true, -- Officer Lunalight (Darnassus Commendations)
@@ -52,8 +23,16 @@ _QuestieAuto.disallowedNPC = {
     [15761] = true, -- Officer Vu'Shalay (Darkspear Commendations)
 
     -- Stray
+    [12944] = true, -- Lokhtos Darkbargainer (Thorium Brotherhood, Blackrock Depths)
+    [14828] = true, -- Gelvas Grimegate (Darkmoon Faire Ticket Redemption)
     [15192] = true, -- Anachronos (Caverns of Time)
-    [12944] = true -- Lokhtos Darkbargainer (Thorium Brotherhood, Blackrock Depths)
+    -- AQ gear turnin
+    [15378] = true,
+    [15380] = true,
+    [15498] = true,
+    [15499] = true,
+    [15500] = true,
+    [15503] = true
 }
 
 _QuestieAuto.disallowedQuests = {
@@ -121,6 +100,10 @@ _QuestieAuto.disallowedQuests = {
     [4083] = true,
     [5166] = true,
     [5167] = true,
+    [5067] = true,
+    [5063] = true,
+    [5068] = true,
+    [8196] = true,
     -- The Barrens Bloodshard quests
     [889] = true,
     [5042] = true,
@@ -128,5 +111,11 @@ _QuestieAuto.disallowedQuests = {
     [5044] = true,
     [5045] = true,
     [5046] = true,
+    -- AQ
+    [8548] = true,
+    [8572] = true,
+    [8573] = true,
+    [8574] = true,
+    [8288] = true
     --
 }
