@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("TwinEmpsAQ", "DBM-AQ40", 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20200811013452")
+mod:SetRevision("20200828175100")
 mod:SetCreatureID(15276, 15275)
 mod:SetEncounterID(715)
 --mod:SetModelID(15778)--Renders too close
@@ -13,13 +13,13 @@ mod:RegisterEventsInCombat(
 )
 
 --Add warning for classic to actually swap for strike? boss taunt immune though.
-local warnStrike			= mod:NewTargetNoFilterAnnounce(26613, 3, nil, "Tank|Healer")
+local warnStrike			= mod:NewTargetNoFilterAnnounce(26613, 3, nil, "Tank|Healer", 2)
 local warnTeleport			= mod:NewSpellAnnounce(800, 3)
 local warnExplodeBug		= mod:NewSpellAnnounce(804, 2, nil, false)
 local warnMutateBug			= mod:NewSpellAnnounce(802, 2, nil, false)
 
 local specWarnStrike		= mod:NewSpecialWarningDefensive(26613, nil, nil, nil, 1, 2)
-local specWarnGTFO			= mod:NewSpecialWarningGTFO(26613, nil, nil, nil, 8, 2)
+local specWarnGTFO			= mod:NewSpecialWarningGTFO(26607, nil, nil, nil, 8, 2)
 
 local timerTeleport			= mod:NewCDTimer(29.2, 800, nil, nil, nil, 6, nil, nil, true, 1, 4)--29.2-40.2
 local timerExplodeBugCD		= mod:NewCDTimer(4.9, 804, nil, false, nil, 1)--4.9-9
@@ -50,7 +50,7 @@ do
 			else
 				warnStrike:Show(args.destName)
 			end
-		elseif args.spellName == UnbalancingStrike and args:IsPlayer() and args:IsSrcTypeHostile() then
+		elseif args.spellName == Blizzard and args:IsPlayer() and args:IsSrcTypeHostile() then
 			specWarnGTFO:Show(args.spellName)
 			specWarnGTFO:Play("watchfeet")
 		end
