@@ -1,3 +1,0 @@
-
-MySlot_SavedDb = {
-}

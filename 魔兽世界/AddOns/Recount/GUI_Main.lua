@@ -42,6 +42,8 @@ local FauxScrollFrame_OnVerticalScroll = FauxScrollFrame_OnVerticalScroll
 local UIDropDownMenu_AddButton = UIDropDownMenu_AddButton
 local UIDropDownMenu_SetAnchor = UIDropDownMenu_SetAnchor
 
+local WOW_RETAIL = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
+
 local me = {}
 
 local dbCombatants
@@ -650,14 +652,22 @@ function Recount:CreateMainWindow()
 			Recount:CancelTimer(Recount.MainWindow.timeid)
 			Recount.MainWindow.timeid = nil
 		end
+		if not UIParent:IsShown() or (WOW_RETAIL and C_PetBattles.IsInBattle() or false) then
+			return
+		end
 		Recount.db.profile.MainWindowVis = false
 	end)
 
 	local theFrame = Recount.MainWindow
 
 	theFrame:SetResizable(true)
-	theFrame:SetMinResize(140, 63)
-	theFrame:SetMaxResize(500, 520)
+
+	if theFrame.SetResizeBounds then
+		theFrame:SetResizeBounds(140, 63, 500, 520)
+	else
+		theFrame:SetMinResize(140, 63)
+		theFrame:SetMaxResize(500, 520)
+	end
 
 	theFrame.SaveMainWindowPosition = Recount.SaveMainWindowPosition
 

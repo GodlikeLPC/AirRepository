@@ -1,10 +1,13 @@
-## Interface: 11305
+## Interface: 30400
 ## Title: NugRunningOptions
 ## Notes: Options for NugRunning
 ## Author: d87
 ## RequiredDeps: NugRunning
 ## LoadOnDemand: 1
-## X-Revision: BigFoot
 
-..\NugRunning\Locales\zhCN.lua
-..\NugRunning\Options\NugRunningOptions.lua
+..\NugRunning\Options\includes.xml
+
+## Title: |cff880303[163UI]|r NugRunningOptions
+## Title-zhCN: |cff880303[有爱]|r NugRunning 施法计时设置界面
+## X-Vendor: NetEase
+## X-163UI-Version: 20221103152219

@@ -498,7 +498,7 @@ end
 local function createFrame(ud)
     local unit = ud.unit
     ud.isMoving = false
-    ud.mainFrame = CreateFrame("Frame", "RangeDisplayMainFrame_" .. unit, UIParent)
+    ud.mainFrame = CreateFrame("Frame", "RangeDisplayMainFrame_" .. unit, UIParent, "BackdropTemplate")
     ud.mainFrame:SetFrameStrata(ud.db.strata)
     ud.mainFrame:EnableMouse(false)
     ud.mainFrame:SetClampedToScreen()
@@ -507,7 +507,7 @@ local function createFrame(ud)
     ud.mainFrame:SetHeight(ud.db.frameHeight)
     ud.mainFrame:SetPoint(ud.db.point, UIParent, ud.db.relPoint, ud.db.x, ud.db.y)
 
-    ud.rangeFrame = CreateFrame("Frame", "RangeDisplayFrame_" .. unit, ud.mainFrame)
+    ud.rangeFrame = CreateFrame("Frame", "RangeDisplayFrame_" .. unit, ud.mainFrame, "BackdropTemplate")
     ud.rangeFrame:SetPoint("CENTER", ud.mainFrame, "CENTER", 0, 0)
     ud.rangeFrame:SetAllPoints()
     ud.rangeFrame:Hide()
@@ -845,7 +845,6 @@ function RangeDisplay:toggleLocked(flag)
     else
         self:unlock()
     end
-	RangeDisplay_OptionLoad()
 end
 
 function RangeDisplay:toggleMute(flag)
@@ -916,11 +915,10 @@ end
 function RangeDisplay:loadOptions()
     if not self.optionsLoaded then
         self.optionsLoaded = true
-		RangeDisplay_OptionLoad()
-        -- local loaded, reason = LoadAddOn(OptionsAppName)
-        -- if not loaded then
-            -- print("Failed to load " .. tostring(OptionsAppName) .. ": " .. tostring(reason))
-        -- end
+        local loaded, reason = LoadAddOn(OptionsAppName)
+        if not loaded then
+            print("Failed to load " .. tostring(OptionsAppName) .. ": " .. tostring(reason))
+        end
     end
 end
 
@@ -928,6 +926,7 @@ function RangeDisplay:openConfigDialog(ud)
     -- this function will be overwritten by the Options module when loaded
     if not self.optionsLoaded then
         self:loadOptions()
+        InterfaceAddOnsList_Update()
         return self:openConfigDialog(ud)
     end
     InterfaceOptionsFrame_OpenToCategory(self.dummyOpts)
@@ -958,3 +957,6 @@ CONFIGMODE_CALLBACKS[AppName] = function(action)
          RangeDisplay:toggleLocked(true)
     end
 end
+
+defaults.profile.locked = true;
+

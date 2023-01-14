@@ -1,0 +1,14 @@
+## Interface: 30400
+## Title: WeakAuras Archive
+## Author: The WeakAuras Team
+## Version: 5.3.3
+## LoadOnDemand: 1
+## SavedVariables: WeakAurasArchive
+## Dependencies: WeakAuras
+
+WeakAurasArchive.lua
+
+## Title: |cff880303[163UI]|r WeakAuras Archive
+## Title-zhCN: |cff880303[有爱]|r WeakAuras 存储
+## X-Vendor: NetEase
+## X-163UI-Version: 20221216165106

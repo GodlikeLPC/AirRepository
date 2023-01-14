@@ -1,0 +1,14 @@
+## Interface: 30400
+## Title: Dejunk
+## Version: 1.4.1
+## Author: https://github.com/moody
+## Notes: Simple junk selling and destroying.
+## SavedVariables: __DEJUNK_ADDON_GLOBAL_SAVED_VARIABLES__
+## SavedVariablesPerCharacter: __DEJUNK_ADDON_PERCHAR_SAVED_VARIABLES__
+
+Dejunk.xml
+
+## Title: |cff880303[163UI]|r Dejunk
+## Title-zhCN: |cff880303[有爱]|r Dejunk自动出售和摧毁
+## X-Vendor: NetEase
+## X-163UI-Version: 20221118173118

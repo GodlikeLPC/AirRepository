@@ -1,0 +1,10 @@
+## Interface: 90002
+## Title: |cFFBF00FF[H]|r HFixInv
+## Notes: 用于hook所有的UNIT_INVENTORY_CHANGED事件,并增加UNIT_INVENTORY_CHANGED执行的间隔(主要用于解决切换地图时UNIT_INVENTORY_CHANGED事件会被触发几百次的问题)
+## Author: Qshine
+## Author-zhCN: 上官晓雾
+## Author-zhTW: 上官曉霧
+
+## Version: 0.6
+
+HFixInv.lua

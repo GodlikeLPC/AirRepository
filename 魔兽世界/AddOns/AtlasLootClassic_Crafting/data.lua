@@ -12,9 +12,9 @@ local RAID_CLASS_COLORS = _G["RAID_CLASS_COLORS"]
 -- ----------------------------------------------------------------------------
 -- AddOn namespace.
 -- ----------------------------------------------------------------------------
-local addonname = ...
+local addonname, private = ...
 local AtlasLoot = _G.AtlasLoot
-local data = AtlasLoot.ItemDB:Add(addonname, 1)
+local data = AtlasLoot.ItemDB:Add(addonname, 1, AtlasLoot.CLASSIC_VERSION_NUM)
 
 local GetColorSkill = AtlasLoot.Data.Profession.GetColorSkillRankNoSpell
 
@@ -33,6 +33,7 @@ local QUEST_EXTRA_ITTYPE = data:AddExtraItemTableType("Quest")
 local PRICE_EXTRA_ITTYPE = data:AddExtraItemTableType("Price")
 
 local PROF_CONTENT = data:AddContentType(ALIL["Professions"], ATLASLOOT_PRIMPROFESSION_COLOR)
+local PROF_GATH_CONTENT = data:AddContentType(ALIL["Gathering Professions"], ATLASLOOT_PRIMPROFESSION_COLOR)
 local PROF_SEC_CONTENT = data:AddContentType(AL["Secondary Professions"], ATLASLOOT_SECPROFESSION_COLOR)
 local PROF_CLASS_CONTENT = data:AddContentType(AL["Class Professions"], ATLASLOOT_CLASSPROFESSION_COLOR)
 --local RAID20_CONTENT = data:AddContentType(AL["20 Raids"], ATLASLOOT_RAID20_COLOR)
@@ -43,6 +44,7 @@ data["Alchemy"] = {
 	ContentType = PROF_CONTENT,
 	LoadDifficulty = NORMAL_DIFF,
 	TableType = PROF_ITTYPE,
+	CorrespondingFields = private.ALCHEMY_LINK,
 	items = {
 		{
 			name = AL["Flasks"],
@@ -210,6 +212,7 @@ data["Blacksmithing"] = {
 	ContentType = PROF_CONTENT,
 	LoadDifficulty = NORMAL_DIFF,
 	TableType = PROF_ITTYPE,
+	CorrespondingFields = private.BLACKSMITHING_LINK,
 	items = {
 		{
 			name = AL["Weapons"].." - "..ALIL["Daggers"],
@@ -313,6 +316,52 @@ data["Blacksmithing"] = {
 			}
 		},
 		{
+			name = AL["Armor"].." - "..ALIL["Head"],
+			[MAIL_DIFF] = {
+				{ 1, 16728 }, --Helm of the Great Chief / 61
+				{ 2, 16659 }, --Radiant Circlet / 59
+				{ 3, 9961 }, --Mithril Coif / 46
+				{ 4, 3503 }, --Golden Scale Coif / 38
+				{ 5, 9814 }, --Barbaric Iron Helm / 35
+				{ 6, 3502 }, --Green Iron Helm / 34
+			},
+			[PLATE_DIFF] = {
+				{ 1, 23636 }, --Dark Iron Helm / 66
+				{ 2, 24913 }, --Darkrune Helm / 63
+				{ 3, 16742 }, --Enchanted Thorium Helm / 62
+				{ 4, 16729 }, --Lionheart Helm / 61
+				{ 5, 16726 }, --Runic Plate Helm / 61
+				{ 6, 16724 }, --Whitesoul Helm / 60
+				{ 7, 16658 }, --Imperial Plate Helm / 59
+				{ 8, 16653 }, --Thorium Helm / 56
+				{ 9, 9980 }, --Ornate Mithril Helm / 49
+				{ 10, 9970 }, --Heavy Mithril Helm / 47
+				{ 11, 9935 }, --Steel Plate Helm / 43
+			},
+		},
+		{
+			name = AL["Armor"].." - "..ALIL["Shoulder"],
+			[MAIL_DIFF] = {
+				{ 1, 24137 }, --Bloodsoul Shoulders / 65
+				{ 2, 20873 }, --Fiery Chain Shoulders / 62
+				{ 3, 9966 }, --Mithril Scale Shoulders / 47
+				{ 4, 3505 }, --Golden Scale Shoulders / 35
+				{ 5, 9811 }, --Barbaric Iron Shoulders / 32
+				{ 6, 3504 }, --Green Iron Shoulders / 32
+				{ 7, 3330 }, --Silvered Bronze Shoulders / 25
+				{ 8, 3328 }, --Rough Bronze Shoulders / 22
+			},
+			[PLATE_DIFF] = {
+				{ 1, 24141 }, --Darksoul Shoulders / 65
+				{ 2, 16664 }, --Runic Plate Shoulders / 60
+				{ 3, 15295 }, --Dark Iron Shoulders / 58
+				{ 4, 16660 }, --Dawnbringer Shoulders / 58
+				{ 5, 16646 }, --Imperial Plate Shoulders / 53
+				{ 6, 9952 }, --Ornate Mithril Shoulder / 45
+				{ 7, 9926 }, --Heavy Mithril Shoulder / 41
+			},
+		},
+		{
 			name = AL["Armor"].." - "..ALIL["Chest"],
 			[MAIL_DIFF] = {
 				{ 1, 27590 }, --Obsidian Mail Tunic / 72
@@ -399,30 +448,6 @@ data["Blacksmithing"] = {
 			},
 		},
 		{
-			name = AL["Armor"].." - "..ALIL["Head"],
-			[MAIL_DIFF] = {
-				{ 1, 16728 }, --Helm of the Great Chief / 61
-				{ 2, 16659 }, --Radiant Circlet / 59
-				{ 3, 9961 }, --Mithril Coif / 46
-				{ 4, 3503 }, --Golden Scale Coif / 38
-				{ 5, 9814 }, --Barbaric Iron Helm / 35
-				{ 6, 3502 }, --Green Iron Helm / 34
-			},
-			[PLATE_DIFF] = {
-				{ 1, 23636 }, --Dark Iron Helm / 66
-				{ 2, 24913 }, --Darkrune Helm / 63
-				{ 3, 16742 }, --Enchanted Thorium Helm / 62
-				{ 4, 16729 }, --Lionheart Helm / 61
-				{ 5, 16726 }, --Runic Plate Helm / 61
-				{ 6, 16724 }, --Whitesoul Helm / 60
-				{ 7, 16658 }, --Imperial Plate Helm / 59
-				{ 8, 16653 }, --Thorium Helm / 56
-				{ 9, 9980 }, --Ornate Mithril Helm / 49
-				{ 10, 9970 }, --Heavy Mithril Helm / 47
-				{ 11, 9935 }, --Steel Plate Helm / 43
-			},
-		},
-		{
 			name = AL["Armor"].." - "..ALIL["Legs"],
 			[MAIL_DIFF] = {
 				{ 1, 16725 }, --Radiant Leggings / 61
@@ -445,28 +470,6 @@ data["Blacksmithing"] = {
 				{ 7, 27829 }, --Titanic Leggings / 60
 				{ 8, 9945 }, --Ornate Mithril Pants / 44
 				{ 9, 9933 }, --Heavy Mithril Pants / 42
-			},
-		},
-		{
-			name = AL["Armor"].." - "..ALIL["Shoulder"],
-			[MAIL_DIFF] = {
-				{ 1, 24137 }, --Bloodsoul Shoulders / 65
-				{ 2, 20873 }, --Fiery Chain Shoulders / 62
-				{ 3, 9966 }, --Mithril Scale Shoulders / 47
-				{ 4, 3505 }, --Golden Scale Shoulders / 35
-				{ 5, 9811 }, --Barbaric Iron Shoulders / 32
-				{ 6, 3504 }, --Green Iron Shoulders / 32
-				{ 7, 3330 }, --Silvered Bronze Shoulders / 25
-				{ 8, 3328 }, --Rough Bronze Shoulders / 22
-			},
-			[PLATE_DIFF] = {
-				{ 1, 24141 }, --Darksoul Shoulders / 65
-				{ 2, 16664 }, --Runic Plate Shoulders / 60
-				{ 3, 15295 }, --Dark Iron Shoulders / 58
-				{ 4, 16660 }, --Dawnbringer Shoulders / 58
-				{ 5, 16646 }, --Imperial Plate Shoulders / 53
-				{ 6, 9952 }, --Ornate Mithril Shoulder / 45
-				{ 7, 9926 }, --Heavy Mithril Shoulder / 41
 			},
 		},
 		{
@@ -565,6 +568,7 @@ data["Enchanting"] = {
 	ContentType = PROF_CONTENT,
 	LoadDifficulty = NORMAL_DIFF,
 	TableType = PROF_ITTYPE,
+	CorrespondingFields = private.ENCHANTING_LINK,
 	items = {
 		{
 			name = AL["Oil"],
@@ -780,6 +784,7 @@ data["Engineering"] = {
 	ContentType = PROF_CONTENT,
 	LoadDifficulty = NORMAL_DIFF,
 	TableType = PROF_ITTYPE,
+	CorrespondingFields = private.ENGINEERING_LINK,
 	items = {
 		{
 			name = AL["Armor"],
@@ -1005,6 +1010,7 @@ data["Tailoring"] = {
 	ContentType = PROF_CONTENT,
 	LoadDifficulty = NORMAL_DIFF,
 	TableType = PROF_ITTYPE,
+	CorrespondingFields = private.TAILORING_LINK,
 	items = {
 		{
 			name = AL["Armor"].." - "..ALIL["Cloak"],
@@ -1025,6 +1031,46 @@ data["Tailoring"] = {
 				{ 14, 2402 }, --Woolen Cape / 16
 				{ 15, 2397 }, --Reinforced Linen Cape / 12
 				{ 16, 2387 }, --Linen Cloak / 6
+			}
+		},
+		{
+			name = AL["Armor"].." - "..ALIL["Head"],
+			[NORMAL_DIFF] = {
+				{ 1, 28481 }, --Sylvan Crown / 70
+				{ 2, 18452 }, --Mooncloth Circlet / 62
+				{ 3, 18450 }, --Wizardweave Turban / 61
+				{ 4, 18444 }, --Runecloth Headband / 59
+				{ 5, 18442 }, --Felcloth Hood / 58
+				{ 6, 12092 }, --Dreamweave Circlet / 50
+				{ 7, 12086 }, --Shadoweave Mask / 49
+				{ 8, 12084 }, --Red Mageweave Headband / 48
+				{ 9, 12081 }, --Admiral's Hat / 48
+				{ 10, 12072 }, --Black Mageweave Headband / 46
+				{ 11, 12059 }, --White Bandit Mask / 43
+				{ 12, 3858 }, --Shadow Hood / 34
+				{ 13, 3857 }, --Enchanter's Cowl / 33
+				{ 14, 8762 }, --Silk Headband / 32
+				{ 15, 8760 }, --Azure Silk Hood / 29
+			}
+		},
+		{
+			name = AL["Armor"].." - "..ALIL["Shoulder"],
+			[NORMAL_DIFF] = {
+				{ 1, 28482 }, --Sylvan Shoulders / 70 / 315
+				{ 2, 23663 }, --Mantle of the Timbermaw / 64 / 315
+				{ 3, 23665 }, --Argent Shoulders / 64 / 315
+				{ 4, 18453 }, --Felcloth Shoulders / 62 / 315
+				{ 5, 20848 }, --Flarecore Mantle / 61 / 315
+				{ 6, 18449 }, --Runecloth Shoulders / 61 / 315
+				{ 7, 18448 }, --Mooncloth Shoulders / 61 / 315
+				{ 8, 12078 }, --Red Mageweave Shoulders / 47 / 250
+				{ 9, 12076 }, --Shadoweave Shoulders / 47 / 250
+				{ 10, 12074 }, --Black Mageweave Shoulders / 46 / 245
+				{ 11, 8793 }, --Crimson Silk Shoulders / 38 / 210
+				{ 12, 8795 }, --Azure Shoulders / 38 / 210
+				{ 13, 8774 }, --Green Silken Shoulders / 36 / 200
+				{ 14, 3849 }, --Reinforced Woolen Shoulders / 24 / 145
+				{ 15, 3848 }, --Double-stitched Woolen Shoulders / 22 / 135
 			}
 		},
 		{
@@ -1135,26 +1181,6 @@ data["Tailoring"] = {
 			}
 		},
 		{
-			name = AL["Armor"].." - "..ALIL["Head"],
-			[NORMAL_DIFF] = {
-				{ 1, 28481 }, --Sylvan Crown / 70
-				{ 2, 18452 }, --Mooncloth Circlet / 62
-				{ 3, 18450 }, --Wizardweave Turban / 61
-				{ 4, 18444 }, --Runecloth Headband / 59
-				{ 5, 18442 }, --Felcloth Hood / 58
-				{ 6, 12092 }, --Dreamweave Circlet / 50
-				{ 7, 12086 }, --Shadoweave Mask / 49
-				{ 8, 12084 }, --Red Mageweave Headband / 48
-				{ 9, 12081 }, --Admiral's Hat / 48
-				{ 10, 12072 }, --Black Mageweave Headband / 46
-				{ 11, 12059 }, --White Bandit Mask / 43
-				{ 12, 3858 }, --Shadow Hood / 34
-				{ 13, 3857 }, --Enchanter's Cowl / 33
-				{ 14, 8762 }, --Silk Headband / 32
-				{ 15, 8760 }, --Azure Silk Hood / 29
-			}
-		},
-		{
 			name = AL["Armor"].." - "..ALIL["Legs"],
 			[NORMAL_DIFF] = {
 				{ 1, 23667 }, --Flarecore Leggings / 70
@@ -1211,26 +1237,6 @@ data["Tailoring"] = {
 			}
 		},
 		{
-			name = AL["Armor"].." - "..ALIL["Shoulder"],
-			[NORMAL_DIFF] = {
-				{ 1, 28482 }, --Sylvan Shoulders / 70 / 315
-				{ 2, 23663 }, --Mantle of the Timbermaw / 64 / 315
-				{ 3, 23665 }, --Argent Shoulders / 64 / 315
-				{ 4, 18453 }, --Felcloth Shoulders / 62 / 315
-				{ 5, 20848 }, --Flarecore Mantle / 61 / 315
-				{ 6, 18449 }, --Runecloth Shoulders / 61 / 315
-				{ 7, 18448 }, --Mooncloth Shoulders / 61 / 315
-				{ 8, 12078 }, --Red Mageweave Shoulders / 47 / 250
-				{ 9, 12076 }, --Shadoweave Shoulders / 47 / 250
-				{ 10, 12074 }, --Black Mageweave Shoulders / 46 / 245
-				{ 11, 8793 }, --Crimson Silk Shoulders / 38 / 210
-				{ 12, 8795 }, --Azure Shoulders / 38 / 210
-				{ 13, 8774 }, --Green Silken Shoulders / 36 / 200
-				{ 14, 3849 }, --Reinforced Woolen Shoulders / 24 / 145
-				{ 15, 3848 }, --Double-stitched Woolen Shoulders / 22 / 135
-			}
-		},
-		{
 			name = AL["Armor"].." - "..ALIL["Waist"],
 			[NORMAL_DIFF] = {
 				{ 1, 24902 }, --Runed Stygian Belt / 63 / 315
@@ -1284,11 +1290,11 @@ data["Tailoring"] = {
 			name = AL["Misc"],
 			[NORMAL_DIFF] = {
 				{ 1, 18560 }, --Mooncloth / 55 / 290
-				{ 2, 18401 }, --Bolt of Runecloth / 55 / 255
-				{ 3, 3865 }, --Bolt of Mageweave / 45 / 180
-				{ 4, 3839 }, --Bolt of Silk Cloth / 35 / 135
-				{ 5, 2964 }, --Bolt of Woolen Cloth / 25 / 90
-				{ 6, 2963 }, --Bolt of Linen Cloth / 10 / 25
+				{ 3, 18401 }, --Bolt of Runecloth / 55 / 255
+				{ 4, 3865 }, --Bolt of Mageweave / 45 / 180
+				{ 5, 3839 }, --Bolt of Silk Cloth / 35 / 135
+				{ 6, 2964 }, --Bolt of Woolen Cloth / 25 / 90
+				{ 7, 2963 }, --Bolt of Linen Cloth / 10 / 25
 			}
 		},
 	}
@@ -1299,6 +1305,7 @@ data["Leatherworking"] = {
 	ContentType = PROF_CONTENT,
 	LoadDifficulty = NORMAL_DIFF,
 	TableType = PROF_ITTYPE,
+	CorrespondingFields = private.LEATHERWORKING_LINK,
 	items = {
 		{
 			name = AL["Armor"].." - "..ALIL["Cloak"],
@@ -1608,9 +1615,10 @@ data["Leatherworking"] = {
 
 data["Mining"] = {
 	name = ALIL["Mining"],
-	ContentType = PROF_CONTENT,
+	ContentType = PROF_GATH_CONTENT,
 	LoadDifficulty = NORMAL_DIFF,
 	TableType = PROF_ITTYPE,
+	CorrespondingFields = private.MINING_LINK,
 	items = {
 		{
 			name = AL["Smelting"],
@@ -1634,9 +1642,10 @@ data["Mining"] = {
 
 data["Herbalism"] = {
 	name = ALIL["Herbalism"],
-	ContentType = PROF_CONTENT,
+	ContentType = PROF_GATH_CONTENT,
 	LoadDifficulty = NORMAL_DIFF,
 	TableType = NORMAL_ITTYPE,
+	CorrespondingFields = private.HERBALISM_LINK,
 	items = {
 		{
 			name = AL["Artisan"],
@@ -1698,6 +1707,7 @@ data["Cooking"] = {
 	ContentType = PROF_SEC_CONTENT,
 	LoadDifficulty = NORMAL_DIFF,
 	TableType = PROF_ITTYPE,
+	CorrespondingFields = private.COOKING_LINK,
 	items = {
 		{
 			name = ALIL["Stamina"],
@@ -1838,6 +1848,7 @@ data["FirstAid"] = {
 	ContentType = PROF_SEC_CONTENT,
 	LoadDifficulty = NORMAL_DIFF,
 	TableType = PROF_ITTYPE,
+	CorrespondingFields = private.FIRSTAID_LINK,
 	items = {
 		{
 			name = ALIL["First Aid"],
@@ -1860,11 +1871,72 @@ data["FirstAid"] = {
 	}
 }
 
+data["Fishing"] = {
+	name = ALIL["Fishing"],
+	ContentType = PROF_SEC_CONTENT,
+	LoadDifficulty = NORMAL_DIFF,
+	TableType = NORMAL_ITTYPE,
+	CorrespondingFields = private.FISHING_LINK,
+	items = {
+		{
+			name = ALIL["Fishing"],
+			[NORMAL_DIFF] = {
+				{ 1, 6533 }, --  Aquadynamic Fish Attractor
+				{ 2, 6532 }, --  Bright Baubles
+				{ 3, 7307 }, --  Flesh Eating Worm
+				{ 4, 6811 }, --  Aquadynamic Fish Lens
+				{ 5, 6530 }, --  Nightcrawlers
+				{ 16, 19971 }, -- High Test Eternium Fishing Line
+				{ 29, 16082 }, -- Artisan Fishing - The Way of the Lure
+				{ 30, 16083 }, -- Expert Fishing - The Bass and You
+			}
+		},
+		{
+			name = ALIL["Fishing Pole"],
+			[NORMAL_DIFF] = {
+				{ 1, 19970 }, -- Arcanite Fishing Pole
+				{ 2, 19022 }, -- Nat Pagle's Extreme Angler FC-5000
+				{ 3, 6367 }, -- Big Iron Fishing Pole
+				{ 4, 6366 }, -- Darkwood Fishing Pole
+				{ 5, 6365 }, -- Strong Fishing Pole
+				{ 6, 12225 }, -- Blump Family Fishing Pole
+				{ 7, 6256 }, -- Fishing Pole
+			}
+		},
+		{
+			name = AL["Fishes"],
+			[NORMAL_DIFF] = {
+				{ 1, 13888 }, -- Darkclaw Lobster
+				{ 2, 13890 }, -- Plated Armorfish
+				{ 3, 13889 }, -- Raw Whitescale Salmon
+				{ 4, 13754 }, -- Raw Glossy Mightfish
+				{ 5, 13759 }, -- Raw Nightfin Snapper
+				{ 6, 13758 }, -- Raw Redgill
+				{ 7, 4603 }, -- Raw Spotted Yellowtail
+				{ 8, 13756 }, -- Raw Summer Bass
+				{ 9, 13760 }, -- Raw Sunscale Salmon
+				{ 10, 7974 }, -- Zesty Clam Meat
+				{ 11, 21153 }, -- Raw Greater Sagefish
+				{ 12, 8365 }, -- Raw Mithril Head Trout
+				{ 13, 6362 }, -- Raw Rockscale Cod
+				{ 14, 6308 }, -- Raw Bristle Whisker Catfish
+				{ 15, 21071 }, -- Raw Sagefish
+				{ 16, 6317 }, -- Raw Loch Frenzy
+				{ 17, 6289 }, -- Raw Longjaw Mud Snapper
+				{ 18, 6361 }, -- Raw Rainbow Fin Albacore
+				{ 19, 6291 }, -- Raw Brilliant Smallfish
+				{ 20, 6303 }, -- Raw Slitherskin Mackerel
+			}
+		},
+	}
+}
+
 data["RoguePoisons"] = {
 	name = format("|c%s%s|r", RAID_CLASS_COLORS["ROGUE"].colorStr, ALIL["ROGUE"]),
 	ContentType = PROF_CLASS_CONTENT,
 	LoadDifficulty = NORMAL_DIFF,
 	TableType = PROF_ITTYPE,
+	CorrespondingFields = private.ROGUE_POISONS_LINK,
 	items = {
 		{
 			name = ALIL["Poisons"],

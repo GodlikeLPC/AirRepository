@@ -1,0 +1,17 @@
+## Interface: 30400
+## Title: NeatPlates: Neon Theme
+## Notes: It toasts your Eggo waffles, and butters your bread.
+## Author: Binny
+## Dependencies: NeatPlates, NeatPlatesHub
+
+Neon.lua
+
+
+
+## Title: |cff880303[163UI]|r NeatPlates: Neon Theme
+## Title-zhCN: |cff880303[有爱]|r Neat 姓名板Neon主题
+## Title-zhTW: |cff880303[有爱]|r Neat 姓名板Neon主题
+## Notes-zhCN: 强大到爆的多功能姓名版美化插件-NeonTheme风格模块。
+## Notes-zhTW: 強大到爆的多功能姓名版美化插件-NeonTheme風格模塊。
+## X-Vendor: NetEase
+## X-163UI-Version: 20230105151404

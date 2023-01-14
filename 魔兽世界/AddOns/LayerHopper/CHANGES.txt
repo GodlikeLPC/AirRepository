@@ -1,0 +1,24 @@
+lightweight tag 4e215da624b696a003f607286082d5882fe9fdd7 v1.5.8
+Author:	GitHub <noreply@github.com>
+Date:	Mon Jul 20 22:02:52 2020 -0700
+
+commit 4e215da624b696a003f607286082d5882fe9fdd7
+Author: psynct <66823362+psynct@users.noreply.github.com>
+Date:   Mon Jul 20 22:02:52 2020 -0700
+
+    Update version
+
+commit 087efeef1391915439cb00ff13386b6545e0484a
+Author: psynct <66823362+psynct@users.noreply.github.com>
+Date:   Mon Jul 20 22:02:38 2020 -0700
+
+    Update version
+
+commit 2c3900b54a941ce284b63efc7e205f474a0c647a
+Author: psynct <66823362+psynct@users.noreply.github.com>
+Date:   Mon Jul 20 22:02:21 2020 -0700
+
+    Add voidwalker to blacklist
+    
+    because for some reason it doesn't count as a pet?
+

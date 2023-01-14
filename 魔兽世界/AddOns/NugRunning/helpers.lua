@@ -9,6 +9,7 @@ NugRunningConfig.activations = {}
 NugRunningConfig.event_timers = {}
 NugRunningConfig.totems = {}
 NugRunningConfig.casts = {}
+NugRunningConfig.usableTriggerSpells = {}
 local AFFILIATION_MINE = COMBATLOG_OBJECT_AFFILIATION_MINE
 local AFFILIATION_PARTY_OR_RAID = COMBATLOG_OBJECT_AFFILIATION_RAID + COMBATLOG_OBJECT_AFFILIATION_PARTY
 local AFFILIATION_OUTSIDER = COMBATLOG_OBJECT_AFFILIATION_OUTSIDER
@@ -83,12 +84,12 @@ end
 
 
 helpers.GetCP = function()
-    if not NugRunning.cpNow then return GetComboPoints("player", "target") end
+    if not NugRunning.cpNow then return UnitPower("player", Enum.PowerType.ComboPoints) end
     return NugRunning.cpWas > NugRunning.cpNow and NugRunning.cpWas or NugRunning.cpNow
 end
 helpers.Glyph = function (gSpellID)
     for i = 1, GetNumGlyphSockets() do
-        if select(4,GetGlyphSocketInfo(i,GetActiveSpecGroup()) ) == gSpellID then return 1 end
+        if select(4,GetGlyphSocketInfo(i,GetActiveTalentGroup()) ) == gSpellID then return 1 end
     end
     return 0
 end
@@ -105,20 +106,11 @@ helpers.Anchor = function(name, opts)
     NugRunningConfig.anchors[name] = opts
 end
 
-local SpellMixin = _G.Spell
-helpers.spellNameToID = {}
-
-helpers.AddSpellNameRecognition = function(lastRankID)
-    local spellName = GetSpellInfo(lastRankID)
-    helpers.spellNameToID[spellName] = lastRankID
-end
-
 helpers.Spell = function(id, opts)
     if not opts then NugRunningConfig[id] = opts; return end
     if opts.singleTarget then opts.target = "target" end
     if opts.affiliation == "raid" then opts.affiliation = AFFILIATION_PARTY_OR_RAID end
     if opts.affiliation == "any" then opts.affiliation = AFFILIATION_OUTSIDER end
-
     if type(id) == "table" then
         local clones = id
         id = table.remove(clones, 1) -- extract first spell id from the last as original
@@ -144,7 +136,7 @@ helpers.Cooldown = function(id, opts)
     if type(id) == "table" then id = id[1] end
     if opts then
         opts.localname = GetSpellInfo(id)
-        if not opts.localname then print("nrun: misssing spell #"..id) return end
+        if not opts.localname and IsTestBuild() then print("nrun: misssing spell #"..id) return end
     end
     NugRunningConfig.cooldowns[id] = opts
 end
@@ -178,9 +170,10 @@ helpers.Cast = function(id, opts)
         id = table.remove(clones, 1) -- extract first spell id from the last as original
         opts.clones = clones
     end
+
     if opts then
         opts.localname = GetSpellInfo(id)
-        if not opts.localname then print("nrun: misssing spell #"..id) return end
+        if not opts.localname and IsTestBuild() then print("nrun: misssing spell #"..id) return end
     end
     NugRunningConfig.casts[id] = opts
 end
@@ -189,7 +182,7 @@ end
 helpers.Activation = function(id, opts)
     if opts then
         opts.localname = GetSpellInfo(id)
-        if not opts.localname then print("nrun: misssing spell #"..id) return end
+        if not opts.localname and IsTestBuild() then print("nrun: misssing spell #"..id) return end
     end
     NugRunningConfig.activations[id] = opts
 end
@@ -258,6 +251,78 @@ helpers.CheckSpec = function(specmask, spec)
     local s = 0xF*math_pow(0x10, spec-1)
     return bit_band(specmask, s) == s
 end
+
+local function SetupDefaults(t, defaults)
+    if not defaults then return end
+    for k,v in pairs(defaults) do
+        if type(v) == "table" then
+            if t[k] == nil then
+                t[k] = CopyTable(v)
+            elseif t[k] == false then
+                t[k] = false --pass
+            else
+                SetupDefaults(t[k], v)
+            end
+        else
+            if t[k] == nil then t[k] = v end
+            if t[k] == "__REMOVED__" then t[k] = nil end
+        end
+    end
+end
+helpers.SetupDefaults = SetupDefaults
+
+local function RemoveDefaults(t, defaults)
+    if not defaults then return end
+    for k, v in pairs(defaults) do
+        if type(t[k]) == 'table' and type(v) == 'table' then
+            RemoveDefaults(t[k], v)
+            if next(t[k]) == nil then
+                t[k] = nil
+            end
+        elseif t[k] == v then
+            t[k] = nil
+        end
+    end
+    return t
+end
+helpers.RemoveDefaults = RemoveDefaults
+
+local function RemoveDefaultsPreserve(t, defaults)
+    if not defaults then return end
+    for k, v in pairs(defaults) do
+        if type(t[k]) == 'table' and type(v) == 'table' then
+            RemoveDefaultsPreserve(t[k], v)
+            if next(t[k]) == nil then
+                t[k] = nil
+            end
+        elseif t[k] == nil and v ~= nil then
+            t[k] = "__REMOVED__"
+        elseif t[k] == v then
+            t[k] = nil
+        end
+    end
+    return t
+end
+helpers.RemoveDefaultsPreserve = RemoveDefaultsPreserve
+
+local function MergeTable(t1, t2)
+    if not t2 then return false end
+    for k,v in pairs(t2) do
+        if type(v) == "table" then
+            if t1[k] == nil then
+                t1[k] = CopyTable(v)
+            else
+                MergeTable(t1[k], v)
+            end
+        elseif v == "__REMOVED__" then
+            t1[k] = nil
+        else
+            t1[k] = v
+        end
+    end
+    return t1
+end
+helpers.MergeTable = MergeTable
 
 --[[
 local ItemSetsRegistered = {}

@@ -1,0 +1,14 @@
+## Interface: 30400
+## Version: 20.10.31
+## Title: TipTacOptions
+## Author: Aezay (Earthen Ring EU)
+## Notes: Option Dialog for TipTac
+## Dependencies: TipTac
+## LoadOnDemand: 1
+Libs\AzDropDown.lua
+Libs\AzOptionsFactory.lua
+ttLayouts.lua
+ttOptions.lua
+## Title-zhCN: |cff880303[有爱]|r TipTac 配置模块
+## X-Vendor: NetEase
+## X-163UI-Version: 20220901200239

@@ -1,0 +1,24 @@
+## Interface: 30400
+
+## Title: Leatrix Maps
+## Notes: Enhancements for your maps.
+
+## Version: 3.0.70
+## Author: Leatrix
+## SavedVariables: LeaMapsDB
+
+## OptionalDeps: Leatrix_enUS
+
+## X-Curse-Project-ID: 463868
+
+Leatrix_Maps_Library.lua
+Leatrix_Maps_Locale.lua
+Leatrix_Maps.xml
+Leatrix_Maps_Icons.lua
+Leatrix_Maps_Reveal.lua
+Leatrix_Maps.lua
+
+## Title: |cff880303[163UI]|r Leatrix Maps
+## Title-zhCN: |cff880303[有爱]|r Leatrix_Maps 世界地图增强
+## X-Vendor: NetEase
+## X-163UI-Version: 20230105151404

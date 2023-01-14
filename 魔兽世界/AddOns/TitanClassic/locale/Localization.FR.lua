@@ -3,6 +3,8 @@ if not L then return end
 
 L["TITAN_PANEL"] = "Titan Panel Classic";
 local TITAN_PANEL = "Titan Panel Classic";
+L["TITAN_PANEL_ONLY"] = "Titan Panel";
+local TITAN_PANEL_ONLY = "Titan Panel";
 L["TITAN_DEBUG"] = "<Titan>";
 L["TITAN_PRINT"] = "Titan";
 
@@ -75,12 +77,10 @@ L["TITAN_PANEL_SLASH_PROFILE_2"] = " - "..LIGHTYELLOW_FONT_COLOR_CODE.."<nom>: |
 L["TITAN_PANEL_SLASH_PROFILE_3"] = " - "..LIGHTYELLOW_FONT_COLOR_CODE.."<serveur>: |cffffffffle nom du serveur ou 'TitanCustomProfile'."
 L["TITAN_PANEL_SLASH_SILENT_0"] = LIGHTYELLOW_FONT_COLOR_CODE.."Usage: |cffffffff/titan {silent}";
 L["TITAN_PANEL_SLASH_SILENT_1"] = LIGHTYELLOW_FONT_COLOR_CODE.."silent: |cffffffffToggles "..TITAN_PANEL.." pour charger silencieusement.";
-L["TITAN_PANEL_SLASH_ORDERHALL_0"] = LIGHTYELLOW_FONT_COLOR_CODE.."Usage: |cffffffff/titan {orderhall}";
-L["TITAN_PANEL_SLASH_ORDERHALL_1"] = LIGHTYELLOW_FONT_COLOR_CODE.."orderhall: |cffffffffToggles "..TITAN_PANEL.." to hide Order Hall Command Bar.";
 L["TITAN_PANEL_SLASH_HELP_0"] = LIGHTYELLOW_FONT_COLOR_CODE.."Usage: |cffffffff/titan {help | help <topic>}";
-L["TITAN_PANEL_SLASH_HELP_1"] = " - "..LIGHTYELLOW_FONT_COLOR_CODE.."<topic>: reset/gui/profile/silent/orderhall/help ";
+L["TITAN_PANEL_SLASH_HELP_1"] = " - "..LIGHTYELLOW_FONT_COLOR_CODE.."<topic>: reset/gui/profile/silent/help ";
 L["TITAN_PANEL_SLASH_ALL_0"] = LIGHTYELLOW_FONT_COLOR_CODE.."Usage: |cffffffff/titan <topic>";
-L["TITAN_PANEL_SLASH_ALL_1"] = " - "..LIGHTYELLOW_FONT_COLOR_CODE.."<topic>: |cffffffffreset/gui/profile/silent/orderhall/help ";
+L["TITAN_PANEL_SLASH_ALL_1"] = " - "..LIGHTYELLOW_FONT_COLOR_CODE.."<topic>: |cffffffffreset/gui/profile/silent/help ";
 
 -- slash command responses
 L["TITAN_PANEL_SLASH_RESP1"] = LIGHTYELLOW_FONT_COLOR_CODE.."L'échelle des polices des tooltips de "..TITAN_PANEL.." a été réinitialisée.";
@@ -98,7 +98,7 @@ L["TITAN_PANEL_GLOBAL_RESET_PART"] = "réinitialisation des options";
 L["TITAN_PANEL_GLOBAL_ERR_1"] = "Vous ne devriez pas charger un profil lorsqu'un profil global est en cours d'utilisation";
 
 -- general panel locale
-L["TITAN_PANEL_VERSION_INFO"] = "|cffffd700 par le |cffff8c00"..TITAN_PANEL.." Development Team";
+L["TITAN_PANEL_VERSION_INFO"] = "|cffffd700 par le |cffff8c00"..TITAN_PANEL_ONLY.." Development Team";
 L["TITAN_PANEL_MENU_TITLE"] = TITAN_PANEL;
 L["TITAN_PANEL_MENU_HIDE"] = "Cacher";
 L["TITAN_PANEL_MENU_IN_COMBAT_LOCKDOWN"] = "(En Combat)";
@@ -249,9 +249,12 @@ L["TITAN_AMMO_BUTTON_LABEL_THROWN"] = "Armes de jet : ";
 L["TITAN_AMMO_BUTTON_LABEL_AMMO_THROWN"] = "Munitions/Jet : ";
 L["TITAN_AMMO_TOOLTIP"] = "Nombre de Munitions/Armes de jet";
 L["TITAN_AMMO_MENU_TEXT"] = "Munitions/Armes de jet";
-L["TITAN_AMMO_BUTTON_NOAMMO"] = "Pas de munitions";
+L["TITAN_AMMO_BUTTON_NOAMMO"] = "--";
 L["TITAN_AMMO_MENU_REFRESH"] = "Rafra\195\174chir l'affichage";
 L["TITAN_AMMO_BULLET_NAME"] = "Montrer le nom des munitions";
+L["TITAN_AMMO_THROWN"] = "Thrown";
+L["TITAN_AMMO_GUN"] = "Bullets";
+L["TITAN_AMMO_BOW"] = "Arrows";
 
 L["TITAN_BAG_FORMAT"] = "%d/%d";
 L["TITAN_BAG_BUTTON_LABEL"] = "Sacs : ";
@@ -328,12 +331,19 @@ L["TITAN_LOCATION_TOOLTIP_HOMELOCATION"] = "Position du foyer";
 L["TITAN_LOCATION_TOOLTIP_INN"] = "Auberge : ";
 L["TITAN_LOCATION_MENU_TEXT"] = "Position";
 L["TITAN_LOCATION_MENU_SHOW_ZONE_ON_PANEL_TEXT"] = "Montrer le texte de la zone";
+L["TITAN_LOCATION_MENU_SHOW_SUBZONE_ON_PANEL_TEXT"] = "Show Only Subzone Text";
 L["TITAN_LOCATION_MENU_SHOW_COORDS_ON_MAP_TEXT"] = "Montrer les coordonnées sur la carte du monde";
 L["TITAN_LOCATION_MAP_CURSOR_COORDS_TEXT"] = "Curseur : %s";
 L["TITAN_LOCATION_MAP_PLAYER_COORDS_TEXT"] = "Joueur : %s";
 L["TITAN_LOCATION_NO_COORDS"] = "Pas de coords";
 L["TITAN_LOCATION_MENU_SHOW_LOC_ON_MINIMAP_TEXT"] = "Montrer la zone au dessus de la minicarte";
 L["TITAN_LOCATION_MENU_UPDATE_WORLD_MAP"] = "Mettre à jour la carte du monde lors de changements de zone";
+L["TITAN_LOCATION_MENU_MAP_COORDS_TITLE"] = "Coordinates Location on Map";
+L["TITAN_LOCATION_MENU_MAP_COORDS_LOC_1"] = "Top Left";
+L["TITAN_LOCATION_MENU_MAP_COORDS_LOC_2"] = "Top Right";
+L["TITAN_LOCATION_MENU_MAP_COORDS_LOC_3"] = "Bottom Left";
+L["TITAN_LOCATION_MENU_MAP_COORDS_LOC_4"] = "Bottom";
+L["TITAN_LOCATION_MENU_MAP_COORDS_LOC_5"] = "Bottom Right";
 
 L["TITAN_FPS_FORMAT"] = "%.1f";
 L["TITAN_FPS_BUTTON_LABEL"] = "IPS : ";
@@ -372,6 +382,24 @@ L["TITAN_LOOTTYPE_SHOWDUNGEONDIFF_LABEL"] = "Afficher la difficulté du donjon/r
 L["TITAN_LOOTTYPE_SETDUNGEONDIFF_LABEL"] = "Changer la difficulté du donjon";
 L["TITAN_LOOTTYPE_SETRAIDDIFF_LABEL"] = "Changer la difficulté du raid";
 L["TITAN_LOOTTYPE_AUTODIFF_LABEL"] = "Auto (basé sur le groupe)";
+-- Tracker part
+L["BtnRoll"]  = "Roll" -- button
+L["BtnPass"]  = "Pass" -- button
+L["BtnClear"] = "Start" -- button (was 'Clear')
+L["BtnAnnounce"] = "Result" -- button (was 'Announce')
+L["BtnNotRolled"] = "Remind" -- button (was 'Not Rolled')
+L["TextPass"] = "pass" -- string to search for when player passes on loot
+L["MsgNotRolled"] = "Reminder sent." -- nag players who have not rolled
+L["MsgClosing"] = "Closing tracker window." -- when leader closes tracker
+L["TxtLine"] = "------------------------------------------------------------------------------------------------------"
+L["MsgNbRolls"] = "%d Roll(s)" -- number of rolls at bottom of frame
+L["MsgRollCleared"] = "MsgRollCleared" -- sent when BtnClear is clicked
+L["MsgStart"] = "New roll starting now! Type '/rnd' or '%s'"
+L["MsgBar"] = "==============================" -- used as part of start message to players
+L["MsgAnnounce"] = "%s won with a roll of %d."
+L["RaidPass"]="'/raid pass'" -- used to 'end' NotRolledNag message
+L["PartyPass"]="'/party pass'" -- used to 'end' NotRolledNag message
+L["NotRolledNag"]="{star} Please type '/roll' or 'pass' " -- cannot use L["TextPass"] here ????
 
 L["TITAN_MEMORY_FORMAT"] = "%.3f".."Mo";
 L["TITAN_MEMORY_FORMAT_KB"] = "%d".."Ko";
@@ -449,6 +477,21 @@ L["TITAN_XP_XPGAINS_LABEL_SHORT"] = "Est. des gains : ";
 L["TITAN_XP_XPGAINS_LABEL"] = "Gains d'XP pour passer de niveau (à %s XP gagné): ";
 L["TITAN_XP_MENU_SIMPLE_BUTTON_XPGAIN"] = "les estimations de gains d'XP pour monter";
 
+L["TITAN_REGEN_MENU_TEXT"] = "Regen"
+L["TITAN_REGEN_MENU_TOOLTIP_TITLE"] = "Taux de regen"
+L["TITAN_REGEN_MENU_SHOW2"] = "Sant\195\169 (HP)"
+L["TITAN_REGEN_MENU_SHOW3"] = "Mana (MP)"
+L["TITAN_REGEN_MENU_SHOW4"] = "Double d\195\169cimale"
+L["TITAN_REGEN_BUTTON_TEXT_HP"] = "HP: "
+L["TITAN_REGEN_BUTTON_TEXT_MP"] = " MP: "
+L["TITAN_REGEN_TOOLTIP1"] = "Sant\195\169 (HP): \t"..GREEN_FONT_COLOR_CODE.."%d"..FONT_COLOR_CODE_CLOSE.." / " ..HIGHLIGHT_FONT_COLOR_CODE.."%d"..FONT_COLOR_CODE_CLOSE.." ("..RED_FONT_COLOR_CODE.."%d"..FONT_COLOR_CODE_CLOSE..")";
+L["TITAN_REGEN_TOOLTIP2"] = "Mana (MP): \t"..GREEN_FONT_COLOR_CODE.."%d"..FONT_COLOR_CODE_CLOSE.." / " ..HIGHLIGHT_FONT_COLOR_CODE.."%d"..FONT_COLOR_CODE_CLOSE.." ("..RED_FONT_COLOR_CODE.."%d"..FONT_COLOR_CODE_CLOSE..")";
+L["TITAN_REGEN_TOOLTIP3"] = "Meilleur Regen HP: \t"..HIGHLIGHT_FONT_COLOR_CODE.."%d"..FONT_COLOR_CODE_CLOSE;
+L["TITAN_REGEN_TOOLTIP4"] = "Plus mauvais Regen HP: \t"..HIGHLIGHT_FONT_COLOR_CODE.."%d"..FONT_COLOR_CODE_CLOSE;
+L["TITAN_REGEN_TOOLTIP5"] = "Meilleur Regen MP: \t"..HIGHLIGHT_FONT_COLOR_CODE.."%d"..FONT_COLOR_CODE_CLOSE;
+L["TITAN_REGEN_TOOLTIP6"] = "Plus mauvais Regen MP: \t"..HIGHLIGHT_FONT_COLOR_CODE.."%d"..FONT_COLOR_CODE_CLOSE;
+L["TITAN_REGEN_TOOLTIP7"] = "Regen MP du dernier combat: \t"..HIGHLIGHT_FONT_COLOR_CODE.."%d"..FONT_COLOR_CODE_CLOSE.." ("..GREEN_FONT_COLOR_CODE.."%.2f"..FONT_COLOR_CODE_CLOSE.."%%)";
+
 --Titan Repair
 L["REPAIR_LOCALE"] = {
 	menu = "Réparation",
@@ -491,12 +534,7 @@ L["REPAIR_LOCALE"] = {
 	CostEquip = "Coût de l'équipement",
 	TooltipOptions = "Tooltip",
 };
-L["TITAN_REPAIR"] = "Titan Repair"
-L["TITAN_REPAIR_GBANK_TOTAL"] = "Fonds de la banque de guilde :"
-L["TITAN_REPAIR_GBANK_WITHDRAW"] = "Retrait autorisé :"
-L["TITAN_REPAIR_GBANK_USEFUNDS"] = "Utiliser les fonds de la banque de guilde"
-L["TITAN_REPAIR_GBANK_NOMONEY"] = "La banque de guilde ne peut pas payer les réparations, ou vous ne pouvez pas retirer autant."
-L["TITAN_REPAIR_GBANK_NORIGHTS"] = "Vous n'êtes soit pas dans une guilde, soit vous n'avez pas le droit d'utiliser la banque de guilde pour réparer vos objets."
+L["TITAN_REPAIR"] = "Titan Classic Repair"
 L["TITAN_REPAIR_CANNOT_AFFORD"] = "Vous n'avez pas assez pour payer les réparations."
 L["TITAN_REPAIR_REPORT_COST_MENU"] = "Annoncer les coût de réparation sur le chat"
 L["TITAN_REPAIR_REPORT_COST_CHAT"] = "Coût des réparations : "

@@ -67,9 +67,11 @@ function Prof.OnClear(button)
 	button.Profession = nil
 	button.SpellID = nil
 	button.ItemID = nil
+	button.filterItemID = nil
 	button.secButton.Profession = nil
 	button.secButton.SpellID = nil
 	button.secButton.ItemID = nil
+	button.secButton.filterItemID = nil
 
 	if button.ExtraFrameShown then
 		AtlasLoot.Button:ExtraItemFrame_ClearFrame()
@@ -92,17 +94,15 @@ function Prof.OnLeave(button)
 	GetAlTooltip():Hide()
 end
 
-local PROF_STRING = "|cffffffff|Henchant:%d|h[%s]|h|r"
 function Prof.OnMouseAction(button, mouseButton)
 	if not mouseButton then return end
 	mouseButton = ProfClickHandler:Get(mouseButton)
 	if mouseButton == "ChatLink" then
-		if button.ItemID then
+		if button.SpellID then
+			AtlasLoot.Button:AddChatLink(Profession.GetChatLink(button.SpellID))
+		elseif button.ItemID and button.type ~= "secButton" then
 			local itemInfo, itemLink = GetItemInfo(button.ItemID)
 			AtlasLoot.Button:AddChatLink(itemLink)
-		elseif button.SpellID then
-			local spellName = GetSpellInfo(button.SpellID)
-			AtlasLoot.Button:AddChatLink(string.format(PROF_STRING, button.SpellID, spellName))
 		end
 	elseif mouseButton == "WoWHeadLink" then
 		AtlasLoot.Button:OpenWoWHeadLink(button, "spell", button.SpellID)
@@ -128,6 +128,7 @@ function Prof.Refresh(button)
 	if Profession.IsProfessionSpell(button.SpellID) then
 		local _, itemName, itemQuality, itemTexture, itemCount
 		button.ItemID = Profession.GetCreatedItemID(button.SpellID)
+		button.filterItemID = button.ItemID
 		if button.ItemID then
 			itemName, _, itemQuality, _, _, _, _, _, _, itemTexture = GetItemInfo(button.ItemID)
 			if not itemName then
@@ -140,20 +141,21 @@ function Prof.Refresh(button)
 
 		button.overlay:Show()
 		-- enchanting border
-		if not button.ItemID then
+		if not button.ItemID or button.type == "secButton" then
 			itemQuality = "gold"
 		end
 		button.overlay:SetQualityBorder(itemQuality)
 
 		if button.type == "secButton" then
-
+			itemTexture = nil
+			itemCount = nil
 		else
 			if itemName then
 				button.name:SetText("|c"..ITEM_COLORS[itemQuality or 0]..(spellName or itemName))
 			else
 				button.name:SetText(PROF_COLOR..spellName)
 			end
-			button.extra:SetText(Profession.GetSpellDescriptionWithRank(button.SpellID))
+			button.extra:SetText(Profession.GetSpellDescriptionWithRank(button.SpellID, true))
 		end
 		if itemCount and itemCount > 1 then
 			button.count:SetText(itemCount)

@@ -1,0 +1,19 @@
+## Interface: 30400
+## Title: NeatPlates
+## Notes: Enjoys long walks on Darkshore
+## Author: Luxocracy and friends
+## Version: v428
+## SavedVariables: NeatPlatesSettings
+## SavedVariablesPerCharacter: NeatPlatesOptions
+
+embeds.xml
+locales.xml
+NeatPlates.xml
+
+## Title: |cff880303[163UI]|r NeatPlates
+## Title-zhCN: |cff880303[有爱]|r NeatPlates 姓名版增强
+## Title-zhTW: |cff880303[有爱]|r NeatPlates 姓名板增强
+## Notes-zhCN: 强大到爆的多功能姓名版美化插件。
+## Notes-zhTW: 強大到爆的多功能姓名版美化插件。
+## X-Vendor: NetEase
+## X-163UI-Version: 20230105151404

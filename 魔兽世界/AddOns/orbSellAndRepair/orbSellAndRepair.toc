@@ -1,0 +1,13 @@
+## Interface: 30400
+## Title: orbSellAndRepair
+## Notes: Automatically sell your gray items and repair your equipment when you visit a merchant.
+## Author: sugatasei
+## Version: 1.0.1
+## SavedVariablesPerCharacter: orbSellAndRepair_settings
+locales/en.lua
+locales/fr.lua
+locales/zhCN.lua
+main.lua
+## Title-zhCN: |cff880303[有爱]|r orbSellAndRepair 自动售卖垃圾和修理装备
+## X-Vendor: NetEase
+## X-163UI-Version: 20220901200239

@@ -1,18 +1,22 @@
-if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+if WOW_PROJECT_ID ~= (WOW_PROJECT_MAINLINE or 1) then -- Added in MoP
 	return
 end
 local mod	= DBM:NewMod("z727", "DBM-PvP")
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20200719033919")
+mod:SetRevision("20220126115338")
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
-mod:RegisterEvents("ZONE_CHANGED_NEW_AREA")
+mod:RegisterEvents(
+	"LOADING_SCREEN_DISABLED",
+	"ZONE_CHANGED_NEW_AREA"
+)
 
 do
 	local bgzone = false
 
-	function mod:OnInitialize()
-		if DBM:GetCurrentArea() == 727 then
+	local function Init(self)
+		local zoneID = DBM:GetCurrentArea()
+		if not bgzone and zoneID == 727 then
 			bgzone = true
 			self:RegisterShortTermEvents(
 				"CHAT_MSG_BG_SYSTEM_HORDE",
@@ -21,33 +25,38 @@ do
 				"CHAT_MSG_RAID_BOSS_EMOTE",
 				"PVP_VEHICLE_INFO_UPDATED"
 			)
-		elseif bgzone then
+		elseif bgzone and zoneID ~= 727 then
 			bgzone = false
 			self:UnregisterShortTermEvents()
 			self:Stop()
 		end
 	end
 
-	function mod:ZONE_CHANGED_NEW_AREA()
-		self:ScheduleMethod(1, "OnInitialize")
+	function mod:LOADING_SCREEN_DISABLED()
+		self:Schedule(1, Init, self)
 	end
+	mod.ZONE_CHANGED_NEW_AREA	= mod.LOADING_SCREEN_DISABLED
+	mod.PLAYER_ENTERING_WORLD	= mod.LOADING_SCREEN_DISABLED
+	mod.OnInitialize			= mod.LOADING_SCREEN_DISABLED
 end
 
 local carts = {}
-local clearCartCache
+local ClearCartCache
 
 do
 	local tinsert = table.insert
 	local GetTime = GetTime
-	local cartRespawn	= mod:NewTimer(9.5, "TimerRespawn", "134376") -- interface/icons/inv_misc_pocketwatch_01.blp
+	local cartRespawn = mod:NewTimer(9.5, "TimerRespawn", "134376") -- interface/icons/inv_misc_pocketwatch_01.blp
 	local cartCount	= 0
 
 	function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg)
-		if msg:find(L.Capture) then
+		if msg == L.Capture or msg:find(L.Capture) then
 			cartCount = cartCount + 1
-			cartRespawn:Start(nil, cartCount)
-			clearCartCache()
-		elseif msg:find(L.Arrived) then
+			if cartCount % 2 == 1 then -- Event is fired twice, due to being fired both on neutral and faction.
+				cartRespawn:Start(nil, cartCount)
+				ClearCartCache()
+			end
+		elseif msg == L.Arrived or msg:find(L.Arrived) then
 			tinsert(carts, 1, {
 				dir		= 0,
 				spawn	= GetTime(),
@@ -55,7 +64,7 @@ do
 				y		= -1,
 				c		= -1
 			})
-		elseif msg:find(L.Begun) then
+		elseif msg == L.Begun or msg:find(L.Begun) then
 			carts = {}
 			tinsert(carts, 1, {
 				dir		= 1,
@@ -80,14 +89,20 @@ end
 
 do
 	local pairs, abs, sqrt, tremove = pairs, math.abs, math.sqrt, table.remove
-	local GetTime, GetNumBattlefieldVehicles, GetBattlefieldVehicleInfo = GetTime, GetNumBattlefieldVehicles, GetBattlefieldVehicleInfo
+	local GetTime, GetNumBattlefieldVehicles, GetBattlefieldVehicleInfo = GetTime, GetNumBattlefieldVehicles, C_PvP.GetBattlefieldVehicleInfo
 
 	local times = { 181, 234, 129, 97, 153 }
-	local caps = { {x = 22.848, y = 42.823}, {x = 76.517, y = 21.757}, {x = 41.281, y = 48.239}, {x = 69.326, y = 70.632}, {x = 76.517, y = 21.757} }
+	local caps = {
+		{ x = 22.848, y = 42.823 },
+		{ x = 76.517, y = 21.757 },
+		{ x = 41.281, y = 48.239 },
+		{ x = 69.326, y = 70.632 },
+		{ x = 76.517, y = 21.757 }
+	}
 	local names = { "Top - Down", "Top - Up", "Middle", "Lava - Down", "Lava - Up" }
 	local cartTimer	= mod:NewTimer(9.5, "TimerCart", "136002") -- Interface\\icons\\spell_misc_hellifrepvphonorholdfavor.blp
 
-	local function isValidUpdate(dir1, dir2)
+	local function IsValidUpdate(dir1, dir2)
 		if dir1 == 0 or dir2 == 0 then
 			return false
 		end
@@ -101,15 +116,15 @@ do
 		return false
 	end
 
-	local function getDistance(x1, y1, x2, y2)
+	local function GetDistance(x1, y1, x2, y2)
 		return sqrt((x2 - x1) ^ 2 + (y2 - y1) ^ 2)
 	end
 
-	function clearCartCache()
+	function ClearCartCache()
 		local time = GetTime()
 		for i, cart in pairs(carts) do
 			if cart.dir ~= 0 and times[cart.dir] + cart.spawn + 2 > time then
-				if getDistance(cart.x, cart.y, caps[cart.dir].x, caps[cart.dir].y) < 3 then
+				if GetDistance(cart.x, cart.y, caps[cart.dir].x, caps[cart.dir].y) < 3 then
 					cartTimer:Stop(names[cart.dir])
 					tremove(carts, i)
 				end
@@ -117,12 +132,12 @@ do
 		end
 	end
 
-	local function pointToLineDist(a, b, x, y)
+	local function PointToLineDist(a, b, x, y)
 		return (a * x + b - y) / (sqrt(a ^ 2 + 1))
 	end
 
-	local function identifyCartCoord(x, y)
-		local dist1, dist2, dist3, dist4 = pointToLineDist(-2.126, -168.449, x, y), pointToLineDist(-0.513, 76.476, x, y), pointToLineDist(-0.555, 64.673, x, y), pointToLineDist(0.952, -12.176, x, y)
+	local function IdentifyCartCoord(x, y)
+		local dist1, dist2, dist3, dist4 = PointToLineDist(-2.126, -168.449, x, y), PointToLineDist(-0.513, 76.476, x, y), PointToLineDist(-0.555, 64.673, x, y), PointToLineDist(0.952, -12.176, x, y)
 		if dist1 < 0 and dist3 < 0 then
 			return dist4 > 0 and 5 or 4 -- Lava Up / Down
 		elseif dist1 > 0 and dist3 < 0 and dist2 < 0 then
@@ -132,7 +147,7 @@ do
 		end
 	end
 
-	local function identifyCart(cartNum)
+	local function IdentifyCart(cartNum)
 		local cart = carts[cartNum]
 		if not cart then
 			return
@@ -142,11 +157,11 @@ do
 			local x, y = GetBattlefieldVehicleInfo(d, 423)
 			x = x * 100
 			y = y * 100
-			local dist = getDistance(56.87, 47.117, x, y)
+			local dist = GetDistance(56.87, 47.117, x, y)
 			if dist < distance then
 				local used = false
 				for _, v in pairs(carts) do
-					if getDistance(x, y, v.x, v.y) < 2 then
+					if GetDistance(x, y, v.x, v.y) < 2 then
 						used = true
 						break
 					end
@@ -161,30 +176,34 @@ do
 			local x, y = GetBattlefieldVehicleInfo(closestID, 423)
 			cart.x		= x * 100
 			cart.y		= y * 100
-			cart.dir	= identifyCart(cart.x, cart.y)
+			cart.dir	= IdentifyCartCoord(cart.x, cart.y)
 		end
 	end
 
 	function mod:PVP_VEHICLE_INFO_UPDATED()
 		local cache = {}
 		for i = 1, GetNumBattlefieldVehicles() do
-			local x, y, _, _, vType = GetBattlefieldVehicleInfo(i, 423)
+			local vInfo = GetBattlefieldVehicleInfo(i, 423)
+			local x, y = vInfo.x, vInfo.y
 			x = x * 100
 			y = y * 100
 			cache[i] = {
 				x	= x,
 				y	= y,
-				dir	= identifyCartCoord(x, y),
-				c	= (vType:match("Red") and 0) or (vType:match("Blue") and 1) or -1
+				dir	= IdentifyCartCoord(x, y),
+				c	= (vInfo.name:match("Red") and 0) or (vInfo.name:match("Blue") and 1) or -1
 			}
 		end
+		local time = GetTime()
 		local prune = #cache < #carts
 		for _, newCart in pairs(cache) do
 			for i, cart in pairs(carts) do
-				if (cart.x == -1 or cart.y == -1) and cart.spawn + 1 < GetTime() then
-					identifyCart(i)
-					cartTimer:Start(nil, names[cart.dir])
-				elseif getDistance(newCart.x, newCart.y, cart.x, cart.y) < 1 and isValidUpdate(cart.dir, newCart.dir) then
+				if (cart.x == -1 or cart.y == -1) and cart.spawn + 1 < time then
+					IdentifyCart(i)
+					if not cartTimer:IsStarted(names[cart.dir]) then -- Prevent duplicate cart timers.
+						cartTimer:Start(cart.spawn + times[cart.dir] - time, names[cart.dir])
+					end
+				elseif GetDistance(newCart.x, newCart.y, cart.x, cart.y) < 1 and IsValidUpdate(cart.dir, newCart.dir) then
 					if newCart.c ~= cart.c then
 						local name = names[cart.dir]
 						if newCart.c == 1 then
@@ -202,7 +221,7 @@ do
 					cart.x		= newCart.x
 					cart.y		= newCart.y
 					cart.c		= newCart.c
-				elseif prune and (cart.spawn + times[cart.dir] - GetTime() < -1) then
+				elseif prune and (cart.spawn + times[cart.dir] - time < -1) then
 					carts[i] = nil
 				end
 			end

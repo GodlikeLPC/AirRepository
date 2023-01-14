@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod(453, "DBM-Party-Classic", 16, 236)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20200731154050")
+mod:SetRevision("20221010035226")
 mod:SetCreatureID(10438)
 mod:SetEncounterID(481)
 
@@ -14,25 +14,20 @@ mod:RegisterEventsInCombat(
 
 local warningIceTomb				= mod:NewTargetNoFilterAnnounce(16869, 3)
 
-local timerIceTombCD				= mod:NewAITimer(180, 16869, nil, nil, nil, 3, nil, DBM_CORE_L.MAGIC_ICON)
+local timerIceTombCD				= mod:NewAITimer(180, 16869, nil, nil, nil, 3, nil, DBM_COMMON_L.MAGIC_ICON)
 
 function mod:OnCombatStart(delay)
 	timerIceTombCD:Start(1-delay)
 end
 
-do
-	local IceTomb = DBM:GetSpellInfo(16869)
-	function mod:SPELL_CAST_START(args)
-		--if args.spellId == 16869 then
-		if args.spellName == IceTomb then
-			timerIceTombCD:Start()
-		end
+function mod:SPELL_CAST_START(args)
+	if args.spellId == 16869 then
+		timerIceTombCD:Start()
 	end
+end
 
-	function mod:SPELL_AURA_APPLIED(args)
-		--if args.spellId == 16869 then
-		if args.spellName == IceTomb then
-			warningIceTomb:Show(args.destName)
-		end
+function mod:SPELL_AURA_APPLIED(args)
+	if args.spellId == 16869 then
+		warningIceTomb:Show(args.destName)
 	end
 end

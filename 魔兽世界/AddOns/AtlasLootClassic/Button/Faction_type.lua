@@ -10,6 +10,8 @@ local Faction = AtlasLoot.Button:AddType("Faction", "f")
 local AL = AtlasLoot.Locales
 local ClickHandler = AtlasLoot.ClickHandler
 
+local RGBToHex = AtlasLoot.RGBToHex
+
 --[[
 	-- rep info ("f1435rep3" = Unfriendly rep @ Shado-Pan Assault)
 	1. Hated
@@ -46,25 +48,52 @@ local FACTION_IMAGES = {
 	[890] = "Interface\\Icons\\INV_BannerPVP_02", -- Silverwing Sentinels
 
 	-- Classic
-	[47] = "Interface\\Icons\\inv_misc_tournaments_symbol_dwarf",			--Ironforge
-	[54] = "Interface\\Icons\\inv_misc_tournaments_symbol_gnome",			--Gnomeregan
-	[59] = "Interface\\Icons\\INV_Ingot_Mithril",					--Thorium Brotherhood
-	[68] = "Interface\\Icons\\inv_misc_tournaments_symbol_scourge",			--Undercity
-	[69] = "Interface\\Icons\\inv_misc_tournaments_banner_nightelf",		--Darnassus
-	[72] = "Interface\\Icons\\inv_misc_tournaments_symbol_human",			--Stormwind
+	[47] = "Interface\\Icons\\inv_misc_tournaments_symbol_dwarf",		--Ironforge
+	[54] = "Interface\\Icons\\inv_misc_tournaments_symbol_gnome",		--Gnomeregan
+	[59] = "Interface\\Icons\\INV_Ingot_Mithril",						--Thorium Brotherhood
+	[68] = "Interface\\Icons\\inv_misc_tournaments_symbol_scourge",		--Undercity
+	[69] = "Interface\\Icons\\inv_misc_tournaments_banner_nightelf",	--Darnassus
+	[72] = "Interface\\Icons\\inv_misc_tournaments_symbol_human",		--Stormwind
 	[76] = "Interface\\Icons\\inv_misc_tournaments_symbol_orc",			--Orgrimmar
-	[81] = "Interface\\Icons\\inv_misc_tournaments_symbol_tauren",			--Thunder Bluff
-	[87] = "Interface\\Icons\\INV_Helmet_66",					--Bloodsail Buccaneers
+	[81] = "Interface\\Icons\\inv_misc_tournaments_symbol_tauren",		--Thunder Bluff
+	[87] = "Interface\\Icons\\INV_Helmet_66",							--Bloodsail Buccaneers
 	[270] = "Interface\\Icons\\inv_jewelry_ring_46",					--Bloodsail Buccaneers
 	[529] = "Interface\\Icons\\inv_jewelry_talisman_07",				--Argent Dawn
-	[530] = "Interface\\Icons\\inv_misc_tournaments_symbol_troll",			--Darkspear Trolls
-	[576] = "Interface\\Icons\\inv_misc_horn_01",			--Timbermaw Hold
-	[589] = "Interface\\Icons\\ability_mount_pinktiger",			--Wintersaber Trainers
+	[530] = "Interface\\Icons\\inv_misc_tournaments_symbol_troll",		--Darkspear Trolls
+	[576] = "Interface\\Icons\\inv_misc_horn_01",						--Timbermaw Hold
+	[589] = "Interface\\Icons\\ability_mount_pinktiger",				--Wintersaber Trainers
 	[609] = "Interface\\Icons\\ability_racial_ultravision",				--Cenarion Circle
 	[749] = "Interface\\Icons\\spell_shadow_demonbreath",				--Hydraxian Waterlords
 	[910] = "Interface\\Icons\\inv_misc_head_dragon_bronze",			--Brood of Nozdormu
+
+	-- BC
+	[922] = "Interface\\Icons\\INV_Misc_Bandana_03", 					-- Tranquillien
+	[932] = "Interface\\Icons\\Spell_Holy_SealOfSalvation",				-- The Aldor
+	[933] = "Interface\\Icons\\INV_Weapon_Shortblade_31", 				-- TheConsortium
+	[934] = "Interface\\Icons\\Spell_Holy_ChampionsBond",				-- The Scryers
+	[935] = "Interface\\Icons\\Spell_Nature_LightningOverload",			-- The Sha'tar
+	[941] = "Interface\\Icons\\INV_Misc_Foot_Centaur", 					-- The Mag'har
+	[942] = "Interface\\Icons\\INV_Misc_Ammo_Arrow_02",			 		-- Cenarion Expedition
+	[946] = "Interface\\Icons\\INV_BannerPVP_02", 						-- Honor Hold
+	[947] = "Interface\\Icons\\INV_BannerPVP_01", 						-- Thrallmar
+	[967] = "Interface\\Icons\\INV_Jewelry_Ring_62", 					-- The Violet Eye
+	[970] = "Interface\\Icons\\INV_Mushroom_10", 						-- Sporeggar
+	[978] = "Interface\\Icons\\INV_Misc_Foot_Centaur", 					-- Kurenai
+	[989] = "Interface\\Icons\\Ability_Warrior_VictoryRush", 			-- Keepers of Time
+	[990] = "Interface\\Icons\\INV_Misc_MonsterScales_13", 				-- The Scale of the Sands
+	[1011] = "Interface\\Icons\\Ability_Rogue_MasterOfSubtlety",		-- Lower City
+	[1012] = "Interface\\Icons\\INV_Misc_Gem_Pearl_05", 				-- Ashtongue Deathsworn
+	[1015] = "Interface\\Icons\\Ability_Mount_Netherdrakepurple", 		-- Netherwing
+	[1031] = "Interface\\Icons\\INV_Misc_Ribbon_01",					-- Sha'tari Skyguard
+	[1038] = "Interface\\Icons\\INV_DataCrystal01", 					-- Ogri'la
+	[1077] = "Interface\\Icons\\INV_Misc_Statue_04",					-- Shattered Sun Offensive
+
+	-- Wrath
+	[1037] = 134981, -- Alliance Vanguard
+	[1106] = 236315, -- Argent Crusade
 }
 
+-- Name fallbacks
 local FACTION_KEY = {
 	-- Classic
 	[47] = "Ironforge",
@@ -80,10 +109,21 @@ local FACTION_KEY = {
 	[529] = "Argent Dawn",
 	[530] = "Darkspear Trolls",
 	[576] = "Timbermaw Hold",
-	[589] = AL["Wintersaber Trainers"], -- Alliance only, Horde gets no info :/
+	[589] = AL["Wintersaber Trainers"], -- Alli only
 	[609] = "Cenarion Circle",
-	[719] = "Hydraxian Waterlords",
+	[749] = "Hydraxian Waterlords",
 	[910] = "Brood of Nozdormu",
+	-- BC
+	[922] = AL["Tranquillien"], -- Horde only
+	[941] = AL["The Mag'har"], -- Horde only
+	[946] = AL["Honor Hold"], -- Alli only
+	[947] = AL["Thrallmar"], -- Horde only
+	[978] = AL["Kurenai"], -- Alli only
+	--Wrath
+	[1037] = AL["Alliance Vanguard"], -- Alli only
+	[1052] = AL["Horde Expedition"], -- Horde only
+	[1094] = AL["The Silver Covenant"], -- Alli only
+	[1124] = AL["The Sunreavers"], -- Horde only
 }
 
 ClickHandler:Add(
@@ -108,14 +148,6 @@ local function GetLocRepStanding(id)
 	else
 		return PlayerSex==3 and _G["FACTION_STANDING_LABEL"..(id or 4).."_FEMALE"] or _G["FACTION_STANDING_LABEL"..(id or 4)]
 	end
-end
-
-local function RGBToHex(t)
-	local r,g,b = t.r*255,t.g*255,t.b*255
-	r = r <= 255 and r >= 0 and r or 0
-	g = g <= 255 and g >= 0 and g or 0
-	b = b <= 255 and b >= 0 and b or 0
-	return str_format("%02x%02x%02x", r, g, b)
 end
 
 -- TODO: Create faction data module?
@@ -262,7 +294,7 @@ function Faction.ShowToolTipFrame(button)
 	if not Faction.tooltipFrame then
 		local WIDTH = 200
 		local name = "AtlasLoot-FactionToolTip"
-		local frame = CreateFrame("Frame", name)
+		local frame = CreateFrame("Frame", name, nil, _G.BackdropTemplateMixin and "BackdropTemplate" or nil)
 		frame:SetClampedToScreen(true)
 		frame:SetWidth(WIDTH)
 		frame:SetBackdrop({bgFile = "Interface/Tooltips/UI-Tooltip-Background",
@@ -286,7 +318,7 @@ function Faction.ShowToolTipFrame(button)
 		frame.name:SetHeight(15)
 		--frame.name:SetTextColor(1, 1, 1, 1)
 
-		frame.standing = CreateFrame("FRAME", name.."-standing", frame)
+		frame.standing = CreateFrame("FRAME", name.."-standing", frame, _G.BackdropTemplateMixin and "BackdropTemplate" or nil)
 		frame.standing:SetWidth(WIDTH-10)
 		frame.standing:SetHeight(20)
 		frame.standing:SetPoint("TOPLEFT", frame.icon, "BOTTOMLEFT", 0, -1)

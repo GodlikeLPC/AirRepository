@@ -1,0 +1,15 @@
+## Interface: 30400
+## Title: Details!: Raid Check (plugin)
+## Notes: Show talents and item level for all members in your group, also shows food and flask state.
+## RequiredDeps: Details
+
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+
+Details_RaidCheck.lua
+
+## Title: |cff880303[163UI]|r Details: Raid Check (plugin)
+## Title-zhCN: |cff880303[有爱]|r Details 队伍成员模块
+## X-Vendor: NetEase
+## X-163UI-Version: 20221208155130

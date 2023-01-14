@@ -1,13 +1,19 @@
-local mod = DBM:NewMod(WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and "z529" or "z2107", "DBM-PvP")
+local mod = DBM:NewMod(WOW_PROJECT_ID ~= (WOW_PROJECT_MAINLINE or 1) and "z529" or "z2107", "DBM-PvP")
 
-mod:SetRevision("20200524113830")
+mod:SetRevision("20210519214524")
 mod:SetZone(DBM_DISABLE_ZONE_DETECTION)
-mod:RegisterEvents("ZONE_CHANGED_NEW_AREA")
+mod:RegisterEvents(
+	"LOADING_SCREEN_DISABLED",
+	"ZONE_CHANGED_NEW_AREA"
+)
 
 do
-	function mod:OnInitialize()
+	local bgzone = false
+
+	local function Init()
 		local zoneID = DBM:GetCurrentArea()
-		if zoneID == 529 or zoneID == 1681 or zoneID == 2107 or zoneID == 2177 then -- Classic Arathi, Winter, Remastered Retail, AI
+		if not bgzone and (zoneID == 529 or zoneID == 1681 or zoneID == 2107 or zoneID == 2177) then -- Classic Arathi, Winter, Remastered Retail, AI
+			bgzone = true
 			local assaultID
 			if zoneID == 529 then
 				assaultID = 1461
@@ -19,10 +25,15 @@ do
 				assaultID = 1383
 			end
 			DBM:GetModByName("PvPGeneral"):SubscribeAssault(assaultID, 5)
+		elseif bgzone and (zoneID ~= 529 and zoneID ~= 1681 and zoneID ~= 2107 and zoneID ~= 2177) then
+			bgzone = false
 		end
 	end
 
-	function mod:ZONE_CHANGED_NEW_AREA()
-		self:ScheduleMethod(1, "OnInitialize")
+	function mod:LOADING_SCREEN_DISABLED()
+		self:Schedule(1, Init)
 	end
+	mod.ZONE_CHANGED_NEW_AREA	= mod.LOADING_SCREEN_DISABLED
+	mod.PLAYER_ENTERING_WORLD	= mod.LOADING_SCREEN_DISABLED
+	mod.OnInitialize			= mod.LOADING_SCREEN_DISABLED
 end

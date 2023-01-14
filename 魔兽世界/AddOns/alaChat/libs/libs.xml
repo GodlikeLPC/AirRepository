@@ -1,0 +1,11 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+
+    <include file = "ala\main.xml" />
+
+    <script file = "LibStub\LibStub.lua" />
+    <script file = "CallbackHandler-1.0\CallbackHandler-1.0.lua" />
+    <include file = "LibSharedMedia-3.0\lib.xml" />
+
+</Ui>
+

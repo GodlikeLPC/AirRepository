@@ -6,6 +6,19 @@ DBM.RangeCheck = {}
 --------------
 --  Locals  --
 --------------
+local isRetail = WOW_PROJECT_ID == (WOW_PROJECT_MAINLINE or 1)
+local isClassic = WOW_PROJECT_ID == (WOW_PROJECT_CLASSIC or 2)
+
+local DDM = _G["LibStub"]:GetLibrary("LibDropDownMenu")
+local UIDropDownMenu_AddButton, UIDropDownMenu_Initialize, ToggleDropDownMenu = DDM.UIDropDownMenu_AddButton, DDM.UIDropDownMenu_Initialize, DDM.ToggleDropDownMenu
+
+local function UnitPhaseReasonHack(uId)
+	if isRetail then
+		return not UnitPhaseReason(uId)
+	end
+	return UnitInPhase(uId)
+end
+
 local L = DBM_CORE_L
 local rangeCheck = DBM.RangeCheck
 local mainFrame = CreateFrame("Frame")
@@ -14,38 +27,39 @@ local RAID_CLASS_COLORS = _G["CUSTOM_CLASS_COLORS"] or RAID_CLASS_COLORS -- For 
 
 -- Function for automatically converting inputed ranges from old mods to be ones that have valid item/api checks
 local function setCompatibleRestrictedRange(range)
---	if range <= 4 then
---		range = 4
---	elseif range <= 6 then
---		range = 6
-	if range <= 8 then
-		range = 8
+	if range <= 4 and isRetail then
+		return 4
+	elseif range <= 6 and not isClassic then
+		return 6
+	elseif range <= 8 then
+		return 8
 	elseif range <= 10 then
-		range = 10
+		return 10
 	elseif range <= 11 then
-		range = 11
---	elseif range <= 13 then
---		range = 13
+		return 11
+	elseif range <= 13 then
+		return 13
 	elseif range <= 18 then
-		range = 18
+		return 18
 	elseif range <= 23 then
-		range = 23
---	elseif range <= 30 then
---		range = 30
+		return 23
+	elseif range <= 28 then
+		return 28
+	elseif range <= 30 and isRetail then
+		return 30
 	elseif range <= 33 then
-		range = 33
-	elseif range <= 43 then
-		range = 43
---	elseif range <= 48 then
---		range = 48
---	elseif range <= 53 then
---		range = 53
---	elseif range <= 60 then
---		range = 60
---	elseif range <= 80 then
---		range = 80
+		return 33
+	elseif range <= 43 and not isClassic then
+		return 43
+	elseif range <= 48 and not isClassic then
+		return 48
+	elseif range <= 53 and isRetail then
+		return 53
+	elseif range <= 60 and not isClassic then
+		return 60
+	elseif range <= 80 and isRetail then
+		return 80
 	end
-	return range
 end
 
 local itsBCAgain
@@ -55,59 +69,62 @@ do
 	-- All ranges are tested and compared against UnitDistanceSquared.
 	-- Example: Worgsaw has a tooltip of 6 but doesn't factor in hitboxes/etc. It doesn't return false until UnitDistanceSquared of 8.
 	local itemRanges = {
-	--	[4] = 90175,--Gin-Ji Knife Set
-	--	[6] = 37727,--Ruby Acorn
-		[8] = 8149,--Voodoo Charm
-	--	[13] = 32321,--Sparrowhawk Net
-		[18] = 6450,--Silk Bandage
-		[23] = 21519,--Mistletoe
-		[33] = 1180,--Scroll of Stamina
-	--	[43] = 34471,--Vial of the Sunwell (UnitInRange api alternate if item checks break)
-	--	[48] = 32698,--Wrangling Rope
-	--	[53] = 116139,--Haunting Memento
-	--	[60] = 32825,--Soul Cannon
-	--	[80] = 35278,--Reinforced Net
+		[8] = 8149, -- Voodoo Charm
+		[13] = isClassic and 17626 or 32321, -- Sparrowhawk Net / Frostwolf Muzzle
+		[18] = 6450, -- Silk Bandage
+		[23] = 21519, -- Mistletoe
+		[28] = 13289,--Egan's Blaster
+		[33] = 1180, -- Scroll of Stamina
 	}
+	if isRetail then
+		itemRanges[4] = 90175 -- Gin-Ji Knife Set (MoP)
+		itemRanges[53] = 116139 -- Haunting Memento (WoD)
+		itemRanges[80] = 35278 -- Reinforced Net (WotLK)
+	end
+	if not isClassic then -- Exists in BCC
+		itemRanges[6] = 16114 -- Foremans Blackjack (TBC)
+		itemRanges[43] = 34471 -- Vial of the Sunwell (UnitInRange api alternate if item checks break)
+		itemRanges[48] = 32698 -- Wrangling Rope
+		itemRanges[60] = 32825 -- Soul Cannon
+	end
 
 	local apiRanges = {
-		[10] = 3,--CheckInteractDistance (Duel)
-		[11] = 2,--CheckInteractDistance (Trade)
-	--	[30] = 1,--CheckInteractDistance (Inspect) (in Classic inspect range is 10)
+		[10] = 3, -- CheckInteractDistance (Duel)
+		[11] = 2, -- CheckInteractDistance (Trade)
 	}
+	if isRetail then
+		apiRanges[30] = 1 -- CheckInteractDistance (Inspect), Classic: Inspect range is 10
+	end
 
 	function itsBCAgain(uId, checkrange)
 		if checkrange then -- Specified range, this check only cares whether unit is within specific range
-			--Only classic uses UnitInRange so only classic has this check, TBC+ can use Vial of the Sunwell
-			if checkrange == 43 then
-				if UnitInRange(uId) then
-					return checkrange
-				else
-					return 1000
-				end
+			if not isRetail and checkrange == 43 then -- Only classic/BCC uses UnitInRange so only classic has this check, TBC+ can use Vial of the Sunwell
+				return UnitInRange(uId) and checkrange or 1000
 			elseif itemRanges[checkrange] then -- Only query item range for requested active range check
 				return IsItemInRange(itemRanges[checkrange], uId) and checkrange or 1000
 			elseif apiRanges[checkrange] then -- Only query item range for requested active range if no item found for it
 				return CheckInteractDistance(uId, apiRanges[checkrange]) and checkrange or 1000
 			else
-				 return 1000 -- Just so it has a numeric value, even if it's unknown to protect from nil errors
+				return 1000 -- Just so it has a numeric value, even if it's unknown to protect from nil errors
 			end
 		else -- No range passed, this is being used by a getDistanceBetween function that needs to calculate precise distances of members of raid (well as precise as possible with a crappy api)
-	--		if IsItemInRange(90175, uId) then return 4
-	--		elseif IsItemInRange(37727, uId) then return 6
-			if IsItemInRange(8149, uId) then return 8
+			if isRetail and IsItemInRange(90175, uId) then return 4
+			elseif not isClassic and IsItemInRange(16114, uId) then return 6
+			elseif IsItemInRange(8149, uId) then return 8
 			elseif CheckInteractDistance(uId, 3) then return 10
 			elseif CheckInteractDistance(uId, 2) then return 11
-	--		elseif IsItemInRange(32321, uId) then return 13
+			elseif IsItemInRange(isClassic and 17626 or 32321 , uId) then return 13
 			elseif IsItemInRange(6450, uId) then return 18
 			elseif IsItemInRange(21519, uId) then return 23
-	--		elseif CheckInteractDistance(uId, 1) then return 30
+			elseif IsItemInRange(13289, uId) then return 28
+			elseif isRetail and CheckInteractDistance(uId, 1) then return 30
 			elseif IsItemInRange(1180, uId) then return 33
-			elseif UnitInRange(uId) then return 43
-	--		elseif IsItemInRange(32698, uId) then return 48
-	--		elseif IsItemInRange(116139, uId) then return 53
-	--		elseif IsItemInRange(32825, uId) then return 60
-	--		elseif IsItemInRange(35278, uId) then return 80
-			else return 1000 end--Just so it has a numeric value, even if it's unknown to protect from nil errors
+			elseif not isClassic and UnitInRange(uId) then return 43
+			elseif not isClassic and IsItemInRange(32698, uId) then return 48
+			elseif isRetail and IsItemInRange(116139, uId) then return 53
+			elseif not isClassic and IsItemInRange(32825, uId) then return 60
+			elseif isRetail and IsItemInRange(35278, uId) then return 80
+			else return 1000 end -- Just so it has a numeric value, even if it's unknown to protect from nil errors
 		end
 	end
 end
@@ -151,7 +168,7 @@ do
 		local info
 
 		if level == 1 then
-			info = UIDropDownMenu_CreateInfo()
+			info = {}
 			info.text = L.RANGECHECK_SETRANGE
 			info.notCheckable = true
 			info.hasArrow = true
@@ -159,7 +176,7 @@ do
 			info.menuList = "range"
 			UIDropDownMenu_AddButton(info, 1)
 
-			info = UIDropDownMenu_CreateInfo()
+			info = {}
 			info.text = L.RANGECHECK_SETTHRESHOLD
 			info.notCheckable = true
 			info.hasArrow = true
@@ -167,7 +184,7 @@ do
 			info.menuList = "threshold"
 			UIDropDownMenu_AddButton(info, 1)
 
-			info = UIDropDownMenu_CreateInfo()
+			info = {}
 			info.text = L.RANGECHECK_SOUNDS
 			info.notCheckable = true
 			info.hasArrow = true
@@ -175,7 +192,7 @@ do
 			info.menuList = "sounds"
 			UIDropDownMenu_AddButton(info, 1)
 
-			info = UIDropDownMenu_CreateInfo()
+			info = {}
 			info.text = L.RANGECHECK_OPTION_FRAMES
 			info.notCheckable = true
 			info.hasArrow = true
@@ -183,7 +200,7 @@ do
 			info.menuList = "frames"
 			UIDropDownMenu_AddButton(info, 1)
 
-			info = UIDropDownMenu_CreateInfo()
+			info = {}
 			info.text = LOCK_FRAME
 			if DBM.Options.RangeFrameLocked then
 				info.checked = true
@@ -191,7 +208,7 @@ do
 			info.func = toggleLocked
 			UIDropDownMenu_AddButton(info, 1)
 
-			info = UIDropDownMenu_CreateInfo()
+			info = {}
 			info.text = HIDE
 			info.notCheckable = true
 			info.func = function() rangeCheck:Hide(true) end
@@ -199,133 +216,162 @@ do
 			UIDropDownMenu_AddButton(info, 1)
 		elseif level == 2 then
 			if menu == "range" then
-				info = UIDropDownMenu_CreateInfo()
+				if isRetail then
+					info = {}
+					info.text = L.RANGECHECK_SETRANGE_TO:format(4)
+					info.func = setRange
+					info.arg1 = 4
+					info.checked = (mainFrame.range == 4)
+					UIDropDownMenu_AddButton(info, 2)
+				end
+
+				if not isClassic then
+					info = {}
+					info.text = L.RANGECHECK_SETRANGE_TO:format(6)
+					info.func = setRange
+					info.arg1 = 6
+					info.checked = (mainFrame.range == 6)
+					UIDropDownMenu_AddButton(info, 2)
+				end
+
+				info = {}
 				info.text = L.RANGECHECK_SETRANGE_TO:format(8)
 				info.func = setRange
 				info.arg1 = 8
 				info.checked = (mainFrame.range == 8)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = L.RANGECHECK_SETRANGE_TO:format(10)
 				info.func = setRange
 				info.arg1 = 10
 				info.checked = (mainFrame.range == 10)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
-				info.text = L.RANGECHECK_SETRANGE_TO:format(11)
+				info = {}
+				info.text = L.RANGECHECK_SETRANGE_TO:format(13)
 				info.func = setRange
-				info.arg1 = 11
-				info.checked = (mainFrame.range == 11)
+				info.arg1 = 13
+				info.checked = (mainFrame.range == 13)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = L.RANGECHECK_SETRANGE_TO:format(18)
 				info.func = setRange
 				info.arg1 = 18
 				info.checked = (mainFrame.range == 18)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = L.RANGECHECK_SETRANGE_TO:format(23)
 				info.func = setRange
 				info.arg1 = 23
 				info.checked = (mainFrame.range == 23)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				if isRetail then
+					info = {}
+					info.text = L.RANGECHECK_SETRANGE_TO:format(30)
+					info.func = setRange
+					info.arg1 = 30
+					info.checked = (mainFrame.range == 30)
+					UIDropDownMenu_AddButton(info, 2)
+				end
+
+				info = {}
 				info.text = L.RANGECHECK_SETRANGE_TO:format(33)
 				info.func = setRange
 				info.arg1 = 33
 				info.checked = (mainFrame.range == 33)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
-				info.text = L.RANGECHECK_SETRANGE_TO:format(43)
-				info.func = setRange
-				info.arg1 = 43
-				info.checked = (mainFrame.range == 43)
-				UIDropDownMenu_AddButton(info, 2)
+				if not isClassic then
+					info = {}
+					info.text = L.RANGECHECK_SETRANGE_TO:format(43)
+					info.func = setRange
+					info.arg1 = 43
+					info.checked = (mainFrame.range == 43)
+					UIDropDownMenu_AddButton(info, 2)
+				end
 			elseif menu == "threshold" then
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = 1
 				info.func = setThreshold
 				info.arg1 = 1
 				info.checked = (mainFrame.redCircleNumPlayers == 1)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = 2
 				info.func = setThreshold
 				info.arg1 = 2
 				info.checked = (mainFrame.redCircleNumPlayers == 2)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = 3
 				info.func = setThreshold
 				info.arg1 = 3
 				info.checked = (mainFrame.redCircleNumPlayers == 3)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = 4
 				info.func = setThreshold
 				info.arg1 = 4
 				info.checked = (mainFrame.redCircleNumPlayers == 4)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = 5
 				info.func = setThreshold
 				info.arg1 = 5
 				info.checked = (mainFrame.redCircleNumPlayers == 5)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = 6
 				info.func = setThreshold
 				info.arg1 = 6
 				info.checked = (mainFrame.redCircleNumPlayers == 6)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = 8
 				info.func = setThreshold
 				info.arg1 = 8
 				info.checked = (mainFrame.redCircleNumPlayers == 8)
 				UIDropDownMenu_AddButton(info, 2)
 			elseif menu == "sounds" then
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = L.RANGECHECK_SOUND_OPTION_1
 				info.notCheckable = true
 				info.hasArrow = true
 				info.menuList = "RangeFrameSound1"
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = L.RANGECHECK_SOUND_OPTION_2
 				info.notCheckable = true
 				info.hasArrow = true
 				info.menuList = "RangeFrameSound2"
 				UIDropDownMenu_AddButton(info, 2)
 			elseif menu == "frames" then
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = L.RANGECHECK_OPTION_TEXT
 				info.func = setFrames
 				info.arg1 = "text"
 				info.checked = (DBM.Options.RangeFrameFrames == "text")
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = L.RANGECHECK_OPTION_RADAR
 				info.func = setFrames
 				info.arg1 = "radar"
 				info.checked = (DBM.Options.RangeFrameFrames == "radar")
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = L.RANGECHECK_OPTION_BOTH
 				info.func = setFrames
 				info.arg1 = "both"
@@ -334,7 +380,7 @@ do
 			end
 		elseif level == 3 then
 			local option = menu
-			info = UIDropDownMenu_CreateInfo()
+			info = {}
 			info.text = L.RANGECHECK_SOUND_0
 			info.func = setSound
 			info.arg1 = option
@@ -342,7 +388,7 @@ do
 			info.checked = (DBM.Options[option] == sound0)
 			UIDropDownMenu_AddButton(info, 3)
 
-			info = UIDropDownMenu_CreateInfo()
+			info = {}
 			info.text = L.RANGECHECK_SOUND_1
 			info.func = setSound
 			info.arg1 = option
@@ -350,7 +396,7 @@ do
 			info.checked = (DBM.Options[option] == sound1)
 			UIDropDownMenu_AddButton(info, 3)
 
-			info = UIDropDownMenu_CreateInfo()
+			info = {}
 			info.text = L.RANGECHECK_SOUND_2
 			info.func = setSound
 			info.arg1 = option
@@ -391,13 +437,14 @@ end
 --  Create the frame  --
 ------------------------
 local function createTextFrame()
-	textFrame = CreateFrame("Frame", "DBMRangeCheck", UIParent)
+	textFrame = CreateFrame("Frame", "DBMRangeCheck", UIParent, "BackdropTemplate")
 	textFrame:SetFrameStrata("DIALOG")
-	textFrame:SetBackdrop({
-		bgFile		= "Interface\\DialogFrame\\UI-DialogBox-Background", -- 131071
+	textFrame.backdropInfo = {
+		bgFile		= "Interface\\DialogFrame\\UI-DialogBox-Background",--131071
 		tile		= true,
 		tileSize	= 16
-	})
+	}
+	textFrame:ApplyBackdrop()
 	textFrame:SetPoint(DBM.Options.RangeFramePoint, UIParent, DBM.Options.RangeFramePoint, DBM.Options.RangeFrameX, DBM.Options.RangeFrameY)
 	textFrame:SetSize(128, 12)
 	textFrame:SetClampedToScreen(true)
@@ -426,16 +473,19 @@ local function createTextFrame()
 	end)
 
 	local text = textFrame:CreateFontString(nil, "OVERLAY", "GameTooltipText")
-	text:SetWidth(128)
-	text:SetHeight(15)
+	text:SetSize(128, 15)
 	text:SetPoint("BOTTOMLEFT", textFrame, "TOPLEFT")
 	text:SetTextColor(1, 1, 1, 1)
 	text:Show()
+	text.OldSetText = text.SetText
+	text.SetText = function(self, text)
+		self:OldSetText(text)
+		self:SetWidth(0) -- Set the text width to 0, so the system can auto-calculate the size
+	end
 	textFrame.text = text
 
 	local inRangeText = textFrame:CreateFontString(nil, "OVERLAY", "GameTooltipText")
-	inRangeText:SetWidth(128)
-	inRangeText:SetHeight(15)
+	inRangeText:SetSize(128, 15)
 	inRangeText:SetPoint("TOPLEFT", textFrame, "BOTTOMLEFT")
 	inRangeText:SetTextColor(1, 1, 1, 1)
 	inRangeText:Hide()
@@ -453,6 +503,8 @@ local function createTextFrame()
 		end
 		textFrame.lines[i] = line
 	end
+
+	textFrame:Hide()
 end
 
 local function createRadarFrame()
@@ -506,16 +558,14 @@ local function createRadarFrame()
 	player:SetPoint("CENTER")
 
 	local text = radarFrame:CreateFontString(nil, "OVERLAY", "GameTooltipText")
-	text:SetWidth(128)
-	text:SetHeight(15)
+	text:SetSize(128, 15)
 	text:SetPoint("BOTTOMLEFT", radarFrame, "TOPLEFT")
 	text:SetTextColor(1, 1, 1, 1)
 	text:Show()
 	radarFrame.text = text
 
 	local inRangeText = radarFrame:CreateFontString(nil, "OVERLAY", "GameTooltipText")
-	inRangeText:SetWidth(128)
-	inRangeText:SetHeight(15)
+	inRangeText:SetSize(128, 15)
 	inRangeText:SetPoint("TOPLEFT", radarFrame, "BOTTOMLEFT")
 	inRangeText:SetTextColor(1, 1, 1, 1)
 	inRangeText:Hide()
@@ -537,23 +587,24 @@ end
 --  OnUpdate  --
 ----------------
 do
-	local UnitExists, UnitIsUnit, UnitIsDeadOrGhost, UnitIsConnected, UnitInPhase, GetPlayerFacing, UnitName, UnitClass, IsInRaid, GetNumGroupMembers, GetRaidTargetIndex, GetBestMapForUnit = UnitExists, UnitIsUnit, UnitIsDeadOrGhost, UnitIsConnected, UnitInPhase, GetPlayerFacing, UnitName, UnitClass, IsInRaid, GetNumGroupMembers, GetRaidTargetIndex, C_Map.GetBestMapForUnit
-	local max, sin, cos, pi2 = math.max, math.sin, math.cos, math.pi * 2
+	local UnitExists, UnitIsUnit, UnitIsDeadOrGhost, UnitIsConnected, GetPlayerFacing, UnitClass, IsInRaid, GetNumGroupMembers, GetRaidTargetIndex, GetBestMapForUnit = UnitExists, UnitIsUnit, UnitIsDeadOrGhost, UnitIsConnected, GetPlayerFacing, UnitClass, IsInRaid, GetNumGroupMembers, GetRaidTargetIndex, C_Map.GetBestMapForUnit
+	local max, min, sin, cos, pi2 = math.max, math.min, math.sin, math.cos, math.pi * 2
 	local circleColor, rotation, pixelsperyard, activeDots, prevRange, prevThreshold, prevNumClosePlayer, prevclosestRange, prevColor, prevType = 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 	local unitList = {}
 	local BLIP_TEX_COORDS = {
-		["WARRIOR"]		 = { 0, 0.125, 0, 0.25 },
-		["PALADIN"]		 = { 0.125, 0.25, 0, 0.25 },
-		["HUNTER"]		 = { 0.25, 0.375, 0, 0.25 },
-		["ROGUE"]		 = { 0.375, 0.5, 0, 0.25 },
-		["PRIEST"]		 = { 0.5, 0.625, 0, 0.25 },
-		["DEATHKNIGHT"]	 = { 0.625, 0.75, 0, 0.25 },
-		["SHAMAN"]		 = { 0.75, 0.875, 0, 0.25 },
-		["MAGE"]		 = { 0.875, 1, 0, 0.25 },
-		["WARLOCK"]		 = { 0, 0.125, 0.25, 0.5 },
-		["DRUID"]		 = { 0.25, 0.375, 0.25, 0.5 },
-		["MONK"]		 = { 0.125, 0.25, 0.25, 0.5 },
-		["DEMONHUNTER"]	 = { 0.375, 0.5, 0.25, 0.5 },
+		["WARRIOR"]		= { 0, 0.125, 0, 0.25 },
+		["PALADIN"]		= { 0.125, 0.25, 0, 0.25 },
+		["HUNTER"]		= { 0.25, 0.375, 0, 0.25 },
+		["ROGUE"]		= { 0.375, 0.5, 0, 0.25 },
+		["PRIEST"]		= { 0.5, 0.625, 0, 0.25 },
+		["DEATHKNIGHT"]	= { 0.625, 0.75, 0, 0.25 },
+		["SHAMAN"]		= { 0.75, 0.875, 0, 0.25 },
+		["MAGE"]		= { 0.875, 1, 0, 0.25 },
+		["WARLOCK"]		= { 0, 0.125, 0.25, 0.5 },
+		["DRUID"]		= { 0.25, 0.375, 0.25, 0.5 },
+		["MONK"]		= { 0.125, 0.25, 0.25, 0.5 },
+		["DEMONHUNTER"]	= { 0.375, 0.5, 0.25, 0.5 },
+		["EVOKER"]		= { 0, 0.125, 0, 0.25 }, -- Uses the same as WARRIOR, because that's what Blizzard is doing currently
 	}
 
 	local function setDot(id, sinTheta, cosTheta)
@@ -645,8 +696,8 @@ do
 		local sinTheta = sin(rotation)
 		local cosTheta = cos(rotation)
 		local closePlayer = 0
-		local closestRange = nil
-		local closetName = nil
+		local closestRange
+		local closetName
 		local filter = mainFrame.filter
 		local type = reverse and 2 or filter and 1 or 0
 		local onlySummary = mainFrame.onlySummary
@@ -654,7 +705,7 @@ do
 			local uId = unitList[i]
 			local dot = radarFrame.dots[i]
 			local mapId = GetBestMapForUnit(uId) or 0
-			if UnitExists(uId) and playerMapId == mapId and not UnitIsUnit(uId, "player") and not UnitIsDeadOrGhost(uId) and UnitIsConnected(uId) and UnitInPhase(uId) and (not filter or filter(uId)) then
+			if UnitExists(uId) and playerMapId == mapId and not UnitIsUnit(uId, "player") and not UnitIsDeadOrGhost(uId) and UnitIsConnected(uId) and UnitPhaseReasonHack(uId) and (not filter or filter(uId)) then
 				local range = restricted and itsBCAgain(uId, activeRange) or UnitDistanceSquared(uId) ^ 0.5
 				local inRange = false
 				if range < activeRange + 0.5 then
@@ -688,8 +739,8 @@ do
 						rangeCheck:Hide(true)
 						return
 					end
-					dot.x = -(x - playerX)
-					dot.y = -(y - playerY)
+					dot.y = -(x - playerX)
+					dot.x = -(y - playerY)
 					dot.range = range
 					setDot(i, sinTheta, cosTheta)
 				end
@@ -757,7 +808,7 @@ local anim = updater:CreateAnimation()
 anim:SetDuration(0.05)
 
 mainFrame:SetSize(0, 0)
-mainFrame:SetScript("OnEvent", function(self, event, ...)
+mainFrame:SetScript("OnEvent", function(self, event)
 	if event == "GROUP_ROSTER_UPDATE" or event == "RAID_TARGET_UPDATE" then
 		updateIcon()
 	end
@@ -769,12 +820,12 @@ end)
 local getDistanceBetween, getDistanceBetweenAll
 
 do
-	local UnitPosition, UnitExists, UnitIsUnit, UnitIsDeadOrGhost, UnitIsConnected, UnitInPhase = UnitPosition, UnitExists, UnitIsUnit, UnitIsDeadOrGhost, UnitIsConnected, UnitInPhase
+	local UnitPosition, UnitExists, UnitIsUnit, UnitIsDeadOrGhost, UnitIsConnected = UnitPosition, UnitExists, UnitIsUnit, UnitIsDeadOrGhost, UnitIsConnected
 
 	function getDistanceBetweenAll(checkrange)
 		local range
 		for uId in DBM:GetGroupMembers() do
-			if UnitExists(uId) and not UnitIsUnit(uId, "player") and not UnitIsDeadOrGhost(uId) and UnitIsConnected(uId) and UnitInPhase(uId) then
+			if UnitExists(uId) and not UnitIsUnit(uId, "player") and not UnitIsDeadOrGhost(uId) and UnitIsConnected(uId) and UnitPhaseReasonHack(uId) then
 				range = DBM:HasMapRestrictions() and itsBCAgain(uId, checkrange) or UnitDistanceSquared(uId) * 0.5
 				if checkrange < (range + 0.5) then
 					return true
@@ -823,7 +874,7 @@ end
 local restoreRange, restoreFilter, restoreThreshold, restoreReverse
 
 function rangeCheck:Show(range, filter, forceshow, redCircleNumPlayers, reverse, hideTime, onlySummary)
-	if (DBM:GetNumRealGroupMembers() < 2 or DBM.Options.DontShowRangeFrame) and not forceshow then
+	if (DBM:GetNumRealGroupMembers() < 2 or DBM.Options.DontShowRangeFrame or DBM.Options.SpamSpecInformationalOnly) and not forceshow then
 		return
 	end
 	if type(range) == "function" then -- The first argument is optional
@@ -912,4 +963,27 @@ function rangeCheck:GetDistanceAll(checkrange)
 		checkrange = setCompatibleRestrictedRange(checkrange)
 	end
 	return getDistanceBetweenAll(checkrange)
+end
+
+do
+	local function UpdateRangeFrame(r, reverse)
+		if rangeCheck:IsShown() then
+			rangeCheck:Hide(true)
+		else
+			if DBM:HasMapRestrictions() then
+				DBM:AddMsg(L.NO_RANGE)
+			end
+			rangeCheck:Show((r and r < 201) and r or 10 , nil, true, nil, reverse)
+		end
+	end
+	SLASH_DBMRANGE1 = "/range"
+	SLASH_DBMRANGE2 = "/distance"
+	SLASH_DBMRRANGE1 = "/rrange"
+	SLASH_DBMRRANGE2 = "/rdistance"
+	SlashCmdList["DBMRANGE"] = function(msg)
+		UpdateRangeFrame(tonumber(msg), false)
+	end
+	SlashCmdList["DBMRRANGE"] = function(msg)
+		UpdateRangeFrame(tonumber(msg), true)
+	end
 end

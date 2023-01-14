@@ -1,4 +1,0 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<Script file="loot_gold.lua"/>
-	<Script file="loot_items.lua"/>
-</Ui>

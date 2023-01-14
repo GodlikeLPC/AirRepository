@@ -1,0 +1,10 @@
+## Interface: 30400
+## Title: 163UI_Plugins
+## Title-zhCN: |cff880303[有爱]|r 163UI 小功能集合
+## X-Vendor: NetEase
+## SavedVariables: _163UIPluginsDB
+
+163UI_Plugins.lua
+163UI_Plugins.xml
+
+## X-163UI-Version: 20220905154958

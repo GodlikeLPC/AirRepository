@@ -1,3 +1,0 @@
-
-MobHealthDB = nil
-MobHealthConfig = nil

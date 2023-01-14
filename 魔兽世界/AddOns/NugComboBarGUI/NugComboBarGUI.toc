@@ -1,0 +1,12 @@
+## Interface: 30400
+## Title: NugComboBarGUI
+## Notes: NugComboBar Configuration Panel
+## Version: 9.0-tbc-beta1
+## Dependencies: NugComboBar
+## Author: d87
+## LoadOnDemand: 1
+..\NugComboBar\Options\includes.xml
+
+
+
+## X-163UI-Version: 20220901200239

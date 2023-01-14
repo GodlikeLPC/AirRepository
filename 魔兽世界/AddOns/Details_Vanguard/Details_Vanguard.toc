@@ -1,0 +1,17 @@
+## Interface: 30400
+## Title: Details!: Vanguard (plugin)
+## Notes: Show the health and debuffs for tanks in your group.
+## SavedVariablesPerCharacter: _detalhes_databaseVanguard
+## RequiredDeps: Details
+## OptionalDeps: Ace3
+
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+
+Details_Vanguard.lua
+
+## Title: |cff880303[163UI]|r Details: Vanguard (plugin)
+## Title-zhCN: |cff880303[有爱]|r Details 坦克模块
+## X-Vendor: NetEase
+## X-163UI-Version: 20221208155130

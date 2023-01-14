@@ -1,17 +1,14 @@
-﻿## Interface: 11305
-## Title: TrinketMenu
-## Title-zhCN: [大脚][集]饰品管理
-## Title-zhTW: [大腳][集]飾品管理
-## Notes: |cffbc8f8fAddOn to manage trinkets.|r
-## Notes-zhCN: |cff00ff00TrinketMenu|r|n|cffbc8f8f方便地管理饰品。|r
-## Notes-zhTW: |cff00ff00TrinketMenu|r|n|cffbc8f8f方便地管理飾品。|r
-## Author: Gello
+## Interface: 30400
+## Title: TrinketMenu 9.0.8
+## Version: 9.0.8
+## Author: Gello, Resike
+## Notes: Addon to manage trinkets.
 ## SavedVariables: TrinketMenuOptions
 ## SavedVariablesPerCharacter: TrinketMenuPerOptions, TrinketMenuQueue
-## Dependencies: BigFoot
-## X-Revision: BigFoot
-## LoadOnDemand: 1
 
+Libs\LibStub\LibStub.lua
+
+TrinketMenuGlobals.lua
 TrinketMenu.lua
 TrinketMenu.xml
 TrinketMenuOpt.lua
@@ -19,6 +16,7 @@ TrinketMenuOpt.xml
 TrinketMenuQueue.lua
 TrinketMenuQueue.xml
 
-localization.lua
-
-TrinketMenuConfig.lua
+## Title: |cff880303[163UI]|r TrinketMenu 9.0.7
+## Title-zhCN: |cff880303[有爱]|r TrinketMenu 饰品管理
+## X-Vendor: NetEase
+## X-163UI-Version: 20220915134805

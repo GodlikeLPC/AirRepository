@@ -1,4 +1,4 @@
-﻿local L
+local L
 
 --------------------------
 --  General BG Options  --
@@ -13,48 +13,58 @@ L:SetTimerLocalization({
 	TimerCap		= "%s",
 	TimerFlag		= "Flag respawn",
 	TimerInvite		= "%s",
-	TimerRemaining	= "Time Remaining: ",
+	TimerWin		= "Victory in",
+	TimerStart		= "Starting in",
 	TimerShadow		= "Shadow Sight"
 })
 
 L:SetOptionLocalization({
 	AutoSpirit			= "Auto-release spirit",
-	ColorByClass		= "Set name color to class color in the score frame",
 	HideBossEmoteFrame	= "Hide the raid boss emote frame and garrison/Guild toasts during battlegrounds",
 	ShowBasesToWin		= "Show bases required to win",
-	ShowEstimatedPoints	= "Show estimated points on win/loss",
-	ShowFlagCarrier		= "Show flag carrier",
 	TimerCap			= "Show capture timer",
 	TimerFlag			= "Show flag respawn timer",
-	TimerInvite			= "Show battleground join timer",
-	TimerRemaining		= "Show time remaining for match start and match end",
+	TimerStart			= "Show timer till match start",
 	TimerShadow			= "Show timer for Shadow Sight",
 	TimerWin			= "Show win timer",
 	ShowRelativeGameTime= "Fill win timer relative to BG start time (If disabled, bar just always looks full)"
 })
 
 L:SetMiscLocalization({
-	BgStart60           = "The battle begins in 1 minute.",
-	BgStart30           = "The battle begins in 30 seconds. Prepare yourselves!",
+	-- Supports "The battle begins in 2 minutes." and "The battle for Wintergrasp begins in 2 minutes." (Because.. wrath classic)
+	BgStart120          = "The battle(.*) begins in 2 minutes.",
+	BgStart60           = "The battle(.*) begins in 1 minute.",
+	BgStart30           = "The battle(.*) begins in 30 seconds.",
+	ArenaStart60		= "One minute until the Arena battle begins!",
+	ArenaStart30		= "Thirty seconds until the Arena battle begins!",
+	ArenaStart15		= "Fifteen seconds until the Arena battle begins!",
 	ArenaInvite			= "Arena invite",
 	BasesToWin			= "Bases to win: %d",
 	WinBarText			= "%s wins",
 	-- TODO: Implement the flag carrying system
-	Flag				= "Flag",
-	FlagReset			= "The flag has been reset!",
-	FlagTaken			= "(.+) has taken the flag!",
+	FlagReset			= "The flag has been reset!", -- Unused
+	FlagTaken			= "(.+) has taken the flag!", -- Unused
 	FlagCaptured		= "The .+ ha%w+ captured the flag!",
-	FlagDropped			= "The flag has been dropped!",
+	FlagDropped			= "The flag has been dropped!", -- Unused
 	--
-	InfoErrorText		= "The flag carrier targeting function will be restored when you are out of combat.",
-	ExprFlagPickUp		= "The (%w+) .lag was picked up by (.+)!",
-	ExprFlagCaptured	= "(.+) captured the (%w+) flag!",
-	ExprFlagReturn		= "The (%w+) .lag was returned to its base by (.+)!",
-	FlagAlliance		= "Alliance Flag: ",
-	FlagHorde			= "Horde Flag: ",
-	FlagBase			= "Base",
+	ExprFlagPickUp		= "The (%w+) Flag was picked up by (.+)!", -- Unused
+	ExprFlagCaptured	= "(.+) captured the (%w+) Flag!",
+	ExprFlagReturn		= "The (%w+) Flag was returned to its base by (.+)!", -- Unused
 	Vulnerable1			= "The flag carriers have become vulnerable to attack!",
-	Vulnerable2			= "The flag carriers have become increasingly vulnerable to attack!"
+	Vulnerable2			= "The flag carriers have become increasingly vulnerable to attack!",
+	-- Alterac/IsleOfConquest bosses
+	InfoFrameHeader		= "Boss Health",
+	HordeBoss			= "Horde Boss",
+	AllianceBoss		= "Alliance Boss",
+	Galvangar			= "Galvangar",
+	Balinda				= "Balinda",
+	Ivus				= "Ivus",
+	Lokholar			= "Lokholar",
+	-- Ashran bosses
+	Tremblade			= "Grand Marshall Tremblade",
+	Volrath				= "High WArlord Volrath",
+	Fangraal			= "Fangraal",
+	Kronus				= "Kronus"
 })
 
 ----------------------
@@ -63,7 +73,7 @@ L:SetMiscLocalization({
 L = DBM:GetModLocalization("z1803")
 
 L:SetTimerLocalization({
-	TimerSpawn	= "%s"
+	TimerSpawn		= "%s"
 })
 
 L:SetOptionLocalization({
@@ -75,8 +85,18 @@ L:SetOptionLocalization({
 ----------------------
 L = DBM:GetModLocalization("z30")
 
+L:SetTimerLocalization({
+	TimerBoss	= "%s"
+})
+
 L:SetOptionLocalization({
-	AutoTurnIn	= "Automatically turn-in quests"
+	AutoTurnIn	= "Automatically turn-in quests",
+	TimerBoss	= "Show boss remaining timer"
+})
+
+L:SetMiscLocalization({
+	BossHorde	= "WHO DARES SUMMON LOKHOLAR?",
+	BossAlly	= "Wicked, wicked, mortals! The forest weeps. The elements recoil at the destruction. Ivus must purge you from this world!"
 })
 
 --------------
@@ -133,7 +153,7 @@ L:SetTimerLocalization({
 })
 
 L:SetOptionLocalization({
-	TimerResapwn	= "Show cart respawn timer",
+	TimerRespawn	= "Show cart respawn timer",
 	TimerCart		= "Show cart cap timer"
 })
 
@@ -149,7 +169,7 @@ L:SetMiscLocalization({
 L = DBM:GetModLocalization("z998")
 
 L:SetOptionLocalization({
-	ShowOrbCarriers	= "Show flag carrier"
+	ShowOrbCarriers	= "Show orb carrier"
 })
 
 L:SetMiscLocalization({

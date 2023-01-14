@@ -1,0 +1,23 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+
+
+    <!-- <Script file="AutoGossip.lua"/> -->
+    <!-- <Script file="BattleGround_Score.lua"/> -->
+    <!-- <Script file="CastingFrame.lua"/> -->
+    <Script file="CurrencyTip.lua"/>
+    <!-- <Script file="Explosive_NamePlate.lua"/> -->
+    <Script file="FriendFrame.lua"/>
+    <Script file="GuildFrame.lua"/>
+    <!-- <Script file="QuestHelper.lua"/> -->
+    <Script file="WhoFrame.lua"/>
+
+    <!-- <Script file="7.0\PVEFrame.lua"/> -->
+    <!-- <Script file="7.0\WorldMapQuest.lua"/> -->
+
+    <!-- <Script file="9.0\Eye_of_the_Jailer.lua"/> -->
+    <!-- <Script file="9.0\TheEmberCourt.lua"/> -->
+    <!-- <Script file="9.0\WeeklyRewardsMinimapButton.lua"/> -->
+
+</Ui>
+

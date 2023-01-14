@@ -4,6 +4,7 @@ local ItemDB = AtlasLoot.ItemDB
 local ItemFrame = {}
 AtlasLoot.GUI.ItemFrame = ItemFrame
 local AL = AtlasLoot.Locales
+local ClassFilter = AtlasLoot.Data.ClassFilter
 
 -- lua
 local type, tostring = type, tostring
@@ -18,6 +19,7 @@ local PAGE_NAME_PAGE = "%s [%d/%d]"
 local PAGE_NAME_DIFF = "%s (%s)"
 local PAGE_NAME_DIFF_PAGE = "%s (%s) [%d/%d]"
 local FILTER_ALPHA = 0.33
+local DEFAULT_HEADER_COLOR = {0.82, 0.82, 0.82, 0.5}
 
 function ItemFrame:Create()
 	if self.frame then return self.frame end
@@ -53,6 +55,20 @@ function ItemFrame:Create()
 			frame.ItemButtons[i]:SetPoint("TOPLEFT", frame.ItemButtons[i-1], "BOTTOMLEFT", 0, -2)
 		end
 	end
+	-- headerlines
+	frame.HeaderLines = {}
+	for i = 1, 15 do
+		local line
+		line = frame:CreateTexture(nil, "BACKGROUND")
+		line:SetPoint("TOPLEFT", frame.ItemButtons[i], "TOPLEFT", 0, 0)
+		line:SetPoint("BOTTOMRIGHT", frame.ItemButtons[i+15], "BOTTOMRIGHT", 0, 0)
+		line:SetColorTexture(unpack(DEFAULT_HEADER_COLOR))
+		line:SetDrawLayer(GUI.frame.contentFrame.itemBG:GetDrawLayer(), 1)
+		--GUI.frame.contentFrame.itemBG
+		line:Hide()
+		frame.HeaderLines[i] = line
+	end
+
 	return self.frame
 end
 
@@ -74,58 +90,50 @@ function ItemFrame:ClearItems()
 	end
 end
 
-function ItemFrame.UpdateFilter()
-	local Reset = true
+function ItemFrame.UpdateFilterItem(buttonID, reset)
+	local button = ItemFrame.frame.ItemButtons[buttonID] or buttonID
+	if not button then return end
 	if AtlasLoot.db.GUI.classFilter then
-		-- NYI
-		-- Reset = false
-	end
-	if ItemFrame.SearchString then
-		local searchString = ItemFrame.SearchString
-		for i=1,30 do
-			local button = ItemFrame.frame.ItemButtons[i]
-			local text = button.RawName or button.name:GetText()
-			if text and not sfind(slower(text), searchString, 1, true) then
-				button:SetAlpha(FILTER_ALPHA)
+		if button and button.__atlaslootinfo and not button.__atlaslootinfo.filterIgnore and button.__atlaslootinfo.type and (button.__atlaslootinfo.type[1] == "Item" or button.filterItemID) then
+			if (button.filterItemID or button.ItemID) and ClassFilter.ClassCanUseItem(GUI.frame.contentFrame.clasFilterButton.selectedClassName, button.filterItemID or button.ItemID) then
+				button:SetAlpha(1)
 			else
-				button:SetAlpha(1.0)
+				button:SetAlpha(0.33)
 			end
+		else
+			button:SetAlpha(1)
 		end
-		Reset = false
+		reset = false
 	end
-	if Reset then
+
+	if ItemFrame.SearchString then
+		local text = button.RawName or button.name:GetText()
+		if text and not sfind(slower(text), ItemFrame.SearchString, 1, true) then
+			button:SetAlpha(FILTER_ALPHA)
+		elseif reset then
+			button:SetAlpha(1.0)
+		end
+		reset = false
+	end
+
+	return reset
+end
+
+function ItemFrame.UpdateFilter()
+	local reset = true
+	for i = 1,30 do
+		reset = ItemFrame.UpdateFilterItem(i, reset)
+	end
+
+	if reset then
 		for i=1,30 do
 			ItemFrame.frame.ItemButtons[i]:SetAlpha(1)
 		end
 	end
 end
 
-function ItemFrame.OnClassFilterUpdate(filterTab)
-	--[[ NEED REWORK
-	if AtlasLoot.db.GUI.classFilter and GUI.__EJData then
-		if not filterTab then
-			AtlasLoot.EncounterJournal:SetLootQuery(GUI.__EJData[1], GUI.__EJData[2], ItemFrame.CurDiff, ItemFrame.CurTier, nil, GUI.frame.contentFrame.clasFilterButton.selectedPlayerSpecID, ItemFrame.OnClassFilterUpdate )
-		else
-			local button
-			for i = 1,30 do
-				button = ItemFrame.frame.ItemButtons[i]
-				if button and button.__atlaslootinfo and not button.__atlaslootinfo.filterIgnore and button.__atlaslootinfo.type and button.__atlaslootinfo.type[1] == "Item" then
-					if button.ItemID and filterTab[button.ItemID] then
-						button:SetAlpha(1)
-					else
-						button:SetAlpha(0.33)
-					end
-				else
-					button:SetAlpha(1)
-				end
-			end
-		end
-	else
-		for i=1,30 do
-			ItemFrame.frame.ItemButtons[i]:SetAlpha(1)
-		end
-	end
-	]]--
+function ItemFrame.OnClassFilterUpdate()
+	ItemFrame.UpdateFilter()
 end
 
 function ItemFrame.OnSearch(msg)
@@ -152,6 +160,7 @@ function ItemFrame:Refresh(skipProtect)
 	AtlasLoot.db.GUI.selected[5] = AtlasLoot.db.GUI.selected[5] or 0
 	ItemFrame.nextPage = nil
 	local page = AtlasLoot.db.GUI.selected[5] * 100 -- Page number for first items on a page are <1, 101, 201, 301, 401, ...>
+	local bossData = AtlasLoot.ItemDB:GetBossTable(AtlasLoot.db.GUI.selected[1], AtlasLoot.db.GUI.selected[2], AtlasLoot.db.GUI.selected[3])
 	local items, tableType, diffData = ItemDB:GetItemTable(AtlasLoot.db.GUI.selected[1], AtlasLoot.db.GUI.selected[2], AtlasLoot.db.GUI.selected[3], AtlasLoot.db.GUI.selected[4])
 	if items then
 
@@ -214,6 +223,25 @@ function ItemFrame:Refresh(skipProtect)
 		end
 		]]--
 	end
+	-- check for headers
+	if ItemFrame.headerShown then
+		for i = 1, #ItemFrame.frame.HeaderLines do
+			ItemFrame.frame.HeaderLines[i]:Hide()
+		end
+	end
+	local headerLines = items.headerLines or bossData.headerLines
+	if headerLines then
+		local line
+		for i = 1, #headerLines do
+			line = ItemFrame.frame.HeaderLines[headerLines[i]]
+			if line then
+				line:SetColorTexture(unpack(headerLines.color or DEFAULT_HEADER_COLOR))
+				line:Show()
+			end
+		end
+		ItemFrame.headerShown = true
+	end
+
 	ItemFrame.UpdateFilter()
 end
 

@@ -1,0 +1,13 @@
+## Interface: 30400
+## Version: 2.1.3
+## Title: tdPack2
+## Author: Dencer
+## OptionalDeps: Bagnon, Combuctor, tdBag
+## SavedVariables: TDDB_PACK2
+
+Load.xml
+
+## Title: |cff880303[163UI]|r tdPack2
+## Title-zhCN: |cff880303[有爱]|r tdPack2 背包整理工具
+## X-Vendor: NetEase
+## X-163UI-Version: 20221103152219

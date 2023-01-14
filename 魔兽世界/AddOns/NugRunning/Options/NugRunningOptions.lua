@@ -223,6 +223,7 @@ function NugRunningGUI.CreateCommonForm(self)
             clean(opts, default_opts, "ghost", false)
             clean(opts, default_opts, "preghost", false)
             clean(opts, default_opts, "timeless", false)
+            clean(opts, default_opts, "charged", false)
             clean(opts, default_opts, "singleTarget", false)
             clean(opts, default_opts, "multiTarget", false)
             clean(opts, default_opts, "scale", 1)
@@ -274,55 +275,55 @@ function NugRunningGUI.CreateCommonForm(self)
             -- else
             NugRunning.MergeTable(NugRunningConfigMerged[category][spellID], delta, true)
             -- end
-		else
-			NugRunningConfigMerged[category][spellID] = delta
-		end
+        else
+            NugRunningConfigMerged[category][spellID] = delta
+            delta.isAdded = true
+        end
 
-		NugRunning:UpdateSpellNameToIDTable()
+        -- fill up spell clones of the new version
+        local originalSpell = NugRunningConfigMerged[category][spellID]
+        if originalSpell.clones then
+            originalSpell.clones[spellID] = nil -- Removing possible input of original spell ID into clone list
+            for i, additionalSpellID in ipairs(originalSpell.clones) do
+                NugRunningConfigMerged[category][additionalSpellID] = originalSpell
+                NugRunningConfigMerged.spellClones[additionalSpellID] = true
+            end
+        end
+        ----------
 
-		-- fill up spell clones of the new version
-		local originalSpell = NugRunningConfigMerged[category][spellID]
-		if originalSpell.clones then
-			for i, additionalSpellID in ipairs(originalSpell.clones) do
-				NugRunningConfigMerged[category][additionalSpellID] = originalSpell
-				NugRunningConfigMerged.spellClones[additionalSpellID] = true
-			end
-		end
-		----------
+        NugRunningConfigCustom[class] = NugRunningConfigCustom[class] or {}
+        NugRunningConfigCustom[class][category] = NugRunningConfigCustom[class][category] or {}
+        if not next(delta) then delta = nil end
+        NugRunningConfigCustom[class][category][spellID] = delta
 
-		NugRunningConfigCustom[class] = NugRunningConfigCustom[class] or {}
-		NugRunningConfigCustom[class][category] = NugRunningConfigCustom[class][category] or {}
-		if not next(delta) then delta = nil end
-		NugRunningConfigCustom[class][category][spellID] = delta
+        NugRunningGUI.frame.tree:UpdateSpellTree()
+        NugRunningGUI.frame.tree:SelectByPath(class, category, spellID)
+    end)
+    Form:AddChild(save)
 
-		NugRunningGUI.frame.tree:UpdateSpellTree()
-		NugRunningGUI.frame.tree:SelectByPath(class, category, spellID)
-	end)
-	Form:AddChild(save)
+    local delete = AceGUI:Create("Button")
+    delete:SetText(L"Delete")
+    save:SetRelativeWidth(0.45)
+    delete:SetCallback("OnClick", function(self, event)
+        local p = self.parent
+        local class = p.class
+        local category = p.category
+        local spellID = p.id
+        -- local opts = p.opts
+        if NugRunningConfigCustom[class][category] then
+            NugRunningConfigCustom[class][category][spellID] = nil
+        end
+        NugRunningConfigMerged[category][spellID] = NugRunningConfig[category][spellID]
 
-	local delete = AceGUI:Create("Button")
-	delete:SetText(L"Delete")
-	save:SetRelativeWidth(0.45)
-	delete:SetCallback("OnClick", function(self, event)
-		local p = self.parent
-		local class = p.class
-		local category = p.category
-		local spellID = p.id
-		-- local opts = p.opts
-		if NugRunningConfigCustom[class][category] then
-			NugRunningConfigCustom[class][category][spellID] = nil
-		end
-		NugRunningConfigMerged[category][spellID] = NugRunningConfig[category][spellID]
+        NugRunningGUI.frame.tree:UpdateSpellTree()
+        NugRunningGUI.frame.tree:SelectByPath(class, category, spellID)
+    end)
+    Form.controls.delete = delete
+    Form:AddChild(delete)
 
-		NugRunningGUI.frame.tree:UpdateSpellTree()
-		NugRunningGUI.frame.tree:SelectByPath(class, category, spellID)
-	end)
-	Form.controls.delete = delete
-	Form:AddChild(delete)
-
-	local spellID = AceGUI:Create("EditBox")
-	spellID:SetLabel(L"Spell ID")
-	spellID:SetDisabled(true)
+    local spellID = AceGUI:Create("EditBox")
+    spellID:SetLabel(L"Spell ID")
+    spellID:SetDisabled(true)
     spellID:DisableButton(true)
     spellID:SetRelativeWidth(0.2)
     spellID:SetCallback("OnTextChanged", function(self, event, value)
@@ -770,98 +771,96 @@ function NugRunningGUI.CreateCommonForm(self)
     Form:AddChild(overlay_end)
     AddTooltip(overlay_end, L"Overlay marks time intervals.\nSpecial values:".."\ntickend\nend")
 
-	local overlay_haste = AceGUI:Create("CheckBox")
-	overlay_haste:SetLabel(L"Haste Reduced")
-	overlay_haste:SetDisabled(true)
-	overlay_haste:SetRelativeWidth(0.3)
-	overlay_haste:SetCallback("OnValueChanged", function(self, event, value)
-		if not self.parent.opts.overlay then
-			self.parent.opts.overlay = {nil, nil, 0.3, value}
-		else
+    local overlay_haste = AceGUI:Create("CheckBox")
+    overlay_haste:SetLabel(L"Haste Reduced")
+    overlay_haste:SetRelativeWidth(0.3)
+    overlay_haste:SetCallback("OnValueChanged", function(self, event, value)
+        if not self.parent.opts.overlay then
+            self.parent.opts.overlay = {nil, nil, 0.3, value}
+        else
             self.parent.opts.overlay[4] = value
-		end
-	end)
-	Form.controls.overlay_haste = overlay_haste
-	Form:AddChild(overlay_haste)
-	AddTooltip(overlay_haste, L"Overlay length is reduced by haste.")
+        end
+    end)
+    Form.controls.overlay_haste = overlay_haste
+    Form:AddChild(overlay_haste)
+    AddTooltip(overlay_haste, L"Overlay length is reduced by haste.")
 
 
-	local pandemic = AceGUI:Create("Button")
-	pandemic:SetText(L"Pandemic")
-	pandemic:SetDisabled(true)
-	pandemic:SetRelativeWidth(0.25)
-	pandemic:SetCallback("OnClick", function(self, event)
-		local duration = self.parent.opts.duration
-		local m = duration*0.3 - 0.1
-		self.parent.opts.overlay = {0, m, 0.25}
-		self.parent.opts.recast_mark = m
-		self.parent.controls.overlay_end:SetText(m)
-		self.parent.controls.overlay_start:SetText(0)
-		self.parent.controls.overlay_haste:SetValue(false)
-		self.parent.controls.recast_mark:SetText(m)
-	end)
-	Form.controls.pandemic = pandemic
-	Form:AddChild(pandemic)
-	AddTooltip(pandemic, L"Calculate pandemic overlay from duration")
+    local pandemic = AceGUI:Create("Button")
+    pandemic:SetText(L"Pandemic")
+    pandemic:SetRelativeWidth(0.25)
+    pandemic:SetCallback("OnClick", function(self, event)
+        local duration = self.parent.opts.duration
+        local m = duration*0.3 - 0.1
+        self.parent.opts.overlay = {0, m, 0.25}
+        self.parent.opts.recast_mark = m
+        self.parent.controls.overlay_end:SetText(m)
+        self.parent.controls.overlay_start:SetText(0)
+        self.parent.controls.overlay_haste:SetValue(false)
+        self.parent.controls.recast_mark:SetText(m)
+    end)
+    Form.controls.pandemic = pandemic
+    Form:AddChild(pandemic)
+    AddTooltip(pandemic, L"Calculate pandemic overlay from duration")
 
-		----------------------------------
-	--- STACKCOLOR
-	----------------------------------
+        ----------------------------------
+    --- STACKCOLOR
+    ----------------------------------
 
-	local useStackcolor = AceGUI:Create("CheckBox")
-	useStackcolor:SetLabel(L"Color By Stack")
-	useStackcolor:SetRelativeWidth(0.3)
-	useStackcolor:SetCallback("OnValueChanged", function(self, event, value)
-		if value == false then
-			self.parent.opts["stackcolor"] = false
-			for i=1,5 do
-				local widgetName = "stackcolor"..i
-				self.parent.controls[widgetName]:SetDisabled(true)
-				self.parent.controls[widgetName]:SetColor(0,0,0)
-			end
-		else
-			self.parent.opts["stackcolor"] = {
-				{ 1,1,1 },
-				{ 1,1,1 },
-				{ 1,1,1 },
-				{ 1,1,1 },
-				{ 1,1,1 },
-			}
-			for i=1,5 do
-				local widgetName = "stackcolor"..i
-				self.parent.controls[widgetName]:SetDisabled(false)
-				self.parent.controls[widgetName]:SetColor(1,1,1)
-			end
-		end
-	end)
-	Form.controls.useStackcolor = useStackcolor
-	Form:AddChild(useStackcolor)
+    local useStackcolor = AceGUI:Create("CheckBox")
+    useStackcolor:SetLabel(L"Color By Stack")
+    useStackcolor:SetRelativeWidth(0.3)
+    useStackcolor:SetCallback("OnValueChanged", function(self, event, value)
+        if value == false then
+            self.parent.opts["stackcolor"] = false
+            for i=1,5 do
+                local widgetName = "stackcolor"..i
+                self.parent.controls[widgetName]:SetDisabled(true)
+                self.parent.controls[widgetName]:SetColor(0,0,0)
+            end
+        else
+            self.parent.opts["stackcolor"] = {
+                { 1,1,1 },
+                { 1,1,1 },
+                { 1,1,1 },
+                { 1,1,1 },
+                { 1,1,1 },
+            }
+            for i=1,5 do
+                local widgetName = "stackcolor"..i
+                self.parent.controls[widgetName]:SetDisabled(false)
+                self.parent.controls[widgetName]:SetColor(1,1,1)
+            end
+        end
+    end)
+    Form.controls.useStackcolor = useStackcolor
+    Form:AddChild(useStackcolor)
 
-	local AddStackColor = function(i)
-		local stc1 = AceGUI:Create("ColorPicker")
-		stc1:SetRelativeWidth(0.12)
-		stc1.id = i
-		stc1:SetHasAlpha(false)
-		stc1:SetCallback("OnValueConfirmed", function(self, event, r,g,b,a)
-			self.parent.opts["stackcolor"] = self.parent.opts["stackcolor"] or {}
-			self.parent.opts["stackcolor"][self.id] = {r,g,b}
-		end)
-		local widgetName = "stackcolor"..i
-		Form.controls[widgetName] = stc1
-		Form:AddChild(stc1)
-	end
+    local AddStackColor = function(i)
+        local stc1 = AceGUI:Create("ColorPicker")
+        stc1:SetRelativeWidth(0.12)
+        stc1.id = i
+        stc1:SetHasAlpha(false)
+        stc1:SetCallback("OnValueConfirmed", function(self, event, r,g,b,a)
+            self.parent.opts["stackcolor"] = self.parent.opts["stackcolor"] or {}
+            self.parent.opts["stackcolor"][self.id] = {r,g,b}
+        end)
+        local widgetName = "stackcolor"..i
+        Form.controls[widgetName] = stc1
+        Form:AddChild(stc1)
+    end
 
-	for i=1,5 do
-		AddStackColor(i)
-	end
+    for i=1,5 do
+        AddStackColor(i)
+    end
 
-	----------------------------------
-	--- END STACKCOLOR
-	----------------------------------
+    ----------------------------------
+    --- END STACKCOLOR
+    ----------------------------------
 
-	local tick = AceGUI:Create("EditBox")
-	tick:SetLabel(L"Tick")
-	tick:SetRelativeWidth(0.15)
+    local tick = AceGUI:Create("EditBox")
+    tick:SetLabel(L"Tick")
+    tick:SetRelativeWidth(0.15)
     tick:DisableButton(true)
     tick:SetCallback("OnTextChanged", function(self, event, value)
         local v = tonumber(value)
@@ -911,7 +910,7 @@ function NugRunningGUI.CreateCommonForm(self)
     local effect = AceGUI:Create("Dropdown")
     effect:SetLabel(L"3D Effect")
     effect:SetList(effectsList, effectsOrder)
-    effect:SetRelativeWidth(0.32)
+    effect:SetRelativeWidth(0.34)
     effect:SetCallback("OnValueChanged", function(self, event, value)
         self.parent.opts["effect"] = value
     end)
@@ -922,7 +921,7 @@ function NugRunningGUI.CreateCommonForm(self)
     local ghosteffect = AceGUI:Create("Dropdown")
     ghosteffect:SetLabel(L"Ghost 3D Effect")
     ghosteffect:SetList(effectsList, effectsOrder)
-    ghosteffect:SetRelativeWidth(0.32)
+    ghosteffect:SetRelativeWidth(0.34)
     ghosteffect:SetCallback("OnValueChanged", function(self, event, value)
         self.parent.opts["ghosteffect"] = value
     end)
@@ -990,6 +989,16 @@ function NugRunningGUI.CreateCommonForm(self)
     Form.controls.timeless = timeless
     Form:AddChild(timeless)
     AddTooltip(timeless, L"Marks bar as infinite, for spells with indefinite duration.")
+
+    local charged = AceGUI:Create("CheckBox")
+    charged:SetLabel(L"Show Charges")
+    charged:SetRelativeWidth(0.9)
+    charged:SetCallback("OnValueChanged", function(self, event, value)
+        self.parent.opts["charged"] = value
+    end)
+    Form.controls.charged = charged
+    Form:AddChild(charged)
+    AddTooltip(charged, L"Bar shows charges instead of duration")
 
     local clones = AceGUI:Create("EditBox")
     clones:SetLabel(L"Additional Spell IDs")
@@ -1090,6 +1099,7 @@ function NugRunningGUI.FillForm(self, Form, class, category, id, opts, isEmptyFo
     controls.singleTarget:SetValue(opts.singleTarget)
     controls.multiTarget:SetValue(opts.multiTarget)
     controls.timeless:SetValue(opts.timeless)
+    controls.charged:SetValue(opts.charged)
 
     controls.color:SetColor(fillAlpha(opts.color or {0.8, 0.1, 0.7} ))
     controls.color2:SetColor(fillAlpha(opts.color2 or {1,1,1,0} ))
@@ -1132,75 +1142,77 @@ function NugRunningGUI.FillForm(self, Form, class, category, id, opts, isEmptyFo
     end
 
     controls.effect:SetValue(opts.effect or "NONE")
-	controls.ghosteffect:SetValue(opts.ghosteffect or "NONE")
+    controls.ghosteffect:SetValue(opts.ghosteffect or "NONE")
 
-	local clonesText
-	if opts.clones then
-		clonesText = table.concat(opts.clones, ", ")
-	end
-	controls.clones:SetText(clonesText)
+    local clonesText
+    if opts.clones then
+        clonesText = table.concat(opts.clones, ", ")
+    end
+    controls.clones:SetText(clonesText)
 
-	controls.event:SetText(opts.event)
-
-
-	if id and not NugRunningConfig[category][id] then
-		controls.delete:SetDisabled(false)
-		controls.delete:SetText(L"Delete")
-	elseif NugRunningConfigCustom[class] and  NugRunningConfigCustom[class][category] and NugRunningConfigCustom[class][category][id] then
-		controls.delete:SetDisabled(false)
-		controls.delete:SetText(L"Restore")
-	else
-		controls.delete:SetDisabled(true)
-		controls.delete:SetText(L"Restore")
-	end
+    controls.event:SetText(opts.event)
 
 
-	if category == "spells" then
-		controls.duration:SetDisabled(false)
-		controls.maxtimers:SetDisabled(false)
-		controls.singleTarget:SetDisabled(true)
-		controls.multiTarget:SetDisabled(false)
-		controls.affiliation:SetDisabled(false)
-		controls.nameplates:SetDisabled(false)
-		controls.hide_until:SetDisabled(true)
-		controls.clones:SetDisabled(false)
-		controls.timeless:SetDisabled(false)
-	else
-		controls.duration:SetDisabled(true)
-		controls.maxtimers:SetDisabled(true)
-		controls.singleTarget:SetDisabled(true)
-		controls.multiTarget:SetDisabled(true)
-		controls.affiliation:SetDisabled(true)
-		controls.nameplates:SetDisabled(true)
-		controls.hide_until:SetDisabled(false)
-		controls.clones:SetDisabled(true)
-		controls.timeless:SetDisabled(true)
-	end
+    if id and not NugRunningConfig[category][id] then
+        controls.delete:SetDisabled(false)
+        controls.delete:SetText(L"Delete")
+    elseif NugRunningConfigCustom[class] and  NugRunningConfigCustom[class][category] and NugRunningConfigCustom[class][category][id] then
+        controls.delete:SetDisabled(false)
+        controls.delete:SetText(L"Restore")
+    else
+        controls.delete:SetDisabled(true)
+        controls.delete:SetText(L"Restore")
+    end
 
-	if category == "event_timers" then
-		controls.event:SetDisabled(false)
-		controls.clones:SetDisabled(false)
-		controls.duration:SetDisabled(false)
-		controls.affiliation:SetDisabled(false)
-	else
-		controls.event:SetDisabled(true)
-	end
 
-	if category == "event_timers" or category == "casts" then
-		controls.useStackcolor:SetDisabled(true)
-		for i=1,5 do
-			local widgetName = "stackcolor"..i
-			controls[widgetName]:SetDisabled(true)
-		end
-	else
-		controls.useStackcolor:SetDisabled(false)
-	end
+    if category == "spells" then
+        controls.duration:SetDisabled(false)
+        controls.maxtimers:SetDisabled(false)
+        controls.singleTarget:SetDisabled(false)
+        controls.multiTarget:SetDisabled(false)
+        controls.affiliation:SetDisabled(false)
+        controls.nameplates:SetDisabled(false)
+        controls.hide_until:SetDisabled(true)
+        controls.clones:SetDisabled(false)
+        controls.timeless:SetDisabled(false)
+        controls.charged:SetDisabled(false)
+    else
+        controls.duration:SetDisabled(true)
+        controls.maxtimers:SetDisabled(true)
+        controls.singleTarget:SetDisabled(true)
+        controls.multiTarget:SetDisabled(true)
+        controls.affiliation:SetDisabled(true)
+        controls.nameplates:SetDisabled(true)
+        controls.hide_until:SetDisabled(false)
+        controls.clones:SetDisabled(true)
+        controls.timeless:SetDisabled(true)
+        controls.charged:SetDisabled(true)
+    end
 
-	if category == "itemcooldowns" then
-		controls.spellID:SetLabel(L"Item ID")
-	else
-		controls.spellID:SetLabel(L"Spell ID")
-	end
+    if category == "event_timers" then
+        controls.event:SetDisabled(false)
+        controls.clones:SetDisabled(false)
+        controls.duration:SetDisabled(false)
+        controls.affiliation:SetDisabled(false)
+    else
+        controls.event:SetDisabled(true)
+    end
+
+    if category == "event_timers" or category == "casts" then
+        controls.useStackcolor:SetDisabled(true)
+        for i=1,5 do
+            local widgetName = "stackcolor"..i
+            controls[widgetName]:SetDisabled(true)
+        end
+    else
+        controls.useStackcolor:SetDisabled(false)
+    end
+
+    if category == "itemcooldowns" then
+        controls.spellID:SetLabel(L"Item ID")
+    else
+        controls.spellID:SetLabel(L"Spell ID")
+    end
 
 end
 
@@ -1322,139 +1334,139 @@ function NugRunningGUI.Create(self, name, parent )
                 NewTimerForm.controls.newcast:SetDisabled(false)
             end
 
-			return
-		end
+            return
+        end
 
-		spellID = tonumber(spellID)
-		local opts
-		if not NugRunningConfigCustom[class] or not NugRunningConfigCustom[class][category] or not NugRunningConfigCustom[class][category][spellID] then
-			opts = {}
-		else
-			opts = CopyTable(NugRunningConfigCustom[class][category][spellID])
-		end
-		NugRunning.SetupDefaults(opts, NugRunningConfig[category][spellID])
+        spellID = tonumber(spellID)
+        local opts
+        if not NugRunningConfigCustom[class] or not NugRunningConfigCustom[class][category] or not NugRunningConfigCustom[class][category][spellID] then
+            opts = {}
+        else
+            opts = CopyTable(NugRunningConfigCustom[class][category][spellID])
+        end
+        NugRunning.SetupDefaults(opts, NugRunningConfig[category][spellID])
 
-		-- if category == "spells" then
-		Frame.rpane:Clear()
-		if not SpellForm then
-			SpellForm = NugRunningGUI:CreateSpellForm()
-		end
-		NugRunningGUI:FillForm(SpellForm, class, category, spellID, opts)
-		Frame.rpane:AddChild(SpellForm)
+        -- if category == "spells" then
+        Frame.rpane:Clear()
+        if not SpellForm then
+            SpellForm = NugRunningGUI:CreateSpellForm()
+        end
+        NugRunningGUI:FillForm(SpellForm, class, category, spellID, opts)
+        Frame.rpane:AddChild(SpellForm)
 
-		-- end
-	end)
+        -- end
+    end)
 
-	Frame.rpane = treegroup
-	Frame.tree = treegroup
+    Frame.rpane = treegroup
+    Frame.tree = treegroup
 
-	treegroup.UpdateSpellTree = function(self)
-		local lclass, class = UnitClass("player")
-		local classIcon = "Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes"
-		local classCoords = CLASS_ICON_TCOORDS[class]
+    treegroup.UpdateSpellTree = function(self)
+        local lclass, class = UnitClass("player")
+        local classIcon = "Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes"
+        local classCoords = CLASS_ICON_TCOORDS[class]
 
-		local t = {
-			{
-				value = "GLOBAL",
-				text = L"Global",
-				icon = "Interface\\Icons\\spell_holy_resurrection",
-				children = {
-					{
-						value = "spells",
-						text = "Spells",
-						icon = "Interface\\Icons\\spell_shadow_manaburn",
-						children = NugRunningGUI:GenerateCategoryTree(true, "spells")
-					},
-					-- {
-					-- 	value = "cooldowns",
-					-- 	text = "Cooldowns",
-					-- 	icon = "Interface\\Icons\\spell_nature_astralrecal",
-					-- 	children = NugRunningGUI:GenerateCategoryTree(true, "cooldowns")
-					-- },
-					-- {
-					-- 	value = "casts",
-					-- 	text = "Casts",
-					-- 	icon = "Interface\\Icons\\spell_deathvortex",
-					-- 	children = NugRunningGUI:GenerateCategoryTree(true, "casts")
-					-- },
-				},
-			},
-			{
-				value = class,
-				text = lclass,
-				icon = classIcon,
-				iconCoords = classCoords,
-				children = {
-					{
-						value = "spells",
-						text = "Spells",
-						icon = "Interface\\Icons\\spell_shadow_manaburn",
-						children = NugRunningGUI:GenerateCategoryTree(false,"spells")
-					},
-					{
-						value = "cooldowns",
-						text = "Cooldowns",
-						icon = "Interface\\Icons\\spell_nature_astralrecal",
-						children = NugRunningGUI:GenerateCategoryTree(false,"cooldowns")
-					},
-					{
-						value = "itemcooldowns",
-						text = "Item Cooldowns",
-						icon = 135882,
-						children = NugRunningGUI:GenerateCategoryTree(false,"itemcooldowns")
-					},
-					{
-						value = "casts",
-						text = "Casts",
-						icon = 135951,
-						children = NugRunningGUI:GenerateCategoryTree(false,"casts")
-					},
-					{
-						value = "event_timers",
-						text = "Events",
-						icon = 132096,
-						children = NugRunningGUI:GenerateCategoryTree(false, "event_timers")
-					}
-				}
-			},
-		}
-		self:SetTree(t)
-		return t
-	end
-
-
-	local t = treegroup:UpdateSpellTree()
-
-	Frame:AddChild(treegroup)
+        local t = {
+            {
+                value = "GLOBAL",
+                text = L"Global",
+                icon = "Interface\\Icons\\spell_holy_resurrection",
+                children = {
+                    {
+                        value = "spells",
+                        text = "Spells",
+                        icon = "Interface\\Icons\\spell_shadow_manaburn",
+                        children = NugRunningGUI:GenerateCategoryTree(true, "spells")
+                    },
+                    -- {
+                    -- 	value = "cooldowns",
+                    -- 	text = "Cooldowns",
+                    -- 	icon = "Interface\\Icons\\spell_nature_astralrecal",
+                    -- 	children = NugRunningGUI:GenerateCategoryTree(true, "cooldowns")
+                    -- },
+                    -- {
+                    -- 	value = "casts",
+                    -- 	text = "Casts",
+                    -- 	icon = "Interface\\Icons\\spell_deathvortex",
+                    -- 	children = NugRunningGUI:GenerateCategoryTree(true, "casts")
+                    -- },
+                },
+            },
+            {
+                value = class,
+                text = lclass,
+                icon = classIcon,
+                iconCoords = classCoords,
+                children = {
+                    {
+                        value = "spells",
+                        text = "Spells",
+                        icon = "Interface\\Icons\\spell_shadow_manaburn",
+                        children = NugRunningGUI:GenerateCategoryTree(false,"spells")
+                    },
+                    {
+                        value = "cooldowns",
+                        text = "Cooldowns",
+                        icon = "Interface\\Icons\\spell_nature_astralrecal",
+                        children = NugRunningGUI:GenerateCategoryTree(false,"cooldowns")
+                    },
+                    {
+                        value = "itemcooldowns",
+                        text = "Item Cooldowns",
+                        icon = "Interface\\Icons\\inv_potionc_5",
+                        children = NugRunningGUI:GenerateCategoryTree(false,"itemcooldowns")
+                    },
+                    {
+                        value = "casts",
+                        text = "Casts",
+                        icon = "Interface\\Icons\\spell_deathvortex",
+                        children = NugRunningGUI:GenerateCategoryTree(false,"casts")
+                    },
+                    {
+                        value = "event_timers",
+                        text = "Events",
+                        icon = "Interface\\Icons\\ability_deathwing_sealarmorbreachtga",
+                        children = NugRunningGUI:GenerateCategoryTree(false, "event_timers")
+                    }
+                }
+            },
+        }
+        self:SetTree(t)
+        return t
+    end
 
 
+    local t = treegroup:UpdateSpellTree()
 
-	local categories = {"spells", "cooldowns", "itemcooldowns", "casts", "event_timers"}
-	for i,group in ipairs(t) do -- expand all groups
-		if group.value ~= "GLOBAL" then
-			treegroup.localstatus.groups[group.value] = true
-			for _, cat in ipairs(categories) do
-				treegroup.localstatus.groups[group.value.."\001"..cat] = true
-			end
-		end
-	end
-	-- TREEG = treegroup
-
-
-	Frame.rpane.Clear = function(self)
-		for i, child in ipairs(self.children) do
-			child:SetParent(UIParent)
-			child.frame:Hide()
-		end
-		table.wipe(self.children)
-	end
+    Frame:AddChild(treegroup)
 
 
 
-	-- local commonForm = NugRunningGUI:CreateCommonForm()
-	-- Frame.rpane:AddChild(commonForm)
-	local _, class = UnitClass("player")
-	Frame.tree:SelectByPath(class)
+    local categories = {"spells", "cooldowns", "itemcooldowns", "casts", "event_timers"}
+    for i,group in ipairs(t) do -- expand all groups
+        if group.value ~= "GLOBAL" then
+            treegroup.localstatus.groups[group.value] = true
+            for _, cat in ipairs(categories) do
+                treegroup.localstatus.groups[group.value.."\001"..cat] = true
+            end
+        end
+    end
+    -- TREEG = treegroup
+
+
+    Frame.rpane.Clear = function(self)
+        for i, child in ipairs(self.children) do
+            child:SetParent(UIParent)
+            child.frame:Hide()
+        end
+        table.wipe(self.children)
+    end
+
+
+
+    -- local commonForm = NugRunningGUI:CreateCommonForm()
+    -- Frame.rpane:AddChild(commonForm)
+    local _, class = UnitClass("player")
+    Frame.tree:SelectByPath(class)
 
 
 
@@ -1545,7 +1557,7 @@ local function MakeGeneralOptions()
                         end,
                         min = 80,
                         max = 400,
-                        step = 5,
+                        step = 1,
                         order = 1,
                     },
                     height = {
@@ -1676,6 +1688,7 @@ local function MakeGeneralOptions()
                     },
                     nameSize = {
                         name = L"Name Size",
+                        width = 0.70,
                         type = "range",
                         get = function(info) return NugRunning.db.nameFont.size end,
                         set = function(info, v)
@@ -1689,6 +1702,7 @@ local function MakeGeneralOptions()
                     },
                     nameAlpha = {
                         name = L"Name Alpha",
+                        width = 0.70,
                         type = "range",
                         get = function(info) return NugRunning.db.nameFont.alpha end,
                         set = function(info, v)
@@ -1699,6 +1713,17 @@ local function MakeGeneralOptions()
                         max = 1,
                         step = 0.01,
                         order = 3,
+                    },
+                    nameOutline = {
+                        name = L"Outline",
+                        width = 0.5,
+                        type = "toggle",
+                        get = function(info) return NugRunning.db.nameFont.outline end,
+                        set = function(info, v)
+                            NugRunning.db.nameFont.outline = not NugRunning.db.nameFont.outline
+                            NugRunning:UpdateAllFonts()
+                        end,
+                        order = 3.1,
                     },
 
                     timefont = {
@@ -1715,6 +1740,7 @@ local function MakeGeneralOptions()
                     },
                     timeSize = {
                         name = L"Time Size",
+                        width = 0.7,
                         type = "range",
                         get = function(info) return NugRunning.db.timeFont.size end,
                         set = function(info, v)
@@ -1728,6 +1754,7 @@ local function MakeGeneralOptions()
                     },
                     timeAlpha = {
                         name = L"Time Alpha",
+                        width = 0.7,
                         type = "range",
                         get = function(info) return NugRunning.db.timeFont.alpha end,
                         set = function(info, v)
@@ -1738,6 +1765,17 @@ local function MakeGeneralOptions()
                         max = 1,
                         step = 0.01,
                         order = 6,
+                    },
+                    timeOutline = {
+                        name = L"Outline",
+                        width = 0.5,
+                        type = "toggle",
+                        get = function(info) return NugRunning.db.timeFont.outline end,
+                        set = function(info, v)
+                            NugRunning.db.timeFont.outline = not NugRunning.db.timeFont.outline
+                            NugRunning:UpdateAllFonts()
+                        end,
+                        order = 6.1,
                     },
 
                     stackfont = {
@@ -1792,7 +1830,20 @@ local function MakeGeneralOptions()
                         type = "toggle",
                         desc = L"Display spell name on timers",
                         get = function(info) return NugRunning.db.spellTextEnabled end,
-                        set = function(info, v) NugRunning.db.spellTextEnabled = not NugRunning.db.spellTextEnabled end,
+                        set = function(info, v)
+                            NugRunning.db.spellTextEnabled = not NugRunning.db.spellTextEnabled
+                            NugRunning.db.targetTextEnabled = false
+                        end,
+                        order = 1,
+                    },
+                    targetNameText = {
+                        name = L"Show Target Names",
+                        type = "toggle",
+                        get = function(info) return NugRunning.db.targetTextEnabled end,
+                        set = function(info, v)
+                            NugRunning.db.targetTextEnabled = not NugRunning.db.targetTextEnabled
+                            NugRunning.db.spellTextEnabled = false
+                        end,
                         order = 1,
                     },
                     localNames = {
@@ -1830,21 +1881,6 @@ local function MakeGeneralOptions()
                         get = function(info) return NugRunning.db.cooldownsEnabled end,
                         set = function(info, v) NugRunning.Commands.cooldowns() end,
                         order = 6,
-                    },
-                    totems = {
-                        name = L"Totems",
-                        type = "toggle",
-                        desc = L"Display timers for totems (or other similar summons)",
-                        get = function(info) return NugRunning.db.totems end,
-                        set = function(info, v) NugRunning.db.totems = not NugRunning.db.totems end,
-                        order = 7,
-                    },
-                    drs = {
-                        name = L"Diminishing Returns",
-                        type = "toggle",
-                        get = function(info) return NugRunning.db.drEnabled end,
-                        set = function(info, v) NugRunning.db.drEnabled = not NugRunning.db.drEnabled end,
-                        order = 7.5,
                     },
                     swapTargets = {
                         name = L"Fixed Target Group"..newFeatureIcon,

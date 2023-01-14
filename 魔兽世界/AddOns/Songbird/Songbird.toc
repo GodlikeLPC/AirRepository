@@ -1,9 +1,0 @@
-## Interface: 11303
-## Title: Songbird
-## Author: Netzone
-## Version: 1.0
-## DefaultState: Enabled
-## SavedVariables: SongbirdDB
-Libs\main.xml
-
-Songbird.lua

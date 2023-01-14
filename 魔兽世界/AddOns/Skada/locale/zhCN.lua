@@ -1,5 +1,4 @@
 local L = LibStub("AceLocale-3.0"):NewLocale("Skada", "zhCN", false)
-
 if not L then return end
 
 L["%s dies"] = "%s次死亡"
@@ -14,10 +13,6 @@ L["Absorbs"] = "吸收"
 L["Absorbs and healing"] = "吸收和治疗"
 L["Active time"] = "活跃时间"
 L["Activity"] = "活跃度"
-L["Timestamp"] = "时间戳"
-L["Friendly Fire"] = "友军误伤"
-L["Shows damage done on players by friendly players."] = "显示由友方玩家所对你造成的伤害"
-L["Overhealing spells"] = "过量治疗法术"
 L["Adds a background frame under the bars. The height of the background frame determines how many bars are shown. This will override the max number of bars setting."] = "增加一个计量条的背景框体。背景框体的高度决定了计量条的显示数量。并将覆盖最大计量条数量的设置选项。"
 L["Adds a set of standard themes to Skada. Custom themes can also be used."] = "添加设置一个 Skada 标准主题。自定义主题也可使用。"
 L["Aggressive combat detection"] = "杂兵战斗检测"

@@ -176,7 +176,7 @@ do
 		local self = this.obj
 		local type, id, info = GetCursorInfo()
 		if( type == "spell" ) then
-			local name, rank = GetSpellBookItemName(id, info)
+			local name, rank = GetSpellName(id, info)
 			if( self.useRanks and rank and rank ~= "" ) then
 				name = string.format("%s (%s)", name, rank)
 			end

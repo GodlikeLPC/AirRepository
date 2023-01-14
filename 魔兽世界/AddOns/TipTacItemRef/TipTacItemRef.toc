@@ -1,0 +1,14 @@
+## Interface: 30400
+## Version: 20.10.31
+## Title: TipTacItemRef
+## Author: Aezay (Earthen Ring EU)
+## Notes: Improved ItemRefTooltip
+## OptionalDeps: TipTac
+Local_zhCN.lua
+Local_zhTW.lua
+Local_enUS.lua
+LibItemString.lua
+ttItemRef.lua
+## Title-zhCN: |cff880303[有爱]|r TipTac 物品提示模块
+## X-Vendor: NetEase
+## X-163UI-Version: 20220901200239

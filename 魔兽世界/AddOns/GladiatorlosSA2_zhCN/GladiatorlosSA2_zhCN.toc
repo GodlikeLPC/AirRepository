@@ -1,0 +1,14 @@
+## Interface: 30400
+## Title: GladiatorlosSA_zhCN(VV)
+## Title-zhCN:GSA2_VV语音包
+## Title-zhTW:GSA2_VV语音包
+## Notes: GSA plugin for Chinese voice set
+## Notes-zhCN: PVP技能語音提示
+## Notes-zhTW: PVP技能語音提示
+## Author: VV
+## Version: TBC-1.4
+GladiatorlosSA2_zhCN.lua
+
+## Title-zhCN: |cff880303[有爱]|r Gladiator 中文包
+## X-Vendor: NetEase
+## X-163UI-Version: 20220901200239

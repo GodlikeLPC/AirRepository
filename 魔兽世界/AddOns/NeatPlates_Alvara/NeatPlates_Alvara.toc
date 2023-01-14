@@ -1,0 +1,17 @@
+## Interface: 30400
+## Title: NeatPlates: Alvara
+## Notes: Made to Alvara's specifications. Very Simple.
+## Author: Alvara - Zul'Jin
+## Version: 5a
+## Dependencies: NeatPlates, NeatPlatesHub
+
+NeatPlates_Alvara.lua
+
+
+## Title: |cff880303[163UI]|r NeatPlates: Alvara
+## Title-zhCN: |cff880303[有爱]|r Neat 姓名板Alvara主题
+## Title-zhTW: |cff880303[有爱]|r Neat 姓名板Alvara主题
+## Notes-zhCN: 强大到爆的多功能姓名版美化插件-Alvara风格模块。
+## Notes-zhTW: 強大到爆的多功能姓名版美化插件-Alvara風格模塊。
+## X-Vendor: NetEase
+## X-163UI-Version: 20230105151404

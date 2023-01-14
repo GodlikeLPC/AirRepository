@@ -1,0 +1,16 @@
+## Interface: 30400
+## Title: NeatPlates: |cFF3782D1BlizzardPlates
+## Notes: Blizzard Vanilla´s Plates.
+## Author: delabarra.
+## Version: 2.0
+## Dependencies: NeatPlates, NeatPlatesHub
+
+NeatPlates_BlizzardPlates.lua
+
+
+## Title: |cff880303[163UI]|r NeatPlates: |cFF3782D1BlizzardPlates
+## Title-zhCN: |cff880303[有爱]|r Neat 姓名版暴雪经典主题
+## Title-zhTW: |cff880303[有爱]|r Neat 姓名版暴雪经典主题
+## Notes-zhCN: 模仿7.0之前暴雪默认姓名板的NeatPlates主题
+## X-Vendor: NetEase
+## X-163UI-Version: 20230105151404

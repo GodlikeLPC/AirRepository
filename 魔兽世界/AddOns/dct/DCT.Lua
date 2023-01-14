@@ -165,6 +165,7 @@ function DCT_OnLoad(self)
 	DCT_EVENT_FUNC["COMBAT_LOG_EVENT_UNFILTERED"] = DCT_ProcCombatUnfiltered
 	DCT_EVENT_FUNC["COMBAT_TEXT_UPDATE"] = DCT_ProcCombatTextUpdata
 	DCT_EVENT_FUNC["UNIT_HEALTH"] = DCT_ProcHealth
+	DCT_EVENT_FUNC["UNIT_HEALTH_FREQUENT"] = DCT_ProcHealth
 	DCT_EVENT_FUNC["UNIT_POWER_UPDATE"] = DCT_ProcMana
 	DCT_EVENT_FUNC["UNIT_POWER_FREQUENT"] = DCT_ProcCP
 	DCT_EVENT_FUNC["PLAYER_REGEN_ENABLED"] = DCT_ProcLeaveCombat
@@ -217,6 +218,7 @@ function DCT_Toggle(switch)
 		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 		self:UnregisterEvent("PLAYER_REGEN_DISABLED")
 		self:UnregisterEvent("UNIT_POWER_FREQUENT")
+		pcall(self.UnregisterEvent, self, "UNIT_HEALTH");
 		self:UnregisterEvent("UNIT_HEALTH")
 		self:UnregisterEvent("UNIT_POWER_UPDATE")
 		self:UnregisterEvent("SPELL_UPDATE_COOLDOWN")
@@ -231,7 +233,9 @@ function DCT_Init(self)
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 	self:RegisterEvent("PLAYER_REGEN_DISABLED")
 	self:RegisterEvent("UNIT_POWER_FREQUENT")
-	self:RegisterEvent("UNIT_HEALTH")
+	if not pcall(self.RegisterEvent, self, "UNIT_HEALTH_FREQUENT") then
+		self:RegisterEvent("UNIT_HEALTH")
+	end
 	self:RegisterEvent("UNIT_POWER_UPDATE")
 
 	--Cooldown
@@ -806,7 +810,7 @@ What I need to know is this. As you can see on the arg1 you've got DAMAGE, SPELL
 end
 
 function DCT_ProcCombatUnfiltered(self, gevent, ...)
-	DCT_BattleLogAnalysis(self, gevent, CombatLogGetCurrentEventInfo())
+    DCT_BattleLogAnalysis(self, gevent, CombatLogGetCurrentEventInfo())
 end
 
 function DCT_BattleLogAnalysis(self, gevent, timestamp, combatevent, hideCaster, sourceGUID, sourceName, sourceFlags, sourceFlags2, destGUID, destName, destFlags, destFlags2, ...)
@@ -1207,7 +1211,7 @@ function DCT_Format(str,colorEx)
 					end
 				end
 			elseif param == "sn" then
-				if dct_spellName and type(dct_spellName)=='string' then
+				if dct_spellName then
 					if dct_ssc_spell and DCT_SPELLSCHOOL_TRAN[dct_spellSchool] then
 						out = out..DCT_SpellSchoolColor(dct_spellSchool,dct_spellName)
 					else

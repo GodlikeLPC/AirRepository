@@ -1,0 +1,24 @@
+﻿## Author: Jordy141
+## Interface: 30400
+## Notes: Enhances shift-click interface at vendors.
+## Title: BuyEmAll Classic
+## Version: 1.0.0
+## SavedVariablesPerCharacter: BEAConfirmToggle
+## LoadManagers: AddonLoader
+## X-LoadOn-Merchant: true
+## X-LoadOn-Slash: /buyemall
+Localization.deDE.lua
+Localization.enUS.lua
+Localization.esES.lua
+Localization.frFR.lua
+Localization.koKR.lua
+Localization.ptBR.lua
+Localization.ruRU.lua
+Localization.zhCN.lua
+Localization.zhTW.lua
+BuyEmAllClassic.lua
+BuyEmAllClassic.xml
+
+## Title-zhCN: |cff880303[有爱]|r BuyEmAll 批量购买
+## X-Vendor: NetEase
+## X-163UI-Version: 20220901200239

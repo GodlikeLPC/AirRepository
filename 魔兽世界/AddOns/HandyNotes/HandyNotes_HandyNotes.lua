@@ -7,6 +7,8 @@ local L = LibStub("AceLocale-3.0"):GetLocale("HandyNotes", false)
 local HBD = LibStub("HereBeDragons-2.0")
 local PIN_DRAG_SCALE = 1.2
 
+
+local WoWRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 ---------------------------------------------------------
 -- Our db upvalue and db defaults
 local db
@@ -33,14 +35,14 @@ local GameTooltip = GameTooltip
 -- An addon can replace this table or add to it directly, but keep in mind
 -- notes are currently stored with the index number of the chosen icon.
 HN.icons = {
-	[1] = UnitPopupButtons.RAID_TARGET_1, -- Star
-	[2] = UnitPopupButtons.RAID_TARGET_2, -- Circle
-	[3] = UnitPopupButtons.RAID_TARGET_3, -- Diamond
-	[4] = UnitPopupButtons.RAID_TARGET_4, -- Triangle
-	[5] = UnitPopupButtons.RAID_TARGET_5, -- Moon
-	[6] = UnitPopupButtons.RAID_TARGET_6, -- Square
-	[7] = UnitPopupButtons.RAID_TARGET_7, -- Cross
-	[8] = UnitPopupButtons.RAID_TARGET_8, -- Skull
+	[1] = {text = RAID_TARGET_1, icon = "Interface\\TargetingFrame\\UI-RaidTargetingIcons", tCoordLeft = 0, tCoordRight = 0.25, tCoordTop  = 0, tCoordBottom = 0.25}, -- Star
+	[2] = {text = RAID_TARGET_2, icon = "Interface\\TargetingFrame\\UI-RaidTargetingIcons", tCoordLeft = 0.25, tCoordRight = 0.5, tCoordTop  = 0, tCoordBottom = 0.25}, -- Circle
+	[3] = {text = RAID_TARGET_3, icon = "Interface\\TargetingFrame\\UI-RaidTargetingIcons", tCoordLeft = 0.5, tCoordRight = 0.75, tCoordTop  = 0, tCoordBottom = 0.25}, -- Diamond
+	[4] = {text = RAID_TARGET_4, icon = "Interface\\TargetingFrame\\UI-RaidTargetingIcons", tCoordLeft = 0.75, tCoordRight = 1, tCoordTop  = 0, tCoordBottom = 0.25}, -- Triangle
+	[5] = {text = RAID_TARGET_5, icon = "Interface\\TargetingFrame\\UI-RaidTargetingIcons", tCoordLeft = 0, tCoordRight = 0.25, tCoordTop  = 0.25, tCoordBottom = 0.5}, -- Moon
+	[6] = {text = RAID_TARGET_6, icon = "Interface\\TargetingFrame\\UI-RaidTargetingIcons", tCoordLeft = 0.25, tCoordRight = 0.5, tCoordTop  = 0.25, tCoordBottom = 0.5}, -- Square
+	[7] = {text = RAID_TARGET_7, icon = "Interface\\TargetingFrame\\UI-RaidTargetingIcons", tCoordLeft = 0.5, tCoordRight = 0.75, tCoordTop  = 0.25, tCoordBottom = 0.5}, -- Cross
+	[8] = {text = RAID_TARGET_8, icon = "Interface\\TargetingFrame\\UI-RaidTargetingIcons", tCoordLeft = 0.75, tCoordRight = 1, tCoordTop  = 0.25, tCoordBottom = 0.5}, -- Skull
 	[9] = {text = MINIMAP_TRACKING_AUCTIONEER, icon = "Interface\\Minimap\\Tracking\\Auctioneer"},
 	[10] = {text = MINIMAP_TRACKING_BANKER, icon = "Interface\\Minimap\\Tracking\\Banker"},
 	[11] = {text = MINIMAP_TRACKING_BATTLEMASTER, icon = "Interface\\Minimap\\Tracking\\BattleMaster"},
@@ -467,7 +469,37 @@ function HN:OnInitialize()
 	HandyNotes:RegisterPluginDB("HandyNotes", HNHandler, options)
 
 	--WorldMapMagnifyingGlassButton:SetText(WorldMapMagnifyingGlassButton:GetText() .. L["\nAlt+Right Click To Add a HandyNote"])
-	WorldMapFrame:AddCanvasClickHandler(self.OnCanvasClicked)
+
+	if WoWRetail then
+		-- Work-around for taint from canvas click handlers
+		self.ClickHandlerFrame = CreateFrame("Frame", nil, WorldMapFrame.ScrollContainer)
+		self.ClickHandlerFrame:SetAllPoints()
+
+		self.ClickHandlerFrame.UpdateCapture = function(f)
+			-- only Alt and no other keys, then show our capture frame
+			if IsAltKeyDown() and not IsControlKeyDown() and not IsShiftKeyDown() then
+				f:Show()
+			else
+				f:Hide()
+			end
+		end
+
+		self.ClickHandlerFrame:RegisterEvent("MODIFIER_STATE_CHANGED")
+		self.ClickHandlerFrame:SetScript("OnEvent", self.ClickHandlerFrame.UpdateCapture)
+
+		-- fallback check OnUpdate. It'll only run while the capture frame is visible, and hide if the modifiers change
+		self.ClickHandlerFrame:SetScript("OnUpdate", self.ClickHandlerFrame.UpdateCapture)
+
+		-- always pass through buttons other then right click
+		self.ClickHandlerFrame:SetPassThroughButtons("LeftButton", "MiddleButton", "Button4", "Button5")
+		self.ClickHandlerFrame:UpdateCapture()
+
+		self.ClickHandlerFrame:SetScript("OnMouseUp", function(f, button)
+			HN.OnCanvasClicked(WorldMapFrame, button, WorldMapFrame.ScrollContainer:NormalizeUIPosition(WorldMapFrame.ScrollContainer:GetCursorPosition()))
+		end)
+	else
+		WorldMapFrame:AddCanvasClickHandler(self.OnCanvasClicked)
+	end
 
 	-- Slash command
 	self:RegisterChatCommand("hnnew", "CreateNoteHere")

@@ -1088,14 +1088,16 @@ function AutoSelect:AddInstanceTable(module, instanceAlID, iniTab)
     if not iniTab then return end
     local instanceID = iniTab.InstanceID
     if not module or not instanceAlID or not instanceID then return end
-    if not AutoSelectSave[instanceID] then
+    --if not AutoSelectSave[instanceID] then
+		-- AutoSelect now overwrite multiple instanceID's and use the last one added
+		-- That prevent problems with instances like naxx
         AutoSelectSave[instanceID] = {
             base = { module, instanceAlID }
         }
-    end
-    local content = AutoSelectSave[instanceID]
+    --end
 
     if iniTab.SubAreaIDs then
+		local content = AutoSelectSave[instanceID]
         if not content.sub then
             content.sub = {}
             content.subList = {}
@@ -1107,10 +1109,12 @@ function AutoSelect:AddInstanceTable(module, instanceAlID, iniTab)
         end
         -- SubAreaIDs / SubAreaID
         for i = 1, #iniTab.items do
-            local id = iniTab.items[i].SubAreaID
-            if id and content.sub[id] and not content.sub[id][3] then
-                content.sub[id][3] = i
-            end
+			if iniTab.items[i] then
+				local id = iniTab.items[i].SubAreaID
+				if id and content.sub[id] and not content.sub[id][3] then
+					content.sub[id][3] = i
+				end
+			end
         end
 
     end

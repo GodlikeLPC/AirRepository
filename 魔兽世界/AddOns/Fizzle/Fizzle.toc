@@ -1,0 +1,28 @@
+## Interface: 30400
+## Title: Fizzle
+## Author: phyber
+## Notes: Show item ilevel, durability, and quality in the character frame.
+## Notes-zhTW: 在角色視窗顯示耐久度。
+## Notes-zhCN: 在人物装备栏中显示物品品质与耐久度。
+## Version: 90005-1
+## SavedVariablesPerCharacter: FizzleDB
+## OptionalDeps: Ace3, Voyeur
+## X-Category: Inventory
+## X-Embeds: Ace3
+## X-Curse-Project-ID: 6079
+## X-WoWI-ID: 5018
+
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+
+Locales\locales.xml
+
+Core.lua
+Inspect.lua
+
+## Title-zhCN: |cff880303[有爱]|r Fizzle 装备耐久显示
+## Notes-zhCN: 边框品质着色、人物界面耐久度显示.
+## Notes-zhTW: 邊框品質著色、人物界面耐久度顯示.
+## X-Vendor: NetEase
+## X-163UI-Version: 20220901200239

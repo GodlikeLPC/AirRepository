@@ -164,10 +164,9 @@ function DCTSA_ProcCombatUnfiltered(gevent, timestamp, combatevent, hideCaster, 
 		if (--[[pvpType == "friendly" or]]pvpType == "sanctuary") then return end
 	end
 
-	-- local dct_spellId, dct_spellName, dct_spellSchool
+	local dct_spellId, dct_spellName, dct_spellSchool
 	if combatevent == "SPELL_INTERRUPT" then
-		dct_spellId = select(1,...)
-		dct_extraSpellID,dct_extraSpellName = select(4,...)
+		local dct_extraSpellID,dct_extraSpellName = select(4,...)
 		DCTSA_RefreshCaststartLog(INTERRUPTED,{0,1,0},dct_extraSpellID,destGUID)
 		return
 	end
@@ -286,7 +285,7 @@ function DCTSA_ProcCombatUnfiltered(gevent, timestamp, combatevent, hideCaster, 
 			end
 		end
 		local obj = DCT_AddText(showType,showId,false,DCTSA_DB)
-		if obj and needTimer and dct_spellId ~= 0 then
+		if obj and needTimer then
 			obj.castStartTime = GetTime()
 			-- local name, rank, icon, cost, isFunnel, powerType, castTime, minRange, maxRange = GetSpellInfo(spellId or spellName or spellLink)
 			obj.castTime = (select(4,GetSpellInfo(dct_spellId)) or 0) / 1000

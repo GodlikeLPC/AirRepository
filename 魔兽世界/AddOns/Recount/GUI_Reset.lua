@@ -3,7 +3,7 @@ local Recount = _G.Recount
 local AceLocale = LibStub("AceLocale-3.0")
 local L = AceLocale:GetLocale("Recount")
 
-local revision = tonumber(string.sub("$Revision: 1254 $", 12, -3))
+local revision = tonumber(string.sub("$Revision: 1563 $", 12, -3))
 if Recount.Version < revision then
 	Recount.Version = revision
 end
@@ -14,7 +14,7 @@ local UIParent = UIParent
 local me = {}
 
 function me:CreateResetWindow()
-	me.ResetFrame = CreateFrame("Frame", nil, UIParent)
+	me.ResetFrame = CreateFrame("Frame", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate")
 
 	local theFrame = me.ResetFrame
 
@@ -75,7 +75,7 @@ function me:CreateResetWindow()
 	theFrame.Text:SetText(L["Do you wish to reset the data?"])
 	Recount:AddFontString(theFrame.Text)
 
-	theFrame.YesButton = CreateFrame("Button", nil, theFrame, "OptionsButtonTemplate")
+	theFrame.YesButton = CreateFrame("Button", nil, theFrame, "UIPanelButtonTemplate")
 	theFrame.YesButton:SetWidth(90)
 	theFrame.YesButton:SetHeight(24)
 	theFrame.YesButton:SetPoint("BOTTOMRIGHT", theFrame, "BOTTOM", -4, 4)
@@ -84,7 +84,7 @@ function me:CreateResetWindow()
 	end)
 	theFrame.YesButton:SetText(L["Yes"])
 
-	theFrame.NoButton = CreateFrame("Button", nil, theFrame, "OptionsButtonTemplate")
+	theFrame.NoButton = CreateFrame("Button", nil, theFrame, "UIPanelButtonTemplate")
 	theFrame.NoButton:SetWidth(90)
 	theFrame.NoButton:SetHeight(24)
 	theFrame.NoButton:SetPoint("BOTTOMLEFT", theFrame, "BOTTOM", 4, 4)

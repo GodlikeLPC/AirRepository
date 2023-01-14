@@ -1,0 +1,40 @@
+## Interface: 30400
+## Title: RatingBuster, reborn by l'ancestre
+## Notes: Item stat breakdown, analysis and comparison
+## Notes-zhTW: 裝備數值解析與比較
+## Author: Whitetooth
+## X-eMail: hotdogee [at] gmail [dot] com
+## SavedVariables: RatingBusterWOTLK_DB
+## OptionalDeps: Ace3, LibTipHooker-1.1, LibStatLogic-1.2, UTF8, LibBabble-Inventory-3.0, LibDualSpec-1.0, TankPoints
+## X-Embeds: Ace3, LibTipHooker-1.1, LibStatLogic-1.2, UTF8, LibBabble-Inventory-3.0, LibDualSpec-1.0
+## X-Category: Interface Enhancements
+## X-RelSite-WoWI: 
+## X-RelSite-Curse: 
+## X-License: GPL v2
+## X-Encoding: UTF-8
+## X-Curse-Packaged-Version: 1.6.2
+## X-Curse-Project-Name: 
+## X-Curse-Project-ID: 
+## X-Curse-Repository-ID: 
+
+# Non-Ace Libraries #
+UTF8\utf8data.lua
+UTF8\utf8.lua
+
+#@no-lib-strip@
+embeds.xml
+#@end-no-lib-strip@
+
+
+# Localization Files #
+locales\locales.xml
+
+
+
+# Core #
+RatingBuster.lua
+
+## Title: |cff880303[163UI]|r RatingBuster
+## Title-zhCN: |cff880303[有爱]|r RatingBuster 装备属性转换
+## X-Vendor: NetEase
+## X-163UI-Version: 20230105151404

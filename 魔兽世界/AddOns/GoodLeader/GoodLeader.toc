@@ -1,12 +1,16 @@
-## Interface: 11305
+## Interface: 30400
 ## Title: GoodLeader
-## Title-zhCN: 好团长
-## Title-zhTW: 好團長
-## Notes: |cff00ff00GoodLeader|r
-## Author: NetEase
-## Version: 0.0.21
-## SavedVariables: GOODLEADER_DB
-## Dependencies: BigFoot
-## X-Revision: BigFoot
+## SavedVariablesPerCharacter: 
+## SavedVariables: 
+## Notes: It can be deleted after running once.
+## Dependencies: 
+## OptionalDependencies: 
+## LoadOnDemand: 1
+## DefaultState: disabled
 
-Load.xml
+main.lua
+
+
+## Title-zhCN: |cff880303[有爱]|r GoodLeader 好团长[旧版兼容]
+## X-Vendor: NetEase
+## X-163UI-Version: 20220901200239

@@ -1,4 +1,3 @@
-
 ---@type ns
 local ns = select(2, ...)
 
@@ -25,12 +24,16 @@ function Browser:Constructor()
     self.Header4:SetText(L['Leader'])
     self.Header5:SetText(L['Comment'])
     self.Header6:SetText(L['Operation'])
+    self.Header7:SetText(L['Certification'])
+    self.Header8:SetText(L['LeaderQrCode'])
     -- self.Header1:Disable()
     self.Header2:Disable()
     self.Header3:Disable()
     self.Header4:Disable()
     self.Header5:Disable()
     self.Header6:Disable()
+    self.Header7:Disable()
+    self.Header8:Disable()
 
     -- self.CreateButton:SetText(L['Create Activity'])
     self.ActivityLabel:SetText(L['Activity'])
@@ -38,33 +41,116 @@ function Browser:Constructor()
     self.SearchLabel:SetText(SEARCH .. L['(Include channel message)'])
     self.ProgressBar.Loading:SetText(L['Receiving active data, please wait patiently'])
     self.ProgressBar:SetMinMaxValues(0, 1)
-
+    self.IconTip:SetText(L['图示'])
+    self.IconTip:SetNormalFontObject('GameFontHighlightSmall')
+    self.IconTip:SetHighlightFontObject('GameFontNormalSmall')
+    self.IconTip:SetScript('OnEnter', function()
+        GameTooltip:SetOwner(self.IconTip, 'ANCHOR_RIGHT')
+        GameTooltip:SetText(L['图示'])
+        GameTooltip:AddLine(format(
+                                [[|TInterface\AddOns\MeetingHorn\Media\certification_icon:16:46:0:0:64:64:0:64:19:41|t %s]],
+                                L['星团长（按开团次数获取，仅供参考）']), 1, 1, 1)
+        GameTooltip:Show()
+    end)
+    self.IconTip:SetScript('OnLeave', GameTooltip_Hide)
     ns.GUI:GetClass('Dropdown'):Bind(self.Activity)
     ns.GUI:GetClass('Dropdown'):Bind(self.Mode)
+
+    ns.ApplyImageButton(self.ApplyLeaderBtn, {
+        text = '申请星团长',
+        summary = '微信扫码 申请星团长',
+        texture = [[Interface/AddOns/MeetingHorn/Media/ApplyLeaderQR]],
+        points = {'BOTTOMLEFT', self, 'BOTTOMRIGHT', 5, -25},
+    })
+    ns.ApplyImageButton(self.RechargeBtn, {
+        text = '直充专区',
+        summary = '支付宝/微信扫码登录充值更便捷时时有特惠',
+        texture = [[Interface/AddOns/MeetingHorn/Media/RechargeQR]],
+        points = {'BOTTOMLEFT', self, 'BOTTOMRIGHT', 5, -25},
+    })
 
     local function Search()
         return self:Search()
     end
 
     local function QuickButtonOnClick(button)
-        self.Activity:SetValue(button.id)
+        if button.id then
+            self.Activity:SetValue(button.id)
+        elseif button.search then
+            self.Input:SetText(button.search)
+        end
     end
 
-    ---@param button Button
-    local function SetupQuickButton(button, id)
-        local data = ns.GetActivityData(id)
-        button:SetText(data.shortName or data.name)
+    local index = 1
+    local function AllocQuick()
+        local button = self.quicks[index]
+        index = index + 1
+        return button
+    end
+
+    local function SetupQuickButton(search)
+        local button = AllocQuick()
+        local id
+        if type(search) == 'number' then
+            local mapName = C_Map.GetAreaInfo(search)
+            id = ns.NameToId(mapName) or ns.MatchId(mapName)
+
+            local data = ns.GetActivityData(id)
+            if data then
+                search = data.shortName or data.name
+                search = search:gsub('（.+）', '')
+            end
+        end
+
+        button:SetText(search)
+        button:SetWidth(button:GetTextWidth())
         button:SetScript('OnClick', QuickButtonOnClick)
+        button:Show()
         button.id = id
+        button.search = search
     end
 
-    SetupQuickButton(self.Quick1, 1)
-    SetupQuickButton(self.Quick2, 6)
-    SetupQuickButton(self.Quick3, 3)
+    --[=[@classic@
+    SetupQuickButton(2717)
+    SetupQuickButton(1977)
+    SetupQuickButton(2677)
+    SetupQuickButton(3429)
+    SetupQuickButton(3428)
+    SetupQuickButton(3456)
+    --@end-classic@]=]
+
+    --[=[@bcc@
+    SetupQuickButton(4075)
+    SetupQuickButton(3959)
+    SetupQuickButton(3805)
+    SetupQuickButton(3606)
+    SetupQuickButton(3845)
+    SetupQuickButton(3607)
+    SetupQuickButton(3457)
+    SetupQuickButton(3923)
+    SetupQuickButton(3836)
+    SetupQuickButton('5H')
+    --@end-bcc@]=]
+
+    -- @lkc@
+    SetupQuickButton('5H')
+    SetupQuickButton('NAXX')
+    SetupQuickButton('ULD')
+    SetupQuickButton('TOC')
+    SetupQuickButton('ICC')
+    SetupQuickButton('OS')
+    SetupQuickButton('EOE')
+    SetupQuickButton('宝库')
+    SetupQuickButton('黑龙')
+    SetupQuickButton('红玉')
+    -- @end-lkc@
 
     self.Activity:SetMenuTable(ns.ACTIVITY_FILTER_MENU)
     self.Activity:SetDefaultText(ALL)
     self.Activity:SetCallback('OnSelectChanged', function()
+        if forbidCallBack then
+            return
+        end
         local activityId = tonumber(self.Activity:GetValue())
         local activityData = activityId and ns.GetActivityData(activityId)
         self.Input:SetText(activityData and activityData.shortName or '')
@@ -93,13 +179,19 @@ function Browser:Constructor()
         elseif inApplicant then
             state = L['Applicanted']
         end
-
         button.Name:SetText(item:GetTitle())
         button.Leader:SetText(item:GetLeader())
         button.Comment:SetText(item:GetComment())
         button.Mode:SetText(item:GetMode())
         button.Leader:SetTextColor(GetClassColor(item:GetLeaderClass()))
+        --[=[@classic@
         button.Comment:SetWidth(item:IsActivity() and 290 or 360)
+        --@end-classic@]=]
+
+        -- @lkc@
+        button.Icon:SetShown(item:IsCertification())
+        button.Comment:SetWidth(item:IsActivity() and 250 or 320)
+        -- @end-lkc@
         local members = item:GetMembers()
         if members then
             members = format('%d/%d', members, item.data.members)
@@ -116,6 +208,40 @@ function Browser:Constructor()
         button.Signup:SetText(L['Whisper'])
         button.Signup:SetShown(item:IsActivity() and not state)
         -- button.Signup:SetEnabled(canSignup)
+
+        local sameInstance
+        if item:HaveProgress() then
+            button.Instance:SetWidth(16)
+            sameInstance = item:IsSameInstance()
+            button.Instance.Same:SetShown(sameInstance)
+            button.Instance.Diff:SetShown(not sameInstance)
+        else
+            button.Instance:SetWidth(1)
+            button.Instance.Same:Hide()
+            button.Instance.Diff:Hide()
+        end
+
+        button.NormalBg:SetShown(not sameInstance)
+        button.SameInstanceBgLeft:SetShown(sameInstance)
+        button.SameInstanceBgRight:SetShown(sameInstance)
+        button.QRIcon:SetShown(item:IsOurAddonCreate())
+        if item:IsOurAddonCreate() then
+            button.QRIcon:SetScript('OnClick', function()
+                if not self.QRTooltip then
+                    self.QRTooltip = CreateFrame('Frame', nil, self, 'MeetingHornActivityTooltipTemplate')
+                    self.QRTooltip:SetPoint('TOPLEFT', self.Header5, 'BOTTOMLEFT', 0, 0)
+                    ns.UI.QRCodeWidget:Bind(self.QRTooltip.QRCode)
+                end
+                self.QRTooltip.QRCode:SetValue(ns.MakeQRCode(item:GetLeader()))
+                self.QRTooltip:Show()
+            end)
+        end
+
+        --[=[@classic@
+        button.Instance:ClearAllPoints()
+        button.Instance:SetPoint('RIGHT', button, 'LEFT', 155, 0)
+        button.Name:SetPoint('LEFT', 5, 0)
+        --@end-classic@]=]
     end)
     ---@param item MeetingHornActivity
     self.ActivityList:SetCallback('OnItemSignupClick', function(_, button, item)
@@ -179,6 +305,14 @@ function Browser:Constructor()
     self:SetScript('OnShow', self.OnShow)
     self:SetScript('OnHide', self.OnHide)
     -- self:Show()
+
+    --[=[@classic@
+    self.Header1:ClearAllPoints()
+    self.Header1:SetPoint('BOTTOMLEFT', self.ActivityList, 'TOPLEFT', 2, 5)
+    self.Header7:SetShown(false)
+    self.Header5:SetWidth(290)
+    --@end-classic@]=]
+
 end
 
 function Browser:OnShow()
@@ -193,6 +327,10 @@ end
 
 function Browser:OnHide()
     self:UnregisterAllMessages()
+
+    if self.QRTooltip then
+        self.QRTooltip:Hide()
+    end
 end
 
 function Browser:UpdateProgress()
@@ -206,6 +344,10 @@ function Browser:UpdateProgress()
         self.ProgressBar:Show()
         self.ProgressBar:SetValue(0)
     end
+
+    -- @lkc@
+    self.IconTip:SetShown(not self.ProgressBar:IsShown())
+    -- @end-lkc@
 end
 
 function Browser:OnClick(id)
@@ -219,8 +361,16 @@ function Browser:OnClick(id)
 end
 
 function Browser:Sort()
-    if self.sortId then
+    local sortCall = function()
         sort(self.ActivityList:GetItemList(), function(a, b)
+            -- @lkc@
+            if a:IsCertification() ~= b:IsCertification() then
+                return a:IsCertification()
+            end
+            if not self.sortId then
+                return false
+            end
+            -- @end-lkc@
             local aid, bid = a:GetActivityId(), b:GetActivityId()
             if aid == bid then
                 return a:GetTick() < b:GetTick()
@@ -239,7 +389,15 @@ function Browser:Sort()
             end
         end)
         self.ActivityList:Refresh()
+    end
 
+    -- @lkc@
+    sortCall()
+    -- @end-lkc@
+    if self.sortId then
+        --[=[@classic@
+        sortCall()
+        --@end-classic@]=]
         self.Sorter:Show()
         self.Sorter:SetParent(self['Header' .. self.sortId])
         self.Sorter:ClearAllPoints()
@@ -367,3 +525,4 @@ function Browser:CreateActivityMenu(activity)
         }, {isSeparator = true}, {text = CANCEL},
     }
 end
+

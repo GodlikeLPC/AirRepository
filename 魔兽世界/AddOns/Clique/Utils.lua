@@ -12,24 +12,35 @@
 local addonName, addon = ...
 local L = addon.L
 
+local strconcat = strconcat
+---@diagnostic disable-next-line: undefined-field
+local strsplit = string.split
+
 -- Returns the prefix string for the current keyboard state.
 --
 -- Arguments:
---   split - Whether or not to split the modifier keys into left and right components
+--   extended - Whether or not to split the modifier keys into left and right components
 
-function addon:GetPrefixString(split)
+function addon:GetPrefixString(extended)
     local shift, lshift, rshift = IsShiftKeyDown(), IsLeftShiftKeyDown(), IsRightShiftKeyDown()
     local ctrl, lctrl, rctrl = IsControlKeyDown(), IsLeftControlKeyDown(), IsRightControlKeyDown()
     local alt, lalt, ralt = IsAltKeyDown(), IsLeftAltKeyDown() IsRightAltKeyDown()
+    local meta, lmeta, rmeta = false, false, false
+
+    if addon:ProjectIsRetail() then
+        meta, lmeta, rmeta = IsMetaKeyDown(), IsLeftMetaKeyDown(), IsRightMetaKeyDown()
+    end
 
     if not extended then
         shift = shift or lshift or rshift
         ctrl = ctrl or lctrl or rctrl
         alt = alt or lalt or ralt
+        meta = meta or lmeta or rmeta
 
         lshift, rshift = false, false
         lctrl, rctrl = false, false
         lalt, ralt = false, false
+        lmeta, rmeta = false, false
     end
 
     local prefix = ""
@@ -41,6 +52,9 @@ function addon:GetPrefixString(split)
     end
     if alt then
         prefix = ((lalt and "LALT-") or (ralt and "RALT-") or "ALT-") .. prefix
+    end
+    if meta then
+        prefix = ((lmeta and "LMETA-") or (rmeta and "RMETA-") or "META-") .. prefix
     end
 
     return prefix
@@ -85,6 +99,9 @@ local convertMap = setmetatable({
     LALT = L["LAlt"],
     RALT = L["RAlt"],
     ALT = L["Alt"],
+    META = L["Meta"],
+    LMETA = L["LMeta"],
+    RMETA = L["RMeta"],
     BUTTON1 = L["LeftButton"],
     BUTTON2 = L["RightButton"],
     BUTTON3 = L["MiddleButton"],
@@ -187,18 +204,21 @@ local binMap = {
     RALT = 3,
     CTRL = 4,
     LCTRL = 5,
-    LCTRL = 6,
+    RCTRL = 6,
     SHIFT = 7,
     LSHIFT = 8,
     RSHIFT = 9,
+    LMETA = 10,
+    RMETA = 11,
+    META = 12,
 }
 
 function addon:GetBinaryBindingKey(binding)
     if type(binding) ~= "table" or not binding.key then
-        return "000000000"
+        return "000000000000"
     end
 
-    local ret = {"0", "0", "0", "0", "0", "0", "0", "0", "0"}
+    local ret = {"0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0"}
     local splits = {strsplit("-", binding.key)}
     for idx, modifier in ipairs(splits) do
         local bit = binMap[modifier]
@@ -220,6 +240,8 @@ local invalidKeys = {
     ["LALT"] = true,
     ["RALT"] = true,
     ["ESCAPE"] = true,
+    ["LMETA"] = true,
+    ["RMETA"] = true,
 }
 
 function addon:GetCapturedKey(key)
@@ -248,8 +270,9 @@ function addon:GetCapturedKey(key)
         end
     end
 
-    -- TODO: Support NOT splitting the modifier keys
-    local prefix = addon:GetPrefixString(true)
+    -- Splitting modifier keys into left/right has some odd
+    -- behaviour at the moment, so let's not enable that.
+    local prefix = addon:GetPrefixString(false)
     return tostring(prefix) .. tostring(key)
 end
 

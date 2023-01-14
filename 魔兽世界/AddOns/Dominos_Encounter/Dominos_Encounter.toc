@@ -1,0 +1,10 @@
+## Interface: 100002
+## Title: Dominos Extras
+## Notes: This addon is deprecated and should be removed
+## Author: Tuller
+## Dependencies: Dominos
+## DefaultState: disabled
+main.lua
+
+
+## X-163UI-Version: 20221118173118

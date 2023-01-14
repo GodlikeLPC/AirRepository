@@ -1,0 +1,13 @@
+## Interface: 30400
+## Title: Doom_CooldownPulse
+## Notes: Flash an ability's icon in the middle of the screen when it comes off cooldown.
+## Author: Woffle of Dark Iron[US]
+## SavedVariables: DCP_Saved
+## SavedVariablesPerCharacter: DCP_SavedPerCharacter
+
+Doom_CooldownPulse.lua
+
+## Title: |cff880303[163UI]|r Doom_CooldownPulse
+## Title-zhCN: |cff880303[有爱]|r Doom_CooldownPulse 冷却提醒
+## X-Vendor: NetEase
+## X-163UI-Version: 20220909143128

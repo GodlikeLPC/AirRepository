@@ -1,0 +1,34 @@
+## Interface: 30400
+## Title: RestedXP 指南 狮心-北美刘嘉玲 汉化版
+## Notes: In-game leveling guides
+## Notes-zhCN: TODO
+## Author: RestedXP
+## Version: v4.3.19
+## OptionalDeps: Questie, unitscan
+## SavedVariables: RXPData, RXPDB
+## SavedVariablesPerCharacter: RXPCData, RXPCTrackingData, RXPCComms, RXPCSettings
+## X-Curse-Project-ID: 486246
+
+libs\embeds.xml
+locale\locales.xml
+
+Locale.lua
+RXPGuides.lua
+GuideWindow.lua
+Help.lua
+SettingsPanel.lua
+HSBatching.lua
+QuestLog.lua
+ActiveItemFrame.lua
+LevelingTracker.lua
+Timers.lua
+Communications.lua
+Targeting.lua
+
+DB/wotlk.xml
+
+map.lua
+functions.lua
+GuideLoader.lua
+
+Guides/GuideList.xml

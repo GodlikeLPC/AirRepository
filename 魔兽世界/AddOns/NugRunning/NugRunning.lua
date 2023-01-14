@@ -17,8 +17,19 @@ helpers.L = L
 NugRunning.L = L
 
 --- Compatibility with Classic
-local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
-local UnitSpellHaste = isClassic and function() return 0 end or _G.UnitSpellHaste
+local apiLevel = math.floor(select(4,GetBuildInfo())/10000)
+local isClassic = apiLevel <= 3
+local isBC = apiLevel == 2
+local isMainline = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE -- WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+-- local isClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+
+local UnitSpellHaste = UnitSpellHaste
+if apiLevel <= 2 then UnitSpellHaste = function() return 0 end end
+if apiLevel == 3 then
+    local GetCombatRatingBonus = GetCombatRatingBonus
+    local CR_HASTE_SPELL = CR_HASTE_SPELL
+    UnitSpellHaste = function() return GetCombatRatingBonus(CR_HASTE_SPELL) end
+end
 local GetSpecialization = isClassic and function() return nil end or _G.GetSpecialization
 
 local NRunDB = nil
@@ -31,56 +42,63 @@ local event_timers = config.event_timers
 local nameplates
 local MAX_TIMERS = 20
 local check_event_timers
+local UpdateUnitAuras
 local playerGUID
 local alltimers = {}
 local timersByGUID = {}
 local timersByGUIDCounter = {}
 local active = {}
 local free = {}
-setmetatable(active,{ __newindex = function(t,timer,v)
+
+function NugRunning:SetActive(timer)
     rawset(free,timer,nil)
-    rawset(t,timer,v)
-    NugRunning:AddTimerToGUID(timer.dstGUID, timer)
-end})
-setmetatable(free,{ __newindex = function(t,timer,v)
+    rawset(active,timer,true)
+    if not timer.isExternal then
+        NugRunning:AddTimerToGUID(timer.dstGUID, timer)
+    end
+end
+
+function NugRunning:FreeTimer(timer, skipGhost)
     if timer.opts then
         if timer.opts.with_cooldown then
             local cd_opts = timer.opts.with_cooldown
             config.cooldowns[cd_opts.id] = cd_opts
             NugRunning:SPELL_UPDATE_COOLDOWN()
         else
-            if NRunDB.leaveGhost and (timer.opts.ghost or timer.scheduledGhost) and not timer.isGhost then return timer:BecomeGhost() end
-            if timer.isGhost and not timer.expiredGhost then return end
+            if not skipGhost then
+                if NRunDB.leaveGhost and (timer.opts.ghost or timer.scheduledGhost) and not timer.isGhost then return timer:BecomeGhost() end
+                if timer.isGhost and not timer.expiredGhost then return end
+            end
             timer.isGhost = nil
             timer.expiredGhost = nil
         end
     end
     timer:Hide()
+
     rawset(active,timer,nil)
+
     if not timer.isExternal then
-        rawset(t,timer,v)
+        free[timer] = true
         NugRunning:RemoveTimerFromGUID(timer.dstGUID, timer)
     end
     NugRunning:ArrangeTimers()
-end})
+end
 
+function NugRunning:FindFirstActiveTimer(spellID)
+    for timer in pairs(active) do
+        if timer.spellID == spellID and not timer.isGhost then
+            return timer
+        end
+    end
+end
 
 local gettimer = function(self,spellID,dstGUID,timerType)
     local foundTimer
     local spellActiveTimers = 0
     if type(spellID) == "number" then
+        local baseSpellID = config.spellClones[spellID] or spellID
         for timer in pairs(self) do
-            if timer.spellID == spellID and timer.timerType == timerType then
-                spellActiveTimers = spellActiveTimers + 1
-                if timer.dstGUID == dstGUID then
-                    foundTimer = timer
-                    break
-                end
-            end
-        end
-    elseif type(spellID) == "string" then
-        for timer in pairs(self) do
-            if timer.spellName == spellID and timer.timerType == timerType then
+            if timer.baseSpellID == baseSpellID and timer.timerType == timerType then
                 spellActiveTimers = spellActiveTimers + 1
                 if timer.dstGUID == dstGUID then
                     foundTimer = timer
@@ -108,6 +126,7 @@ local GetSpellCooldown = GetSpellCooldown
 local GetSpellCharges = GetSpellCharges
 local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 local bit_band = bit.band
+local strfind = string.find
 local UnitAura = UnitAura
 local UnitGUID = UnitGUID
 local table_wipe = table.wipe
@@ -126,7 +145,7 @@ NugRunning.timers = alltimers
 NugRunning.gettimer = gettimer
 NugRunning.helpers = helpers
 
-local defaultFont = "ClearFont"
+local defaultFont = "AlegreyaSans-Medium"
 local defaultShowLocalNames = false
 do
     local locale = GetLocale()
@@ -171,7 +190,6 @@ local defaults = {
     np_xoffset = 0,
     np_yoffset = 0,
     cooldownsEnabled = true,
-    drEnabled = false,
     missesEnabled = true,
     targetTextEnabled = false,
     spellTextEnabled = true,
@@ -186,81 +204,19 @@ local defaults = {
     dotticks = true,
     textureName = "Aluminium",
     nptextureName = "Aluminium",
-    nameFont = { font = defaultFont, size = 10, alpha = 0.5 },
-    timeFont = { font = defaultFont, size = 8, alpha = 1 },
-    stackFont = { font = defaultFont, size = 12 },
+    nameFont = { font = defaultFont, size = 10, alpha = 0.5, outline = false },
+    timeFont = { font = defaultFont, size = 8, alpha = 1, outline = false },
+    stackFont = { font = defaultFont, size = 12, outline = true },
 }
 
-local function SetupDefaults(t, defaults)
-    if not defaults then return end
-    for k,v in pairs(defaults) do
-        if type(v) == "table" then
-            if t[k] == nil then
-                t[k] = CopyTable(v)
-            elseif t[k] == false then
-                t[k] = false --pass
-            else
-                SetupDefaults(t[k], v)
-            end
-        else
-            if t[k] == nil then t[k] = v end
-            if t[k] == "__REMOVED__" then t[k] = nil end
-        end
-    end
-end
+
+local MergeTable = helpers.MergeTable
+local RemoveDefaultsPreserve = helpers.RemoveDefaultsPreserve
+local RemoveDefaults = helpers.RemoveDefaults
+local SetupDefaults = helpers.SetupDefaults
 NugRunning.SetupDefaults = SetupDefaults
-
-local function RemoveDefaults(t, defaults)
-    if not defaults then return end
-    for k, v in pairs(defaults) do
-        if type(t[k]) == 'table' and type(v) == 'table' then
-            RemoveDefaults(t[k], v)
-            if next(t[k]) == nil then
-                t[k] = nil
-            end
-        elseif t[k] == v then
-            t[k] = nil
-        end
-    end
-    return t
-end
 NugRunning.RemoveDefaults = RemoveDefaults
-
-local function RemoveDefaultsPreserve(t, defaults)
-    if not defaults then return end
-    for k, v in pairs(defaults) do
-        if type(t[k]) == 'table' and type(v) == 'table' then
-            RemoveDefaultsPreserve(t[k], v)
-            if next(t[k]) == nil then
-                t[k] = nil
-            end
-        elseif t[k] == nil and v ~= nil then
-            t[k] = "__REMOVED__"
-        elseif t[k] == v then
-            t[k] = nil
-        end
-    end
-    return t
-end
 NugRunning.RemoveDefaultsPreserve = RemoveDefaultsPreserve
-
-local function MergeTable(t1, t2)
-    if not t2 then return false end
-    for k,v in pairs(t2) do
-        if type(v) == "table" then
-            if t1[k] == nil then
-                t1[k] = CopyTable(v)
-            else
-                MergeTable(t1[k], v)
-            end
-        elseif v == "__REMOVED__" then
-            t1[k] = nil
-        else
-            t1[k] = v
-        end
-    end
-    return t1
-end
 NugRunning.MergeTable = MergeTable
 
 
@@ -280,8 +236,6 @@ function NugRunning.PLAYER_LOGIN(self,event,arg1)
 
     SetupDefaults(NRunDB, defaults)
 
-    NugRunning.AddSpellNameRecognition = helpers.AddSpellNameRecognition
-
     NugRunningConfigCustom = NugRunningConfigCustom or {}
 
     NugRunningConfigMerged = CopyTable(NugRunningConfig)
@@ -290,15 +244,36 @@ function NugRunning.PLAYER_LOGIN(self,event,arg1)
     local categories = {"spells", "cooldowns", "activations", "casts"}
     if not NugRunningConfigCustom[class] then NugRunningConfigCustom[class] = {} end
 
+    local function fixRemovedDefaultSpells(customConfig, defaultConfig)
+        if not (customConfig and defaultConfig) then return end
+        local toRemove = {}
+        for spellID, opts in pairs(customConfig) do
+            local dopts = defaultConfig[spellID]
+            if not dopts and not opts.name then
+                table.insert(toRemove, spellID)
+            elseif opts.name then -- then it's a is probably an added spell
+                opts.isAdded = true -- making sure it's marked as added
+            end
+        end
+        for _, spellID in ipairs(toRemove) do
+            customConfig[spellID] = nil
+        end
+    end
+
     local globalConfig = NugRunningConfigCustom["GLOBAL"]
+    if globalConfig then
+        for _, category in ipairs(categories) do
+            fixRemovedDefaultSpells(globalConfig[category], config[category])
+        end
+    end
     MergeTable(NugRunningConfigMerged, globalConfig)
     local classConfig = NugRunningConfigCustom[class]
+    if classConfig then
+        for _, category in ipairs(categories) do
+            fixRemovedDefaultSpells(classConfig[category], config[category])
+        end
+    end
     MergeTable(NugRunningConfigMerged, classConfig)
-
-    NugRunning.spellNameToID = helpers.spellNameToID
-    -- filling spellNameToID for user-added spells
-    NugRunning:UpdateSpellNameToIDTable()
-
     config = NugRunningConfigMerged
     spells = config.spells
     activations = config.activations
@@ -314,9 +289,10 @@ function NugRunning.PLAYER_LOGIN(self,event,arg1)
         table.wipe(tempTable)
         for spellID, opts in pairs(config[category]) do
             if not cloneIDs[spellID] and opts.clones then
+                opts.clones[spellID] = nil -- Removing possible input of original spell ID into clone list
                 for i, additionalSpellID in ipairs(opts.clones) do
                     tempTable[additionalSpellID] = opts
-                    cloneIDs[additionalSpellID] = true
+                    cloneIDs[additionalSpellID] = spellID
                 end
             end
         end
@@ -332,14 +308,18 @@ function NugRunning.PLAYER_LOGIN(self,event,arg1)
     -- NugRunning:RegisterEvent("PLAYER_TALENT_UPDATE")
     -- NugRunning.PLAYER_TALENT_UPDATE = NugRunning.ReInitSpells
     NugRunning.CHARACTER_POINTS_CHANGED = NugRunning.ReInitSpells
+    NugRunning.SPELLS_CHANGED = NugRunning.ReInitSpells
     NugRunning:RegisterEvent("CHARACTER_POINTS_CHANGED")
+    NugRunning:RegisterEvent("SPELLS_CHANGED")
     NugRunning:RegisterUnitEvent("UNIT_POWER_UPDATE", "player")
 
     NugRunning:ReInitSpells()
 
 
     NugRunning:RegisterEvent("PLAYER_TARGET_CHANGED")
-    -- NugRunning:RegisterEvent("UNIT_AURA")
+    NugRunning:RegisterEvent("UNIT_AURA")
+    if apiLevel > 1 then NugRunning:RegisterEvent("UPDATE_MOUSEOVER_UNIT") end
+
 
     if NRunDB.cooldownsEnabled then
         NugRunning:RegisterEvent("SPELL_UPDATE_COOLDOWN")
@@ -383,7 +363,7 @@ function NugRunning.PLAYER_LOGIN(self,event,arg1)
 
     for i=1,MAX_TIMERS do
         local timer = NugRunning:CreateTimer()
-        free[timer] = true
+        timer:Release()
     end
     --remove timer from the pool and change it to castbar
     local cbt = NugRunning:ExtractFromPool()
@@ -413,137 +393,7 @@ function NugRunning.PLAYER_LOGOUT(self, event)
     RemoveDefaults(NRunDB, defaults)
 end
 
-local DR_CategoryBySpellID = helpers.DR_CategoryBySpellID
-local DR_TypesPVE = helpers.DR_TypesPVE
-local DRResetTime = 18.4
 
-local DRInfo = setmetatable({}, { __mode = "k" })
-local COMBATLOG_OBJECT_TYPE_PLAYER = COMBATLOG_OBJECT_TYPE_PLAYER
-local COMBATLOG_OBJECT_REACTION_FRIENDLY = COMBATLOG_OBJECT_REACTION_FRIENDLY
-
-local DRMultipliers = { 0.5, 0.25, 0}
-local function addDRLevel(dstGUID, category)
-    local guidTable = DRInfo[dstGUID]
-    if not guidTable then
-        DRInfo[dstGUID] = {}
-        guidTable = DRInfo[dstGUID]
-    end
-
-    local catTable = guidTable[category]
-    if not catTable then
-        guidTable[category] = { level = 0, expires = 0}
-        catTable = guidTable[category]
-    end
-
-    local now = GetTime()
-    local isExpired = (catTable.expires or 0) <= now
-    local oldDRLevel = catTable.level or 0
-    if isExpired or oldDRLevel >= 3 then
-        catTable.level = 0
-    end
-    catTable.level = catTable.level + 1
-    catTable.expires = now + DRResetTime
-end
-local function activeDRCategories(dstGUID)
-    local guidTable = DRInfo[dstGUID]
-    if not guidTable then return nil end
-    return guidTable
-end
-local function getDRMulByCategory(dstGUID, category)
-    local guidTable = DRInfo[dstGUID]
-    if guidTable then
-        local catTable = guidTable[category]
-        if catTable then
-            local now = GetTime()
-            local expirationTime = catTable.expires
-            local DRLevel = catTable.level
-            local isExpired = (expirationTime or 0) <= now
-            if isExpired then
-                return 1
-            else
-                return DRMultipliers[DRLevel], DRLevel, expirationTime
-            end
-        end
-    end
-    return 1
-end
-local function getDRMul(dstGUID, spellID)
-    local category = DR_CategoryBySpellID[spellID]
-    if not category then return 1 end
-    return getDRMulByCategory(dstGUID, category)
-end
-
-local function CountDiminishingReturns(eventType, srcGUID, srcFlags, dstGUID, dstFlags, spellID, auraType)
-    if auraType == "DEBUFF" then
-        if eventType == "SPELL_AURA_REMOVED" or eventType == "SPELL_AURA_REFRESH" then
-            local category = DR_CategoryBySpellID[spellID]
-            if not category then return end
-
-            local isDstPlayer = bit_band(dstFlags, COMBATLOG_OBJECT_TYPE_PLAYER) > 0
-            local isFriendly = bit_band(dstFlags, COMBATLOG_OBJECT_REACTION_FRIENDLY) > 0
-
-            if isFriendly then return end
-
-            -- -- not doing in depth Mind Control bullshit for now
-            -- if not isDstPlayer then
-            --     if string_sub(dstGUID,1,6) ~= "Player" then
-            --         -- Players have same bitmask as player pets when they're mindcontrolled and MC aura breaks, so we need to distinguish these
-            --         -- so we can ignore the player pets but not actual players
-            --         isMindControlled = true
-            --     end
-            --     if not isMindControlled then return end
-            -- else
-            --     -- Ignore taunts for players
-            --     if category == "taunt" then return end
-            -- end
-
-            if not isDstPlayer then
-                if not DR_TypesPVE[category] then return end
-            end
-
-            addDRLevel(dstGUID, category)
-            NugRunning:OnDRStart(dstGUID, category)
-        end
-    end
-end
-local function ClearDiminishingReturns(dstGUID)
-    local categories = activeDRCategories(dstGUID)
-    if categories then
-        for category in pairs(categories) do
-            NugRunning:OnDRClear(dstGUID, category)
-        end
-    end
-    DRInfo[dstGUID] = nil
-end
-
-function NugRunning:OnDRStart(dstGUID, category)
-    if not NRunDB.drEnabled then return end
-
-    local playerGUID = UnitGUID("player")
-    local srcGUID = playerGUID
-    local dstName = "Enemy"
-    local dstFlags = nil
-    local DRopts = NugRunningConfig.DRopts[category]
-    if not DRopts then return end
-    local spellID = DRopts.id
-    local spellName = DRopts.name
-    local _, DRLevel, expirationTime = getDRMulByCategory(dstGUID, category)
-    local opts = DRopts
-    local timeLeft = expirationTime - GetTime()
-    NugRunning:ActivateTimer(srcGUID, dstGUID, dstName, dstFlags, spellID, spellName, opts, "DIMINISHING_RETURN", timeLeft)
-end
-
-function NugRunning:OnDRClear(dstGUID, category)
-    if not NRunDB.drEnabled then return end
-
-    local playerGUID = UnitGUID("player")
-    local srcGUID = playerGUID
-    local DRopts = NugRunningConfig.DRopts[category]
-    local spellID = DRopts.id
-    local spellName = DRopts.name
-    local opts = DRopts
-    self:DeactivateTimer(srcGUID, dstGUID, spellID, spellName, opts, "DIMINISHING_RETURN")
-end
 
 
 --------------------
@@ -556,17 +406,6 @@ function NugRunning.COMBAT_LOG_EVENT_UNFILTERED( self, event )
     dstGUID, dstName, dstFlags, dstFlags2,
     spellID, spellName, spellSchool, auraType, amount = CombatLogGetCurrentEventInfo()
 
-    if auraType == "BUFF" or auraType == "DEBUFF" or eventType == "SPELL_MISSED" then
-
-    if spellID == 0 then
-        spellID = helpers.spellNameToID[spellName]
-        if not spellID then
-            return
-        end
-    end
-
-    CountDiminishingReturns(eventType, srcGUID, srcFlags, dstGUID, dstFlags, spellID, auraType)
-
     if spells[spellID] then
         local affiliationStatus = (bit_band(srcFlags, AFFILIATION_MINE) == AFFILIATION_MINE)
         local opts = spells[spellID]
@@ -576,7 +415,7 @@ function NugRunning.COMBAT_LOG_EVENT_UNFILTERED( self, event )
         if opts.target and dstGUID ~= UnitGUID(opts.target) then return end
         if affiliationStatus then
             if eventType == "SPELL_AURA_REFRESH" then
-                self:RefreshTimer(srcGUID, dstGUID, dstName, dstFlags, spellID, spellName, opts, auraType, nil, amount, nil)
+                self:RefreshTimer(srcGUID, dstGUID, dstName, dstFlags, spellID, spellName, opts, auraType, nil, amount)
             elseif eventType == "SPELL_AURA_APPLIED_DOSE" then
                 self:RefreshTimer(srcGUID, dstGUID, dstName, dstFlags, spellID, spellName, opts, auraType, nil, amount, opts._ignore_applied_dose)
             elseif eventType == "SPELL_AURA_APPLIED" then
@@ -595,16 +434,7 @@ function NugRunning.COMBAT_LOG_EVENT_UNFILTERED( self, event )
         end
     end
 
-    end
-
     if check_event_timers then
-        if spellID == 0 then
-            spellID = helpers.spellNameToID[spellName]
-            if not spellID then
-                return
-            end
-        end
-
         if event_timers[spellID] then
             local opts = event_timers[spellID]
             local opts_event = opts.event
@@ -612,6 +442,7 @@ function NugRunning.COMBAT_LOG_EVENT_UNFILTERED( self, event )
                 local affiliationStatus = (bit_band(srcFlags, AFFILIATION_MINE) == AFFILIATION_MINE)
                 if affiliationStatus or (opts.affiliation and bit_band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MASK) <= opts.affiliation ) then
                     -- if spellID == opts.spellID then
+                        if dstGUID == "" then dstGUID = srcGUID end
                         if opts.action and not opts.disabled then
                             opts.action(active, srcGUID, dstGUID, spellID, auraType) --  auraType = damage amount for SPELL_DAMAGE
                         else
@@ -626,7 +457,6 @@ function NugRunning.COMBAT_LOG_EVENT_UNFILTERED( self, event )
 
     if eventType == "UNIT_DIED" or eventType == "UNIT_DESTROYED" then
         self:DeactivateTimersOnDeath(dstGUID)
-        ClearDiminishingReturns(dstGUID)
     end
 end
 
@@ -702,9 +532,11 @@ end
 local activeCooldownTimers = {}
 local gcdDuration = 1.5
 local wandUserMinDuration
-local _, class = UnitClass("player")
-if class == "WARLOCK" or class == "MAGE" or class == "PRIEST" then
-    wandUserMinDuration = 3
+if isClassic then
+    local _, class = UnitClass("player")
+    if class == "WARLOCK" or class == "MAGE" or class == "PRIEST" then
+        wandUserMinDuration = 3
+    end
 end
 
 local function CheckCooldown(spellID, opts, startTime, duration, enabled, charges, maxCharges, isItem)
@@ -754,6 +586,7 @@ local function CheckCooldown(spellID, opts, startTime, duration, enabled, charge
                         activeCooldownTimers[spellID] = timer
                     end
                 else
+                    -- print("1", spellID, startTime, duration)
                     local mdur = opts.minduration or wandUserMinDuration
                     if (timer.cd_startTime ~= startTime or timer.cd_duration ~= duration) and (not mdur or duration > mdur) then
                         timer.cd_startTime = startTime
@@ -780,7 +613,9 @@ end
 local lastCooldownUpdateTime = GetTime()
 function NugRunning.SPELL_UPDATE_COOLDOWN(self,event, periodic)
     if periodic and GetTime() - lastCooldownUpdateTime < 0.9 then return end
-    -- gcdDuration = UnitPowerType("player") == 3 and 1 or 1.5 -- If energy then 1
+    if isMainline then
+        gcdDuration = select(2,GetSpellCooldown(61304)) -- gcd spell
+    end
 
     for spellID,opts in pairs(cooldowns) do
         if not opts.check_known or IsPlayerSpell(spellID) then
@@ -844,7 +679,7 @@ function NugRunning.ActivateTimer(self,srcGUID,dstGUID,dstName,dstFlags, spellID
                 deltimer.isGhost = true
                 deltimer.expiredGhost = true
                 -- deltimer.timeless = false
-                free[deltimer] = true
+                deltimer:Release()
             end
         else
             return
@@ -858,8 +693,8 @@ function NugRunning.ActivateTimer(self,srcGUID,dstGUID,dstName,dstFlags, spellID
     timer.dstGUID = dstGUID
     timer.dstName = dstName
     timer.spellID = spellID
+    timer.baseSpellID = config.spellClones[spellID] or spellID
     timer.spellName = spellName
-    timer.comboPoints = helpers.GetCP()
     timer.timerType = timerType
     timer:SetActive(true)
     timer:SetScript("OnUpdate",NugRunning.TimerFunc)
@@ -880,10 +715,11 @@ function NugRunning.ActivateTimer(self,srcGUID,dstGUID,dstName,dstFlags, spellID
             timer.tickPeriod = nil
         end
 
-        local plevel = self:GetPowerLevel()
+        local plevel = self:GetPowerLevel(spellID)
         timer.powerLevel = plevel
         self:UpdateTimerPower(timer, plevel)
     end
+
     if opts.isItem then
         timer:SetIcon(select(5,GetItemInfoInstant(spellID)))
     else
@@ -903,18 +739,13 @@ function NugRunning.ActivateTimer(self,srcGUID,dstGUID,dstName,dstFlags, spellID
     elseif override then time = override
     else
         time = NugRunning.SetDefaultDuration(dstFlags, opts, timer)
-
-        local _guid = multiTargetGUID or dstGUID
-        if _guid == playerGUID and (timerType == "BUFF" or timerType == "DEBUFF") then
-            local uaTime, uaCount = NugRunning.QueueAura(spellName, _guid, timerType, timer)
+        -- print( "DEFAULT TIME", spellName, time, timerType)
+        if timerType == "BUFF" or timerType == "DEBUFF" then
+            local _guid = multiTargetGUID or dstGUID
+            local uaTime, uaCount = NugRunning.QueueAura(spellID, _guid, timerType, timer)
             if uaTime then
                 time = uaTime
                 amount = uaCount
-            end
-        elseif timerType == "DEBUFF" then
-            if not multiTargetGUID then
-                local mul = getDRMul(dstGUID, spellID)
-                time = time * mul
             end
         end
     end
@@ -968,7 +799,7 @@ function NugRunning.ActivateTimer(self,srcGUID,dstGUID,dstName,dstFlags, spellID
         nameText = opts.textfunc(timer)
     elseif timerType == "MISSED" then
         if override then
-            nameText = _G[override] or override
+            nameText = override:sub(1,1)..override:sub(2):lower()
         else
             nameText = "Miss"
         end
@@ -1043,19 +874,9 @@ function NugRunning.RefreshTimer(self,srcGUID,dstGUID,dstName,dstFlags, spellID,
         if not ignore_applied_dose then -- why was it ignoring multi target?
             time = NugRunning.SetDefaultDuration(dstFlags, opts, timer)
         end
-
-        local _guid = multiTargetGUID or dstGUID
-        if _guid == playerGUID and (timerType == "BUFF" or timerType == "DEBUFF") then
-            local uaTime, uaCount = NugRunning.QueueAura(spellName, _guid, timerType, timer)
-            if uaTime then
-                time = uaTime
-                amount = uaCount
-            end
-        elseif timerType == "DEBUFF" then
-            if not multiTargetGUID then
-                local mul = getDRMul(dstGUID, spellID)
-                time = time * mul
-            end
+        if timerType == "BUFF" or timerType == "DEBUFF" then
+            local _guid = dstGUID or multiTargetGUID
+            NugRunning.QueueAura(spellID, _guid, timerType, timer)
         end
     end
     if amount and opts.charged then
@@ -1072,7 +893,6 @@ function NugRunning.RefreshTimer(self,srcGUID,dstGUID,dstName,dstFlags, spellID,
         timer:SetCount(amount)
     end
     timer.count = amount
-    timer.comboPoints = helpers.GetCP()
 
     if not ignore_applied_dose then
         if opts.tick and NRunDB.dotticks then
@@ -1082,7 +902,7 @@ function NugRunning.RefreshTimer(self,srcGUID,dstGUID,dstName,dstFlags, spellID,
             timer.tickPeriod = nil
         end
 
-        local plevel = self:GetPowerLevel()
+        local plevel = self:GetPowerLevel(spellID)
         timer.powerLevel = plevel
         self:UpdateTimerPower(timer, plevel)
     end
@@ -1158,7 +978,7 @@ function NugRunning.DeactivateTimer(self,srcGUID,dstGUID, spellID, spellName, op
                 timer.targets[multiTargetGUID] = nil
                 if next(timer.targets) then return end
             end
-            free[timer] = true
+            timer:Release()
             self:ArrangeTimers()
             return
         end
@@ -1167,15 +987,15 @@ end
 
 local function free_noghost(timer)
     timer._elapsed = 2.5
-    free[timer] = true
+    timer:Release()
 end
 function NugRunning.DeactivateTimersOnDeath(self,dstGUID)
     for timer in pairs(active) do
         if spells[timer.spellID] then
         if not timer.dstGUID then -- clearing guid from multi target list just in case
             timer.targets[dstGUID] = nil
-            if not next(timer.targets) then free_noghost(timer) end
-        elseif timer.dstGUID == dstGUID then free_noghost(timer) end
+            if not next(timer.targets) then timer:Release("NOGHOST") end
+        elseif timer.dstGUID == dstGUID then timer:Release("NOGHOST") end
         end
     end
 end
@@ -1229,56 +1049,9 @@ local buffUnits = {"player","target","mouseover"}
         return NugRunning:GetUnitAuraData(unit, timer, spellNameOrID)
     end
 
-function NugRunning:UpdateTimerToSpellID(timer, newSpellID)
-    if timer.spellID == newSpellID then return end
-    local opts = timer.opts
-    -- local oldSpellID = timer.spellID
-    timer.spellID = newSpellID
-
-    local dstGUID = timer.dstGUID
-
-    local newDuration = NugRunning.SetDefaultDuration(0, opts, timer)
-    local mul = getDRMul(dstGUID, newSpellID)
-
-    local newDuration = newDuration * mul
-
-    if newDuration then
-        local startTime = timer.startTime
-        timer:SetTime(startTime, startTime + newDuration, timer.fixedoffset)
-    end
-end
-
-do
-    local spellNameBasedCategories = { "spells", "event_timers" }
-    function NugRunning:UpdateSpellNameToIDTable()
-        local mergedConfig = NugRunningConfigMerged
-        local visited = {}
-
-        for _, catName in ipairs(spellNameBasedCategories) do
-            local category = mergedConfig[catName]
-            if category then
-                for spellID, opts in pairs(category) do
-                    if not visited[opts] then
-                        local lastRankID
-                        local clones = opts.clones
-                        if clones then
-                            lastRankID = clones[#clones]
-                        else
-                            lastRankID = spellID
-                        end
-                        helpers.AddSpellNameRecognition(lastRankID)
-
-                        visited[opts] = true
-                    end
-                end
-            end
-        end
-    end
-end
-
 function NugRunning.SetUnitAuraValues(self, timer, spellNameOrID, name, icon, count, dispelType, duration, expirationTime, caster, isStealable, shouldConsolidate, aura_spellID, canApplyAura, isBossDebuff)
             if aura_spellID then
-                if (aura_spellID == spellNameOrID or name == spellNameOrID) and NugRunning.UnitAffiliationCheck(caster, timer.opts.affiliation) then
+                if aura_spellID == spellNameOrID and NugRunning.UnitAffiliationCheck(caster, timer.opts.affiliation) then
                     if timer.opts.charged then
                         local opts = timer.opts
                         local max = opts.maxcharge
@@ -1287,15 +1060,16 @@ function NugRunning.SetUnitAuraValues(self, timer, spellNameOrID, name, icon, co
                             timer:SetColor(helpers.GetGradientColor(opts.color2, opts.color, count/max))
                         end
                         timer:SetCharge(count)
-                    elseif not timer.timeless then
+                    elseif not timer.opts.timeless then
                         timer:SetCount(count)
 
-                        if duration == 0 then
+                        if duration <= 0 then
                             timer.timeless = true
                             timer:ToInfinite()
                             timer:UpdateMark()
                             NugRunning:ArrangeTimers()
                         else
+                            timer.timeless = false
                             timer.fixedoffset = timer.opts.fixedlen and duration - timer.opts.fixedlen or 0
                             local oldExpTime = timer.endTime
                             timer:SetTime(expirationTime - duration,expirationTime, timer.fixedoffset)
@@ -1307,7 +1081,7 @@ function NugRunning.SetUnitAuraValues(self, timer, spellNameOrID, name, icon, co
                                 -- else
                                 --     timer.tickPeriod = nil
                                 -- end
-                                local plevel = self:GetPowerLevel()
+                                local plevel = self:GetPowerLevel(aura_spellID)
                                 timer.powerLevel = plevel
                                 self:UpdateTimerPower(timer, plevel)
 
@@ -1364,7 +1138,7 @@ function NugRunning.TimerFunc(self,time)
     if beforeEnd <= 0 then
         if not self.dontfree then
             table_wipe(self.targets)
-            NugRunning.free[self] = true
+            self:Release()
             return
         end
     end
@@ -1466,24 +1240,21 @@ end
 
 function NugRunning:ExtractFromPool()
     local timer = self:AcquireTimer()
+    timer.isExternal = true
     free[timer] = nil
     return timer
 end
 
 local TimerManagementMixin = {}
-function TimerManagementMixin.Release(self)
-    NugRunning.free[self] = true
+function TimerManagementMixin.Release(self, skipGhost)
+    NugRunning:FreeTimer(self, skipGhost)
 end
 
 function TimerManagementMixin.SetActive(self, status)
-    if status then
-        active[self] = true
-    else
-        active[self] = nil
-    end
+    NugRunning:SetActive(self, true)
 end
 function TimerManagementMixin.IsActive(self)
-    return active[self]
+    return active[self] ~= nil
 end
 
 function TimerManagementMixin.GhostExpire(self)
@@ -1634,6 +1405,7 @@ do
             return ap < bp
         end
     end
+    NugRunning.sortfunc = sortfunc
 
     function NugRunning.ArrangeTimers(self)
         for g,tbl in pairs(groups) do
@@ -1647,7 +1419,7 @@ do
         local targetGUID = UnitGUID("target")
         for timer in pairs(active) do
             local custom_group = timer.opts.group
-            if custom_group then
+            if custom_group and custom_group ~= "default" then
                 groups[custom_group] = groups[custom_group] or {}
                 table.insert(groups[custom_group],timer)
             elseif timer.dstGUID == playerGUID then table.insert(playerTimers,timer)
@@ -1730,16 +1502,8 @@ do
         end
 
         if nameplates then
-            nameplates:Update(targetTimers, guid_groups, doswap)
+            nameplates:Update(timersByGUID)
         end
-    end
-    function NugRunning.GetTimersByDstGUID(self, guid) -- for nameplate updates on target
-        local guidTimers = {}
-        for timer in pairs(active) do
-            if timer.dstGUID == guid then table.insert(guidTimers, timer) end
-        end
-        table.sort(guidTimers,sortfunc)
-        return guidTimers
     end
 end
 
@@ -1766,13 +1530,15 @@ function NugRunning:PreGhost()
     end
     if UnitExists("target") and UnitAffectingCombat("player") then
         for spellID, opts in pairs(spells) do
-            if opts.preghost then
+            if opts.preghost and not config.spellClones[spellID] then
                 local checkfunc = opts.isknowncheck or IsAvailable
                 if checkfunc(spellID) then
-                    local timer = gettimer(active, spellID, UnitGUID("target"), "DEBUFF")
+                    -- Even on BCC it's required to search by name/opts because spell ranks
+                    -- local spellIdOrName = isClassic and GetSpellInfo(spellID) or spellID
+                    local timer = gettimer(active, opts, UnitGUID("target"), "DEBUFF")
                     if not timer then
-                        local tempTime = 10
-                        timer = self:ActivateTimer(playerGUID, UnitGUID("target"), UnitName("target"), nil, spellID, GetSpellInfo(spellID), opts, "DEBUFF", tempTime, nil, true)
+                        local someDuration = type(opts.duration) == "number" and opts.duration or 5
+                        timer = self:ActivateTimer(playerGUID, UnitGUID("target"), UnitName("target"), nil, spellID, GetSpellInfo(spellID), opts, "DEBUFF", someDuration, nil, true)
                         if timer then
                             timer:BecomeGhost()
                         end
@@ -1800,17 +1566,34 @@ function NugRunning:PreGhost()
     end
 end
 
-function NugRunning.PLAYER_TARGET_CHANGED(self)
-    self:UNIT_POWER_UPDATE(nil, "player", "COMBO_POINTS")
+function NugRunning:UNIT_AURA(event, unit)
+    UpdateUnitAuras(unit)
+end
+
+function NugRunning:UPDATE_MOUSEOVER_UNIT()
+    if UnitExists("mouseover") then
+        UpdateUnitAuras("mouseover")
+    end
+end
+
+function NugRunning:PLAYER_TARGET_CHANGED()
+    if apiLevel > 1 then
+        NugRunning:CancelSingleTargetTimers()
+    end
+    UpdateUnitAuras("target")
     if NRunDB.preghost then self:PreGhost() end
     self:ArrangeTimers()
 end
 
 
 do
-    local currentPowerLevel = 0
-    function NugRunning:GetPowerLevel()
-        return currentPowerLevel
+    local bleedPowerLevel = 0
+    local ripPowerLevel = 0
+    function NugRunning:GetPowerLevel(spellID)
+        if spellID == 1079 then
+            return ripPowerLevel
+        end
+        return bleedPowerLevel
     end
     function NugRunning:UpdateTimerPower(timer, plevel)
         if timer.powerLevel > plevel then
@@ -1823,27 +1606,33 @@ do
     end
 
     local function UpdatePowerLevel()
-        currentPowerLevel = 0
+        bleedPowerLevel = 0
+        ripPowerLevel = 0
         for i=1, 100 do
             local name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID = UnitAura("player", i, "HELPFUL")
-            if not name then return currentPowerLevel end
+            if not name then return bleedPowerLevel, ripPowerLevel end
             if spellID == 5217 then -- Tiger's fury
-                currentPowerLevel = currentPowerLevel + 15
+                bleedPowerLevel = bleedPowerLevel + 15
+                ripPowerLevel = ripPowerLevel + 15
             elseif spellID == 145152 then -- Bloodtalons
-                currentPowerLevel = currentPowerLevel + 25
+                ripPowerLevel = ripPowerLevel + 25
             end
         end
-        return currentPowerLevel
+        return bleedPowerLevel, ripPowerLevel
     end
 
     local dotpowerFrame = CreateFrame("Frame", nil, UIParent)
     NugRunning.dotpowerFrame = dotpowerFrame
     dotpowerFrame:SetScript("OnEvent", function()
-        local plevel = UpdatePowerLevel()
+        local bleedPowerLevel, ripPowerLevel = UpdatePowerLevel()
         for timer in pairs(active) do
             if timer.opts.showpower and timer.powerLevel and not timer.isGhost then
                 -- timer:SetName(timer.powerLevel)
-                NugRunning:UpdateTimerPower(timer, plevel)
+                if timer.spellID == 1079 then
+                    NugRunning:UpdateTimerPower(timer, ripPowerLevel)
+                else
+                    NugRunning:UpdateTimerPower(timer, bleedPowerLevel)
+                end
             else
                 timer:SetPowerStatus(nil)
             end
@@ -2264,7 +2053,11 @@ NugRunning.Commands = {
                 spellID, spellName, spellSchool, auraType, amount = CombatLogGetCurrentEventInfo()
                 local isSrcPlayer = (bit_band(srcFlags, COMBATLOG_OBJECT_AFFILIATION_MINE) == COMBATLOG_OBJECT_AFFILIATION_MINE)
                 if isSrcPlayer then
-                    print ("ID:", spellID, string.format("|cffff8800%s|r",spellName), eventType, srcFlags, srcGUID,"|cff00ff00==>|r", dstGUID, dstFlags, amount)
+                    if string.sub(eventType, 1, 5) == "SPELL" then
+                        print ("ID:", spellID, string.format("|cffff8800%s|r",spellName), eventType, srcFlags, srcGUID,"|cff00ff00==>|r", dstGUID, dstFlags, amount)
+                    else
+                        print ("ID:", spellID, spellName, eventType, srcFlags, srcGUID,"|cff00ff00==>|r", dstGUID, dstFlags, amount)
+                    end
                 end
             end)
         end
@@ -2334,7 +2127,7 @@ function NugRunning:CreateAnchor(name, opts)
 
     local label = f:CreateFontString(nil,"ARTWORK")
     label:SetFontObject("GameFontNormal")
-    label:SetText("DRAG ->")
+    label:SetText(string.format("%s ->", name))
     label:SetPoint("RIGHT", f, "LEFT", 0,0)
 
     if not NRunDB.anchors[name] then
@@ -2364,55 +2157,51 @@ function NugRunning:CreateAnchor(name, opts)
 end
 
 
+
+function NugRunning.UnitAffiliationCheck(unit, affiliation)
+    if not affiliation then return unit == "player" end
+    if unit == "player" then return true end
+    if not unit then return affiliation == AFFILIATION_OUTSIDER end
+    if affiliation == AFFILIATION_OUTSIDER then return true end
+    if string_sub(unit, 1, 4) == "raid" then return affiliation == AFFILIATION_PARTY_OR_RAID end
+    if string_sub(unit, 1, 5) == "party" then return affiliation == AFFILIATION_PARTY_OR_RAID end
+end
+local UnitAffiliationCheck = NugRunning.UnitAffiliationCheck
+
 do
     -- It updates timers with UnitAura data on UNIT_AURA and PLAYER_TARGET_CHANGED events
     -- At this point this piece already became very important,
     -- and also i can abandon hope that blizzard will fix combat log refresh someday.
     local filters = { harmful, helpful }
-    local targetTimers = {}
 
-    local h = CreateFrame("Frame")
-    local hUnits = {
+    local scanUnits = {
         ["player"] = 0,
         ["target"] = 1,
+        ["focus"] = 2,
         ["mouseover"] = 2,
+        ["boss1"] = 2,
+        ["boss2"] = 2,
+        ["arena1"] = 2,
+        ["arena2"] = 2,
+        ["arena3"] = 2,
+        ["arena4"] = 2,
+        ["arena5"] = 2,
     }
     for i=1,30 do
         local npUnit = "nameplate"..i
-        hUnits[npUnit] = 2
+        scanUnits[npUnit] = 2
     end
 
-    local function UnitAffiliationCheck(unit, affiliation)
-        if not affiliation then return unit == "player" end
-        if unit == "player" then return true end
-        if not unit then return affiliation == AFFILIATION_OUTSIDER end
-        if affiliation == AFFILIATION_OUTSIDER then return true end
-        if string.find(unit, "raid") then return affiliation == AFFILIATION_PARTY_OR_RAID end
-        if string.find(unit, "party") then return affiliation == AFFILIATION_PARTY_OR_RAID end
-    end
-    NugRunning.UnitAffiliationCheck = UnitAffiliationCheck
-
-    local last_taget_update = 0
     local present_spells = {}
-    local function UpdateUnitAuras(unit)
-            local up = hUnits[unit]
+    function NugRunning.UpdateUnitAuras(unit)
+            local unitPrio = scanUnits[unit]
             local unitGUID = UnitGUID(unit)
-            if not timersByGUIDCounter[unitGUID] and not up then return end
+            if not timersByGUIDCounter[unitGUID] and not unitPrio then return end
 
-            if up == 2 and UnitGUID("target") == unitGUID then return end
+            if unitPrio == 2 and UnitIsUnit(unit, "target") then return end -- Skip double checks on target
 
             local now = GetTime()
-            -- if up == 1 then --throttle target updates
-                -- if now - last_taget_update < 200 then return end
-            -- end
 
-            -- for timer in pairs(active) do
-            --     if  timer.dstGUID == unitGUID and
-            --         (timer.timerType == "BUFF" or timer.timerType == "DEBUFF")
-            --     then
-            --             NugRunning:SetUnitAuraValues(timer, timer.spellID, UnitAura(unit, GetSpellInfo(timer.spellID), nil, timer.filter))
-            --     end
-            -- end
             table_wipe(present_spells)
 
             for _, filter in ipairs(filters) do
@@ -2425,17 +2214,14 @@ do
                     if opts and UnitAffiliationCheck(caster, opts.affiliation) then--and (unit ~= "mouseover" or not opts.singleTarget) then
 
                             local timer
-                            timer = gettimer(active, name, unitGUID, timerType)
-                            if not timer and unit == "player" then
-                                -- duration will be not 0 for player so it's fine
-                                timer = NugRunning:ActivateTimer(playerGUID, unitGUID, UnitName(unit), nil, aura_spellID, name, opts, timerType, duration, count, true)
-                            end
+                            timer = gettimer(active, opts, unitGUID, timerType)
+                            if duration == 0 then duration = -1 end
                             if timer then
-                                if duration ~= 0 then
-                                    NugRunning:SetUnitAuraValues(timer, timer.spellID, name, icon, count, dispelType, duration, expirationTime, caster, isStealable, shouldConsolidate, aura_spellID)
-                                else
-                                    -- print("setting timer ",name, timer.spellID,  "to", aura_spellID)
-                                    NugRunning:UpdateTimerToSpellID(timer, aura_spellID)
+                                NugRunning:SetUnitAuraValues(timer, timer.spellID, name, icon, count, dispelType, duration, expirationTime, caster, isStealable, shouldConsolidate, aura_spellID)
+                            else
+                                timer = NugRunning:ActivateTimer(playerGUID, unitGUID, UnitName(unit), nil, aura_spellID, name, opts, timerType, duration, count, true)
+                                if timer and not timer.timeless then
+                                timer:SetTime( expirationTime - duration, expirationTime, timer.fixedoffset)
                                 end
                             end
 
@@ -2444,91 +2230,28 @@ do
                 end
             end
             for timer in pairs(active) do
-                local opts = timer.opts
                 if  timer.dstGUID == unitGUID and
                     timer.srcGUID == playerGUID and
-                    not present_spells[opts] and
+                    not present_spells[timer.opts] and
                     (timer.timerType == "BUFF" or timer.timerType == "DEBUFF")
                 then
-                    if not opts._skipunitaura then
-                        timer:Release()
-                    end
+                    timer:Release()
                     NugRunning:ArrangeTimers()
                 end
             end
     end
-    NugRunning.UpdateUnitAuras = UpdateUnitAuras
+    UpdateUnitAuras = NugRunning.UpdateUnitAuras -- init upvalue
+end
 
-    function NugRunning.OnAuraEvent(self, event, unit)
-        if event == "UNIT_AURA" then
-            return UpdateUnitAuras(unit)
-        elseif event == "PLAYER_TARGET_CHANGED" then
-            if UnitExists("target") then
-                return UpdateUnitAuras("target")
-            end
-            --[[
-        elseif event == "UPDATE_MOUSEOVER_UNIT" then
-            return UnitExists("mouseover") and UpdateUnitAuras("mouseover")
-        elseif event == "PLAYER_TARGET_CHANGED" then
-            -- updating timers from target unit when possible
-            local targetGUID = UnitGUID("target")
-            if not targetGUID then return end
-            table_wipe(targetTimers)
-            for timer in pairs(active) do
-                if timer.dstGUID == targetGUID then
-                    -- if (timer.srcGUID == playerGUID or timer.opts.affiliation) then
-                        table.insert(targetTimers, timer)
-                    -- end
-                else
-                    if timer.opts.singleTarget then
-                        timer.isGhost = true
-                        timer.expiredGhost = true
-                        timer:Release()
-                        timer.isGhost = nil
-                        timer.expiredGhost = nil
-                    end
-                end
-            end
+function NugRunning:CancelSingleTargetTimers()
+    local targetGUID = UnitGUID("target")
+    if not targetGUID then return end
 
-            for _, filter in ipairs(filters) do
-                for i=1,100 do
-                    local name, _, count, _, duration, expirationTime, caster, _,_, aura_spellID = UnitAura("target", i, filter)
-                    if not name then break end
-
-                    local opts = spells[aura_spellID]
-                    if opts and UnitAffiliationCheck(caster, opts.affiliation) then
-                        if opts.target and opts.target ~= "target" then return end
-                        local found, timerType
-                        -- searching in generated earlier table of player->target timers for matching spell
-                        for _, timer in ipairs(targetTimers) do
-                            if  timer.spellID == aura_spellID then
-                                found = true
-                                timerType = timer.timerType
-                                break
-                            end
-                        end
-                        local newtimer
-                        if duration == 0 then duration = -1 end
-                        if found then
-                            newtimer = NugRunning:RefreshTimer(playerGUID, targetGUID, UnitName("target"), nil, aura_spellID, name, spells[aura_spellID], timerType, duration, count, true)
-                        else
-                            timerType = filter == "HELPFUL" and "BUFF" or "DEBUFF"
-                            newtimer = NugRunning:ActivateTimer(playerGUID, targetGUID, UnitName("target"), nil, aura_spellID, name, spells[aura_spellID], timerType, duration, count, true)
-                        end
-                        if newtimer and not newtimer.timeless then newtimer:SetTime( expirationTime - duration, expirationTime, newtimer.fixedoffset) end
-                        if newtimer and newtimer.opts.maxtimers then
-                            newtimer._touched = GetTime()
-                        end
-                    end
-                end
-            end
-            ]]
+    for timer in pairs(active) do
+        if timer.dstGUID ~= targetGUID and timer.opts.singleTarget then
+            timer:Release("NoGhost")
         end
     end
-    h:SetScript("OnEvent", NugRunning.OnAuraEvent)
-    h:RegisterEvent("UNIT_AURA")
-    -- h:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
-    h:RegisterEvent("PLAYER_TARGET_CHANGED")
 end
 
 
@@ -2542,6 +2265,7 @@ function NugRunning:CreateCastbarTimer(timer)
     f.dstGUID = UnitGUID("player")
     f.srcGUID = UnitGUID("player")
     f.dontfree = true
+    f.isExternal = true
     -- f.priority = 9001
     f.opts = {}
 
@@ -2612,9 +2336,9 @@ function NugRunning:CreateCastbarTimer(timer)
         local opts = config.casts[spellID]
         if opts.disabled then return end
 
-        local name, text, texture, startTime, endTime, isTradeSkill, castID2, notInterruptible = CastingInfo()
+        local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(unit)
         self.inverted = false
-        self.castID = castID2
+        self.castID = castID
         self:UpdateCastingInfo(name,texture,startTime,endTime, opts)
         self:SetActive(true)
         NugRunning:ArrangeTimers()
@@ -2626,9 +2350,9 @@ function NugRunning:CreateCastbarTimer(timer)
         local opts = config.casts[spellID]
         if opts.disabled then return end
 
-        local name, text, texture, startTime, endTime, isTradeSkill, castID2, notInterruptible = ChannelInfo()
+        local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitChannelInfo(unit)
         self.inverted = true
-        self.castID = castID2
+        self.castID = castID
         self:UpdateCastingInfo(name,texture,startTime,endTime, opts)
 
         self:SetActive(true)
@@ -2637,9 +2361,7 @@ function NugRunning:CreateCastbarTimer(timer)
     f.UNIT_SPELLCAST_CHANNEL_UPDATE = f.UNIT_SPELLCAST_CHANNEL_START
     function f.UNIT_SPELLCAST_STOP(self,event, unit, castID, spellID)
         if unit ~= self.unit then return end
-        self:Hide()
-        self:SetActive(false)
-        NugRunning:ArrangeTimers()
+        self:Release()
     end
     function f.UNIT_SPELLCAST_FAILED(self, event, unit,castID)
         if unit ~= self.unit then return end
@@ -2660,7 +2382,7 @@ local Enum_PowerType_ComboPoints = Enum.PowerType.ComboPoints
 function NugRunning.UNIT_POWER_UPDATE(self,event,unit, ptype)
     if ptype == "COMBO_POINTS" then
         self.cpWas = self.cpNow or 0
-        self.cpNow = GetComboPoints(unit, "target")
+        self.cpNow = UnitPower("player", Enum_PowerType_ComboPoints)
     end
 end
 
@@ -2716,3 +2438,7 @@ do
         return guidTimers
     end
 end
+
+-- function NugRunning.GetTimersByGUID(self, dstGUID)
+--     return timersByGUID[dstGUID]
+-- end

@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("InterrogatorVishas", "DBM-Party-Classic", 12)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20200731154050")
+mod:SetRevision("20221010035226")
 mod:SetCreatureID(3983)
 --mod:SetEncounterID(585)
 
@@ -14,25 +14,20 @@ mod:RegisterEventsInCombat(
 
 local warningImmolate				= mod:NewTargetNoFilterAnnounce(9034, 2)
 
-local timerImmolateCD				= mod:NewAITimer(180, 9034, nil, nil, nil, 3, nil, DBM_CORE_L.MAGIC_ICON)
+local timerImmolateCD				= mod:NewAITimer(180, 9034, nil, nil, nil, 3, nil, DBM_COMMON_L.MAGIC_ICON)
 
 function mod:OnCombatStart(delay)
 	timerImmolateCD:Start(1-delay)
 end
 
-do
-	local Immolate = DBM:GetSpellInfo(9034)
-	function mod:SPELL_CAST_SUCCESS(args)
-		--if args.spellId == 9034 then
-		if args.spellName == Immolate and args:IsSrcTypeHostile() then
-			timerImmolateCD:Start()
-		end
+function mod:SPELL_CAST_SUCCESS(args)
+	if args.spellId == 9034 and args:IsSrcTypeHostile() then
+		timerImmolateCD:Start()
 	end
+end
 
-	function mod:SPELL_AURA_APPLIED(args)
-		--if args.spellId == 9034 then
-		if args.spellName == Immolate and args:IsDestTypePlayer() then
-			warningImmolate:Show(args.destName)
-		end
+function mod:SPELL_AURA_APPLIED(args)
+	if args.spellId == 9034 and args:IsDestTypePlayer() then
+		warningImmolate:Show(args.destName)
 	end
 end

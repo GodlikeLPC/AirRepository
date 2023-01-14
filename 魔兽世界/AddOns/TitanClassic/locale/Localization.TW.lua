@@ -3,6 +3,8 @@ if not L then return end
 
 L["TITAN_PANEL"] = "Titan Panel Classic";
 local TITAN_PANEL = "Titan Panel Classic";
+L["TITAN_PANEL_ONLY"] = "Titan Panel";
+local TITAN_PANEL_ONLY = "Titan Panel";
 L["TITAN_DEBUG"] = "<Titan>";
 L["TITAN_PRINT"] = "Titan";
 
@@ -71,12 +73,10 @@ L["TITAN_PANEL_SLASH_PROFILE_2"] = " - "..LIGHTYELLOW_FONT_COLOR_CODE.."<name>: 
 L["TITAN_PANEL_SLASH_PROFILE_3"] = " - "..LIGHTYELLOW_FONT_COLOR_CODE.."<server>: |cffffffffcan be either the server name or 'TitanCustomProfile'."
 L["TITAN_PANEL_SLASH_SILENT_0"] = LIGHTYELLOW_FONT_COLOR_CODE.."Usage: |cffffffff/titan {silent}";
 L["TITAN_PANEL_SLASH_SILENT_1"] = LIGHTYELLOW_FONT_COLOR_CODE.."silent: |cffffffffToggles "..TITAN_PANEL.." to load silently.";
-L["TITAN_PANEL_SLASH_ORDERHALL_0"] = LIGHTYELLOW_FONT_COLOR_CODE.."Usage: |cffffffff/titan {orderhall}";
-L["TITAN_PANEL_SLASH_ORDERHALL_1"] = LIGHTYELLOW_FONT_COLOR_CODE.."orderhall: |cffffffffToggles "..TITAN_PANEL.." to hide Order Hall Command Bar.";
 L["TITAN_PANEL_SLASH_HELP_0"] = LIGHTYELLOW_FONT_COLOR_CODE.."Usage: |cffffffff/titan {help | help <topic>}";
-L["TITAN_PANEL_SLASH_HELP_1"] = " - "..LIGHTYELLOW_FONT_COLOR_CODE.."<topic>: reset/gui/profile/silent/orderhall/help ";
+L["TITAN_PANEL_SLASH_HELP_1"] = " - "..LIGHTYELLOW_FONT_COLOR_CODE.."<topic>: reset/gui/profile/silent/help ";
 L["TITAN_PANEL_SLASH_ALL_0"] = LIGHTYELLOW_FONT_COLOR_CODE.."Usage: |cffffffff/titan <topic>";
-L["TITAN_PANEL_SLASH_ALL_1"] = " - "..LIGHTYELLOW_FONT_COLOR_CODE.."<topic>: |cffffffffreset/gui/profile/silent/orderhall/help ";
+L["TITAN_PANEL_SLASH_ALL_1"] = " - "..LIGHTYELLOW_FONT_COLOR_CODE.."<topic>: |cffffffffreset/gui/profile/silent/help ";
 
 -- slash command responses
 L["TITAN_PANEL_SLASH_RESP1"] = LIGHTYELLOW_FONT_COLOR_CODE.."Titan Panel 提示文字大小已重置。";
@@ -94,7 +94,7 @@ L["TITAN_PANEL_GLOBAL_RESET_PART"] = "resetting options";
 L["TITAN_PANEL_GLOBAL_ERR_1"] = "You may not load a profile when a global profile is in use";
 
 -- general panel locale
-L["TITAN_PANEL_VERSION_INFO"] = "|cffffd700 by the |cffff8c00"..TITAN_PANEL.." Development Team";
+L["TITAN_PANEL_VERSION_INFO"] = "|cffffd700 by the |cffff8c00"..TITAN_PANEL_ONLY.." Development Team";
 L["TITAN_PANEL_MENU_TITLE"] = "泰坦面版";
 L["TITAN_PANEL_MENU_HIDE"] = "隱藏";
 L["TITAN_PANEL_MENU_IN_COMBAT_LOCKDOWN"] = "(戰鬥中)";
@@ -245,9 +245,12 @@ L["TITAN_AMMO_BUTTON_LABEL_THROWN"] = "投擲: ";
 L["TITAN_AMMO_BUTTON_LABEL_AMMO_THROWN"] = "彈藥/投擲: ";
 L["TITAN_AMMO_TOOLTIP"] = "已裝備 彈藥/投擲 數量";
 L["TITAN_AMMO_MENU_TEXT"] = "彈藥/投擲";
-L["TITAN_AMMO_BUTTON_NOAMMO"] = "沒有彈藥";
+L["TITAN_AMMO_BUTTON_NOAMMO"] = "--";
 L["TITAN_AMMO_MENU_REFRESH"] = "重新整理";
 L["TITAN_AMMO_BULLET_NAME"] = "顯示彈藥名稱";
+L["TITAN_AMMO_THROWN"] = "Thrown";
+L["TITAN_AMMO_GUN"] = "Bullets";
+L["TITAN_AMMO_BOW"] = "Arrows";
 	
 L["TITAN_BAG_FORMAT"] = "%d/%d";
 L["TITAN_BAG_BUTTON_LABEL"] = "背包: ";
@@ -326,12 +329,19 @@ L["TITAN_LOCATION_TOOLTIP_HOMELOCATION"] = "爐石設定位置";
 L["TITAN_LOCATION_TOOLTIP_INN"] = "旅館: ";
 L["TITAN_LOCATION_MENU_TEXT"] = "位置";
 L["TITAN_LOCATION_MENU_SHOW_ZONE_ON_PANEL_TEXT"] = "顯示區域文字";
+L["TITAN_LOCATION_MENU_SHOW_SUBZONE_ON_PANEL_TEXT"] = "Show Only Subzone Text";
 L["TITAN_LOCATION_MENU_SHOW_COORDS_ON_MAP_TEXT"] = "顯示座標在世界地圖上";
 L["TITAN_LOCATION_MAP_CURSOR_COORDS_TEXT"] = "游標(X,Y): %s";
 L["TITAN_LOCATION_MAP_PLAYER_COORDS_TEXT"] = "玩家(X,Y): %s";
 L["TITAN_LOCATION_NO_COORDS"] = "無座標";
 L["TITAN_LOCATION_MENU_SHOW_LOC_ON_MINIMAP_TEXT"] = "在小地圖上顯示位置";
 L["TITAN_LOCATION_MENU_UPDATE_WORLD_MAP"] = "Update World Map When Zone Changes";
+L["TITAN_LOCATION_MENU_MAP_COORDS_TITLE"] = "Coordinates Location on Map";
+L["TITAN_LOCATION_MENU_MAP_COORDS_LOC_1"] = "Top Left";
+L["TITAN_LOCATION_MENU_MAP_COORDS_LOC_2"] = "Top Right";
+L["TITAN_LOCATION_MENU_MAP_COORDS_LOC_3"] = "Bottom Left";
+L["TITAN_LOCATION_MENU_MAP_COORDS_LOC_4"] = "Bottom";
+L["TITAN_LOCATION_MENU_MAP_COORDS_LOC_5"] = "Bottom Right";
 
 L["TITAN_FPS_FORMAT"] = "%.1f";
 L["TITAN_FPS_BUTTON_LABEL"] = "FPS: ";
@@ -370,6 +380,24 @@ L["TITAN_LOOTTYPE_SHOWDUNGEONDIFF_LABEL"] = "顯示副本難度";
 L["TITAN_LOOTTYPE_SETDUNGEONDIFF_LABEL"] = "設置五人副本難度";
 L["TITAN_LOOTTYPE_SETRAIDDIFF_LABEL"] = "設置團隊副本難度";
 L["TITAN_LOOTTYPE_AUTODIFF_LABEL"] = "自動設定 (基於隊伍類型)";
+-- Tracker part
+L["BtnRoll"]  = "Roll" -- button
+L["BtnPass"]  = "Pass" -- button
+L["BtnClear"] = "Start" -- button (was 'Clear')
+L["BtnAnnounce"] = "Result" -- button (was 'Announce')
+L["BtnNotRolled"] = "Remind" -- button (was 'Not Rolled')
+L["TextPass"] = "pass" -- string to search for when player passes on loot
+L["MsgNotRolled"] = "Reminder sent." -- nag players who have not rolled
+L["MsgClosing"] = "Closing tracker window." -- when leader closes tracker
+L["TxtLine"] = "------------------------------------------------------------------------------------------------------"
+L["MsgNbRolls"] = "%d Roll(s)" -- number of rolls at bottom of frame
+L["MsgRollCleared"] = "MsgRollCleared" -- sent when BtnClear is clicked
+L["MsgStart"] = "New roll starting now! Type '/rnd' or '%s'"
+L["MsgBar"] = "==============================" -- used as part of start message to players
+L["MsgAnnounce"] = "%s won with a roll of %d."
+L["RaidPass"]="'/raid pass'" -- used to 'end' NotRolledNag message
+L["PartyPass"]="'/party pass'" -- used to 'end' NotRolledNag message
+L["NotRolledNag"]="{star} Please type '/roll' or 'pass' " -- cannot use L["TextPass"] here ????
 
 L["TITAN_MEMORY_FORMAT"] = "%.3f".."MB";
 L["TITAN_MEMORY_FORMAT_KB"] = "%d".."KB";
@@ -446,7 +474,22 @@ L["TITAN_XP_GAIN_PATTERN"] = "(.*)死亡，你獲得(%d+)點經驗。";
 L["TITAN_XP_XPGAINS_LABEL_SHORT"] = "預估獲得經驗: ";
 L["TITAN_XP_XPGAINS_LABEL"] = "升級所需擊殺數(基於最後擊殺獲得的%s點經驗): ";
 L["TITAN_XP_MENU_SIMPLE_BUTTON_XPGAIN"] = "顯示升級所需(基於最後所獲經驗)";
-	
+
+L["TITAN_REGEN_MENU_TEXT"] = "角色恢復速度"
+L["TITAN_REGEN_MENU_TOOLTIP_TITLE"]	= "恢復速率"
+L["TITAN_REGEN_MENU_SHOW2"] = "HP"
+L["TITAN_REGEN_MENU_SHOW3"] = "MP"
+L["TITAN_REGEN_MENU_SHOW4"] = "顯示百分比"
+L["TITAN_REGEN_BUTTON_TEXT_HP"] = "生命值: "
+L["TITAN_REGEN_BUTTON_TEXT_MP"] = "法力值: "
+L["TITAN_REGEN_TOOLTIP1"] = "生命: \t"..GREEN_FONT_COLOR_CODE.."%d"..FONT_COLOR_CODE_CLOSE.." / " ..HIGHLIGHT_FONT_COLOR_CODE.."%d"..FONT_COLOR_CODE_CLOSE.." ("..RED_FONT_COLOR_CODE.."%d"..FONT_COLOR_CODE_CLOSE..")";
+L["TITAN_REGEN_TOOLTIP2"] = "法力: \t"..GREEN_FONT_COLOR_CODE.."%d"..FONT_COLOR_CODE_CLOSE.." / " ..HIGHLIGHT_FONT_COLOR_CODE.."%d"..FONT_COLOR_CODE_CLOSE.." ("..RED_FONT_COLOR_CODE.."%d"..FONT_COLOR_CODE_CLOSE..")";
+L["TITAN_REGEN_TOOLTIP3"] = "最高 HP 恢復速度: \t"..HIGHLIGHT_FONT_COLOR_CODE.."%d"..FONT_COLOR_CODE_CLOSE;
+L["TITAN_REGEN_TOOLTIP4"] = "最低 HP 恢復速度: \t"..HIGHLIGHT_FONT_COLOR_CODE.."%d"..FONT_COLOR_CODE_CLOSE;
+L["TITAN_REGEN_TOOLTIP5"] = "最高 MP 恢復速度: \t"..HIGHLIGHT_FONT_COLOR_CODE.."%d"..FONT_COLOR_CODE_CLOSE;
+L["TITAN_REGEN_TOOLTIP6"] = "最低 MP 恢復速度: \t"..HIGHLIGHT_FONT_COLOR_CODE.."%d"..FONT_COLOR_CODE_CLOSE;
+L["TITAN_REGEN_TOOLTIP7"] = "上一場戰鬥的 MP 恢復速度: \t"..HIGHLIGHT_FONT_COLOR_CODE.."%d"..FONT_COLOR_CODE_CLOSE.." ("..GREEN_FONT_COLOR_CODE.."%.2f"..FONT_COLOR_CODE_CLOSE.."%%)";
+
 -- Titan Repair
 L["REPAIR_LOCALE"] = {
 	menu = "裝備耐久度",
@@ -491,11 +534,6 @@ L["REPAIR_LOCALE"] = {
 };
 
 L["TITAN_REPAIR"] = "泰坦修理"
-L["TITAN_REPAIR_GBANK_TOTAL"] = "公會銀行資金 :"
-L["TITAN_REPAIR_GBANK_WITHDRAW"] = "你可以使用的資金 :"
-L["TITAN_REPAIR_GBANK_USEFUNDS"] = "使用公會資金修理"
-L["TITAN_REPAIR_GBANK_NOMONEY"] = "公會資金不足或者你超過了允許的修理費用."
-L["TITAN_REPAIR_GBANK_NORIGHTS"] = "你沒有公會或者你沒有使用公會資金修理的許可."
 L["TITAN_REPAIR_CANNOT_AFFORD"] = "你現在支付不起修理費用."
 L["TITAN_REPAIR_REPORT_COST_MENU"] = "輸出修理費用到聊天頻道"
 L["TITAN_REPAIR_REPORT_COST_CHAT"] = "修理費用是 "

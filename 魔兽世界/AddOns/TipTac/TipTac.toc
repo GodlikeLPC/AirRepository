@@ -1,0 +1,19 @@
+## Interface: 30400
+## Version: 20.11.04
+## Title: TipTac
+## Author: Aezay (Earthen Ring EU)
+## Notes: Highly Customizable Tooltip Enhancement Addon
+## SavedVariables: TipTac_Config
+
+Local_zhCN.lua
+Local_zhTW.lua
+Local_enUS.lua
+ttCore.lua
+ttStyle.lua
+ttBars.lua
+ttAuras.lua
+ttIcons.lua
+ttHyperlink.lua
+## Title-zhCN: |cff880303[有爱]|r TipTac 鼠标提示增强
+## X-Vendor: NetEase
+## X-163UI-Version: 20220901200239

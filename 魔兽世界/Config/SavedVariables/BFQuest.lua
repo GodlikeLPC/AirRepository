@@ -1,3 +1,0 @@
-
-TeamNotice_Comment = {
-}

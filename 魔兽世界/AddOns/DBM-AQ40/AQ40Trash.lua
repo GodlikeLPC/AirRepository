@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("AQ40Trash", "DBM-AQ40", 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20200828184410")
+mod:SetRevision("20221129003558")
 mod:SetModelID(15347)-- Anubisath Sentinel
 mod:SetMinSyncRevision(20200810000000)--2020, 8, 10
 
@@ -45,13 +45,9 @@ do-- Anubisath Plague/Explode - keep in sync - AQ40/AQ40Trash.lua AQ20/AQ20Trash
 	local yellPlague                    = mod:NewYell(22997)
 	local specWarnExplode               = mod:NewSpecialWarningRun(25698, "Melee", nil, 3, 4, 2)
 
-	local Plague = DBM:GetSpellInfo(22997)
-	local Explode = DBM:GetSpellInfo(25698)
-	local CauseInsanity = DBM:GetSpellInfo(26079)-- aq40 only mind control - qiraji brainwasher/mindslayer
-
 	-- aura applied didn't seem to catch the reflects and other buffs
 	function mod:SPELL_AURA_APPLIED(args)
-		if args.spellName == Plague then
+		if args.spellId == 22997 then
 			if args:IsPlayer() then
 				specWarnPlague:Show()
 				specWarnPlague:Play("runout")
@@ -62,16 +58,16 @@ do-- Anubisath Plague/Explode - keep in sync - AQ40/AQ40Trash.lua AQ20/AQ20Trash
 			else
 				warnPlague:Show(args.destName)
 			end
-		elseif args.spellName == Explode then
+		elseif args.spellId == 25698 then
 			specWarnExplode:Show()
 			specWarnExplode:Play("justrun")
-		elseif args.spellName == CauseInsanity then
+		elseif args.spellId == 26079 then
 			warnCauseInsanity:CombinedShow(0.75, args.destName)
 		end
 	end
 
 	function mod:SPELL_AURA_REMOVED(args)
-		if args.spellName == Plague then
+		if args.spellId == 22997 then
 			if args:IsPlayer() and self.Options.RangeFrame then
 				DBM.RangeCheck:Hide()
 			end
@@ -91,7 +87,7 @@ do
 				self.vb.firstEngageTime = GetServerTime()
 				if self.Options.FastestClear3 and self.Options.SpeedClearTimer then
 					--Custom bar creation that's bound to core, not mod, so timer doesn't stop when mod stops it's own timers
-					DBM.Bars:CreateBar(self.Options.FastestClear3, DBM_CORE_L.SPEED_CLEAR_TIMER_TEXT, 136106)
+					DBT:CreateBar(self.Options.FastestClear3, DBM_CORE_L.SPEED_CLEAR_TIMER_TEXT, 136106)
 				end
 				self:SendSync("AQ40Started", self.vb.firstEngageTime)--Also sync engage time
 			end
@@ -108,9 +104,8 @@ do
 
 	-- todo: thorns
 	local playerGUID = UnitGUID("player")
-	local ShadowStorm = DBM:GetSpellInfo(26555)
-	function mod:SPELL_DAMAGE(_, sourceName, _, _, destGUID, _, _, _, _, spellName)
-		if spellName == ShadowStorm and destGUID == playerGUID and self:AntiSpam(3, 3) then
+	function mod:SPELL_DAMAGE(_, sourceName, _, _, destGUID, _, _, _, spellId)
+		if spellId == 26555 and destGUID == playerGUID and self:AntiSpam(3, 3) then
 			specWarnShadowStorm:Show(sourceName)
 			specWarnShadowStorm:Play("findshelter")
 		end
@@ -143,17 +138,46 @@ do
 	end
 	mod.SWING_MISSED = mod.SWING_DAMAGE
 
-	function mod:OnSync(msg, startTime, sender)
+	local function updateDefeatedBosses(self, encounterId)
+		if self:AntiSpam(10, encounterId) then
+			if encounterId == 710 or encounterId == 713 or encounterId == 716 or encounterId == 717 or encounterId == 714 then
+				self.vb.requiredBosses = self.vb.requiredBosses + 1
+				if self.vb.requiredBosses == 5 then
+					DBT:CancelBar(DBM_CORE_L.SPEED_CLEAR_TIMER_TEXT)
+					if self.vb.firstEngageTime then
+						local thisTime = GetServerTime() - self.vb.firstEngageTime
+						if thisTime and thisTime > 0 then
+							if not self.Options.FastestClear3 then
+								--First clear, just show current clear time
+								DBM:AddMsg(DBM_CORE_L.RAID_DOWN:format("AQ40", DBM:strFromTime(thisTime)))
+								self.Options.FastestClear3 = thisTime
+							elseif (self.Options.FastestClear3 > thisTime) then
+								--Update record time if this clear shorter than current saved record time and show users new time, compared to old time
+								DBM:AddMsg(DBM_CORE_L.RAID_DOWN_NR:format("AQ40", DBM:strFromTime(thisTime), DBM:strFromTime(self.Options.FastestClear3)))
+								self.Options.FastestClear3 = thisTime
+							else
+								--Just show this clear time, and current record time (that you did NOT beat)
+								DBM:AddMsg(DBM_CORE_L.RAID_DOWN_L:format("AQ40", DBM:strFromTime(thisTime), DBM:strFromTime(self.Options.FastestClear3)))
+							end
+						end
+						self.vb.firstEngageTime = nil
+					end
+				end
+			end
+		end
+	end
+
+	function mod:OnSync(msg, timeOrEncounter, sender)
 		--Sync recieved with start time and ours is currently not started
 		--The reason this doesn't just check self.vb.firstEngageTime is nil, because it might not be if SendVariableInfo send it first
-		if msg == "AQ40Started" and startTime and not DBM.Bars:GetBar(DBM_CORE_L.SPEED_CLEAR_TIMER_TEXT) then
+		if msg == "AQ40Started" and sender and not DBT:GetBar(DBM_CORE_L.SPEED_CLEAR_TIMER_TEXT) then
 			if not self.vb.firstEngageTime then
-				self.vb.firstEngageTime = tonumber(startTime)
+				self.vb.firstEngageTime = tonumber(timeOrEncounter)
 			end
 			if self.Options.FastestClear3 and self.Options.SpeedClearTimer then
 				--Custom bar creation that's bound to core, not mod, so timer doesn't stop when mod stops it's own timers
 				local adjustment = GetServerTime() - self.vb.firstEngageTime
-				DBM.Bars:CreateBar(self.Options.FastestClear3 - adjustment, DBM_CORE_L.SPEED_CLEAR_TIMER_TEXT)
+				DBT:CreateBar(self.Options.FastestClear3 - adjustment, DBM_CORE_L.SPEED_CLEAR_TIMER_TEXT, 136106)
 			end
 			--Unregister high CPU combat log events
 			self:UnregisterShortTermEvents()
@@ -164,35 +188,17 @@ do
 			--This is sadly still going to generate a LOT of comm traffic on zone in. upwards of 4-117 syncs, per player zone in
 			--Reviewing code, it's hard to do this in less comms, it's either don't support recovering the speed clear timer in all situations (disconnect, reloadui, zoning in late) or cause a burst of syncs :\
 			DBM:SendVariableInfo(self, sender)
+		elseif msg == "EncounterEnd" and timeOrEncounter then
+			updateDefeatedBosses(self, timeOrEncounter)--In case player misses event (ie they released or are outside the raid for that particular boss
 		end
 	end
-end
 
-function mod:ENCOUNTER_END(encounterID, _, _, _, success)
-	if success == 0 then return end--wipe
-	--All the required bosses for the raid to be full cleared.
-	if encounterID == 710 or encounterID == 713 or encounterID == 716 or encounterID == 717 or encounterID == 714 then
-		self.vb.requiredBosses = self.vb.requiredBosses + 1
-		if self.vb.requiredBosses == 5 then
-			DBM.Bars:CancelBar(DBM_CORE_L.SPEED_CLEAR_TIMER_TEXT)
-			if self.vb.firstEngageTime then
-				local thisTime = GetServerTime() - self.vb.firstEngageTime
-				if thisTime and thisTime > 0 then
-					if not self.Options.FastestClear3 then
-						--First clear, just show current clear time
-						DBM:AddMsg(DBM_CORE_L.RAID_DOWN:format("AQ40", DBM:strFromTime(thisTime)))
-						self.Options.FastestClear3 = thisTime
-					elseif (self.Options.FastestClear3 > thisTime) then
-						--Update record time if this clear shorter than current saved record time and show users new time, compared to old time
-						DBM:AddMsg(DBM_CORE_L.RAID_DOWN_NR:format("AQ40", DBM:strFromTime(thisTime), DBM:strFromTime(self.Options.FastestClear3)))
-						self.Options.FastestClear3 = thisTime
-					else
-						--Just show this clear time, and current record time (that you did NOT beat)
-						DBM:AddMsg(DBM_CORE_L.RAID_DOWN_L:format("AQ40", DBM:strFromTime(thisTime), DBM:strFromTime(self.Options.FastestClear3)))
-					end
-				end
-				self.vb.firstEngageTime = nil
-			end
+	function mod:ENCOUNTER_END(encounterId, _, _, _, success)
+		if success == 0 then return end--wipe
+		--All the required bosses for the raid to be full cleared.
+		if encounterId == 710 or encounterId == 713 or encounterId == 716 or encounterId == 717 or encounterId == 714 then
+			updateDefeatedBosses(self, encounterId)--Still want to fire this on event because the event will always be faster than sync
+			self:SendSync("EncounterEnd", encounterId)
 		end
 	end
 end

@@ -201,10 +201,6 @@ L["Immune"] = "Insensible"
 L["Include set"] = "Inclure l'ensemble"
 L["Include set name in title bar"] = "Inclure le nom d'ensemble dans la barre de titre"
 L["Informative tooltips"] = "Bulles d'aide informatives"
---[[Translation missing --]]
---[[ L["Inline bar display"] = ""--]] 
---[[Translation missing --]]
---[[ L["Inline display is a horizontal window style."] = ""--]] 
 L["Instance"] = "Instance"
 L["Interrupts"] = "Interruptions"
 L["Keep segment"] = "Garder segment"
@@ -240,8 +236,6 @@ L["No mode or segment selected for report."] = "Aucun mode ou segment n'a été 
 L["No mode selected for report."] = "Aucun mode n'a été sélectionné pour le rapport"
 L["None"] = "Aucun"
 L["Number format"] = "Format des nombres"
---[[Translation missing --]]
---[[ L["Number set duplicates"] = ""--]] 
 L["Officer"] = "Officier"
 L["Only keep boss fighs"] = "Ne garder que les boss"
 L["opens the configuration window"] = "ouvre la fenêtre de configuration"
@@ -345,8 +339,6 @@ L["Spell list"] = "Liste des techniques"
 L["Spell school colors"] = "Couleurs des écoles de magie"
 L["Start new segment"] = "Lancer nv segment"
 L["Stop"] = "Stop"
---[[Translation missing --]]
---[[ L["Stop description"] = ""--]] 
 L["Strata"] = "Couche"
 L["Subview rows"] = "Rangées sous-vue"
 L["Switch to mode"] = "Passer au mode"
@@ -395,8 +387,6 @@ L["Threat: Personal Threat"] = "Menace : Menace perso."
 L["Tick the modules you want to disable."] = "Cocher les modules que vous souhaitez désactiver."
 L["Tile"] = "Tuile"
 L["Tile size"] = "Taille des tuiles"
---[[Translation missing --]]
---[[ L["Tile the background texture."] = ""--]] 
 L["Title bar"] = "Barre du titre"
 L["Title color"] = "Couleur du titre"
 L["Title height"] = "Hauteur du titre"

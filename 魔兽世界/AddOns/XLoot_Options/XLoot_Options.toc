@@ -1,0 +1,20 @@
+## Interface: 30400
+## Interface-Classic: 11403
+## Interface-BCC: 20502
+## Interface-WoTLK: 30400
+## Title: XLoot Options
+## Notes: Configuration interface for XLoot
+## Version: 9.2.7-1
+## Author: Xuerian
+## X-Category: Inventory
+
+## Dependencies: XLoot
+## LoadOnDemand: 1
+
+load.xml
+
+## Title: |cff880303[163UI]|r XLoot Options
+## Title-zhCN: |cff880303[有爱]|r XLoot 配置界面模块
+## Notes-zhCN: XLoot拾取界面增强的配置界面
+## X-Vendor: NetEase
+## X-163UI-Version: 20220913170724

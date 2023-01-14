@@ -1,31 +1,55 @@
-﻿## Interface: 11305
+## Interface: 30400
 ## Title: Clique
-## Title-zhCN: [大脚][集]一键施法
-## Title-zhTW: [大腳][集]一鍵施法
-## Notes: |cffbc8f8fSimply powerful click-casting interface.|r
-## Notes-zhCN: |cff00ff00Clique|r|n|cffbc8f8f简单而强大的点击施法工具。|r
-## Notes-zhTW: |cff00ff00Clique|r|n|cffbc8f8f簡單而強大的點擊施法工具。|r
 ## Author: Cladhaire
-## Version: v1.0.3-classic
+## Version: v3.4.12-release
+## Notes: Simply powerful click-casting interface
 ## SavedVariables: CliqueDB, CliqueDB3
-## Dependencies: BigFoot
-## X-Revision: BigFoot
-## LoadOnDemand: 1
+## X-Curse-Project-ID: 15564
+## X-WoWI-ID: 5108
+## X-Wago-ID: Mj6jLxGR
+
+## X-Localizations: enUS, enGB, ruRU, zhCN, zhTW
+## X-CompatibleLocales: enUS, enGB, deDE, frFR, esES, esMX, zhCN, zhTW, koKR, ruRU
 
 AddonCore.lua
+i18n\Localization.enUS.lua
+i18n\Localization.ruRU.lua
+i18n\Localization.zhCN.lua
+i18n\Localization.zhTW.lua
 
-Localization.enUS.lua
-Localization.zhCN.lua
-Localization.zhTW.lua
-
+libs\LibStub\LibStub.lua
+libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+libs\AceDB-3.0\AceDB-3.0.xml
 libs\tekKonfigAboutPanel.lua
+libs\LibDeflate\LibDeflate.lua
+libs\LibSerialize\LibSerialize.lua
+libs\LibDropDown\embed.xml
 
 DatabaseDefaults.lua
 ClickCastTemplate.xml
+
 Clique.xml
 Clique.lua
+
 Utils.lua
-BindConfig.lua
-OptionsPanel.lua
-FrameOptionsPanel.lua
-BlizzardFrames.lua
+ImportExport.lua
+
+config\BindConfig.lua
+config\OptionsPanel.lua
+config\BlizzardFramesConfig.lua
+config\DenylistConfig.lua
+
+modules\Blizzard_utils.lua
+modules\Blizzard_classic.lua
+modules\Blizzard_retail.lua
+modules\Blizzard_wrath.lua
+modules\Blizzard_dragonflight.lua
+
+#tests\HeaderTest.xml
+#tests\HeaderTest.lua
+#tests\TestSuite.lua
+
+## Title: |cff880303[163UI]|r Clique
+## Title-zhCN: |cff880303[有爱]|r Clique 点击施法
+## X-Vendor: NetEase
+## X-163UI-Version: 20221208155130

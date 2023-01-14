@@ -1,0 +1,10 @@
+## Interface: 30400
+## Title: 163UI_CombatTimer
+## Title-zhCN: |cff880303[有爱]|r 163UI 战斗提示计时
+## Author: 桂花猫猫-暗影之月
+## X-Vendor: NetEase
+
+CombatTimerBanner.xml
+163UI_CombatTimer.lua
+
+## X-163UI-Version: 20220901200239

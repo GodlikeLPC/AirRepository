@@ -11,60 +11,57 @@ local QuestieOptionsDefaults = QuestieLoader:ImportModule("QuestieOptionsDefault
 local QuestieOptionsUtils = QuestieLoader:ImportModule("QuestieOptionsUtils");
 ---@type QuestieTracker
 local QuestieTracker = QuestieLoader:ImportModule("QuestieTracker");
----@type QuestieCoords
-local QuestieCoords = QuestieLoader:ImportModule("QuestieCoords");
----@type QuestieNameplate
-local QuestieNameplate = QuestieLoader:ImportModule("QuestieNameplate");
----@type QuestieMap
-local QuestieMap = QuestieLoader:ImportModule("QuestieMap");
+---@type l10n
+local l10n = QuestieLoader:ImportModule("l10n")
 
 QuestieOptions.tabs.advanced = {...}
 local optionsDefaults = QuestieOptionsDefaults:Load()
 
-StaticPopupDialogs["QUESTIE_LANG_CHANGED_RELOAD"] = {
-    button1 = QuestieLocale:GetUIString('Reload UI'),
-    button2 = QuestieLocale:GetUIString('TRACKER_CANCEL'),
-    OnAccept = function()
-        ReloadUI()
-    end,
-    text = QuestieLocale:GetUIString('The database needs to be updated to change language. Press reload to apply the new language'),
-    OnShow = function(self)
-        self:SetFrameStrata("TOOLTIP")
-    end,
-    timeout = 0,
-    whileDead = true,
-    hideOnEscape = true,
-    preferredIndex = 3
-}
-
 function QuestieOptions.tabs.advanced:Initialize()
+    -- This needs to be called inside of the Init process for l10n to be fully loaded
+    StaticPopupDialogs["QUESTIE_LANG_CHANGED_RELOAD"] = {
+        button1 = l10n('Reload UI'),
+        button2 = l10n('Cancel'),
+        OnAccept = function()
+            ReloadUI()
+        end,
+        text = l10n('The database needs to be updated to change language. Press reload to apply the new language'),
+        OnShow = function(self)
+            self:SetFrameStrata("TOOLTIP")
+        end,
+        timeout = 0,
+        whileDead = true,
+        hideOnEscape = true,
+        preferredIndex = 3
+    }
+
     return {
-        name = function() return QuestieLocale:GetUIString('ADVANCED_TAB'); end,
+        name = function() return l10n('Advanced'); end,
         type = "group",
-        order = 16,
+        order = 17,
         args = {
             map_options = {
                 type = "header",
                 order = 1,
-                name = function() return QuestieLocale:GetUIString('ADVANCED_OPTIONS_HEADER'); end,
+                name = function() return l10n('Advanced Settings'); end,
             },
             enableIconLimit = {
                 type = "toggle",
                 order = 1.1,
-                name = function() return QuestieLocale:GetUIString('ENABLE_ICON_LIMIT'); end,
-                desc = function() return QuestieLocale:GetUIString('ENABLE_ICON_LIMIT_DESC'); end,
+                name = function() return l10n('Enable Icon Limit'); end,
+                desc = function() return l10n('Enable the limit of icons drawn per type.'); end,
                 width = "full",
                 get = function (info) return QuestieOptions:GetGlobalOptionValue(info); end,
                 set = function (info, value)
                     QuestieOptions:SetGlobalOptionValue(info, value)
-                    QuestieOptionsUtils:Delay(0.5, QuestieQuest.SmoothReset, QuestieLocale:GetUIString('DEBUG_ICON_LIMIT', value))
+                    QuestieOptionsUtils:Delay(0.5, QuestieQuest.SmoothReset, l10n('Setting icon limit value to %s : Redrawing!', value))
                 end,
             },
             iconLimit = {
                 type = "range",
                 order = 1.2,
-                name = function() return QuestieLocale:GetUIString('ICON_LIMIT'); end,
-                desc = function() return QuestieLocale:GetUIString('ICON_LIMIT_DESC', optionsDefaults.global.iconLimit); end,
+                name = function() return l10n('Icon Limit'); end,
+                desc = function() return l10n('Limits the amount of icons drawn per type. ( Default: %s )', optionsDefaults.global.iconLimit); end,
                 width = "double",
                 min = 10,
                 max = 500,
@@ -73,48 +70,49 @@ function QuestieOptions.tabs.advanced:Initialize()
                 get = function(info) return QuestieOptions:GetGlobalOptionValue(info); end,
                 set = function (info, value)
                     QuestieOptions:SetGlobalOptionValue(info, value)
-                    QuestieOptionsUtils:Delay(0.5, QuestieQuest.SmoothReset, QuestieLocale:GetUIString('DEBUG_ICON_LIMIT', value))
+                    QuestieOptionsUtils:Delay(0.5, QuestieQuest.SmoothReset, l10n('Setting icon limit value to %s : Redrawing!', value))
                 end,
             },
             seperatingHeader2 = {
                 type = "header",
                 order = 2,
-                name = QuestieLocale:GetUIString('DEVELOPER_OPTIONS_HEADER'),
+                name = l10n('Developer Options'),
             },
             showQuestIDs = {
                 type = "toggle",
                 order = 2.1,
-                name = function() return QuestieLocale:GetUIString('ENABLE_TOOLTIPS_QUEST_IDS'); end,
-                desc = function() return QuestieLocale:GetUIString('ENABLE_TOOLTIPS_QUEST_LEVEL_IDS'); end,
+                name = function() return l10n('Show Quest IDs'); end,
+                desc = function() return l10n('When this is checked, the ID of quests will show in the tooltips and the tracker.'); end,
                 width = "full",
                 get = function() return Questie.db.global.enableTooltipsQuestID; end,
-                set = function (info, value)
+                set = function (_, value)
                     Questie.db.global.enableTooltipsQuestID = value
-                    QuestieTracker:ResetLinesForChange()
                     QuestieTracker:Update()
                 end
             },
             debugEnabled = {
                 type = "toggle",
                 order = 2.2,
-                name = function() return QuestieLocale:GetUIString('ENABLE_DEBUG'); end,
-                desc = function() return QuestieLocale:GetUIString('ENABLE_DEBUG_DESC'); end,
+                name = function() return l10n('Enable Debug'); end,
+                desc = function() return l10n('Enable or disable debug functionality.'); end,
                 width = "full",
                 get = function () return Questie.db.global.debugEnabled; end,
-                set = function (info, value)
+                set = function (_, value)
                     Questie.db.global.debugEnabled = value
-                    QuestieConfigCharacter = {}
+                    if Questie.db.global.debugEnabled then
+                        QuestieLoader:PopulateGlobals()
+                    end
                 end,
             },
             debugEnabledPrint = {
                 type = "toggle",
                 order = 2.3,
                 disabled = function() return not Questie.db.global.debugEnabled; end,
-                name = function() return QuestieLocale:GetUIString('ENABLE_DEBUG').."-PRINT" end,
-                desc = function() return QuestieLocale:GetUIString('ENABLE_DEBUG_DESC').."-PRINT" end,
+                name = function() return l10n('Enable Debug').."-PRINT" end,
+                desc = function() return l10n('Enable or disable debug functionality.').."-PRINT" end,
                 width = "full",
                 get = function () return Questie.db.global.debugEnabledPrint; end,
-                set = function (info, value)
+                set = function (_, value)
                     Questie.db.global.debugEnabledPrint = value
                 end,
             },
@@ -128,18 +126,18 @@ function QuestieOptions.tabs.advanced:Initialize()
                     [4] = "DEBUG_SPAM",
                 },
                 order = 2.4,
-                name = function() return QuestieLocale:GetUIString('DEBUG_LEVEL'); end,
+                name = function() return l10n('Debug level to print'); end,
                 width = "normal",
                 disabled = function() return not Questie.db.global.debugEnabled; end,
-                get = function(state, key)
-                    --Questie:Debug(DEBUG_SPAM, "Debug Key:", key, math.pow(2, key), state.option.values[key])
-                    --Questie:Debug(DEBUG_SPAM, "Debug Level:", Questie.db.global.debugLevel, bit.band(Questie.db.global.debugLevel, math.pow(2, key)))
+                get = function(_, key)
+                    --Questie:Debug(Questie.DEBUG_SPAM, "Debug Key:", key, math.pow(2, key), state.option.values[key])
+                    --Questie:Debug(Questie.DEBUG_SPAM, "Debug Level:", Questie.db.global.debugLevel, bit.band(Questie.db.global.debugLevel, math.pow(2, key)))
                     return bit.band(Questie.db.global.debugLevel, math.pow(2, key)) > 0
                 end,
-                set = function (info, value)
+                set = function (_, value)
                     local currentValue = Questie.db.global.debugLevel
                     local flag = math.pow(2, value)
-                    --Questie:Debug(DEBUG_SPAM, "Setting Debug:", currentValue, flag, bit.band(currentValue, flag)>0)
+                    --Questie:Debug(Questie.DEBUG_SPAM, "Setting Debug:", currentValue, flag, bit.band(currentValue, flag)>0)
                     -- When current debug level is active, remove it
                     if (bit.band(currentValue, flag) > 0) then
                         Questie.db.global.debugLevel = bit.bxor(flag, currentValue)
@@ -154,13 +152,13 @@ function QuestieOptions.tabs.advanced:Initialize()
             locale_header = {
                 type = "header",
                 order = 3,
-                name = function() return QuestieLocale:GetUIString('LOCALE_HEADER'); end,
+                name = function() return l10n('Localization Settings'); end,
             },
             locale_dropdown = {
                 type = "select",
                 order = 3.1,
                 values = {
-                    ['auto'] = QuestieLocale:GetUIString('LOCALE_DROP_AUTOMATIC'),
+                    ['auto'] = l10n('Automatic'),
                     ['enUS'] = 'English',
                     ['esES'] = 'Español',
                     ['esMX'] = 'Español (México)',
@@ -173,26 +171,28 @@ function QuestieOptions.tabs.advanced:Initialize()
                     ['koKR'] = '한국어',
                 },
                 style = 'dropdown',
-                name = function() return QuestieLocale:GetUIString('LOCALE_DROP'); end,
+                name = function() return l10n('Select UI Locale'); end,
                 get = function()
                     if not Questie.db.global.questieLocaleDiff then
                         return 'auto'
                     else
-                        return QuestieLocale:GetUILocale();
+                        return l10n:GetUILocale();
                     end
                 end,
-                set = function(input, lang)
+                set = function(_, lang)
                     if lang == 'auto' then
                         local clientLocale = GetLocale()
-                        QuestieLocale:SetUILocale(clientLocale)
+                        l10n:SetUILocale(clientLocale)
                         Questie.db.global.questieLocale = clientLocale
                         Questie.db.global.questieLocaleDiff = false
+                        Questie.db.global.dbIsCompiled = nil -- recompile db with new lang
+                        StaticPopup_Show("QUESTIE_LANG_CHANGED_RELOAD")
                         return
                     end
-                    QuestieLocale:SetUILocale(lang);
+                    l10n:SetUILocale(lang);
                     Questie.db.global.questieLocale = lang;
                     Questie.db.global.questieLocaleDiff = true;
-                    QuestieConfig.dbIsCompiled = nil -- recompile db with new lang
+                    Questie.db.global.dbIsCompiled = nil -- recompile db with new lang
                     StaticPopup_Show("QUESTIE_LANG_CHANGED_RELOAD")
                 end,
             },
@@ -200,21 +200,21 @@ function QuestieOptions.tabs.advanced:Initialize()
             reset_header = {
                 type = "header",
                 order = 4,
-                name = function() return QuestieLocale:GetUIString('RESET_QUESTIE_HEADER'); end,
+                name = function() return l10n('Reset Questie'); end,
             },
             Spacer_D = QuestieOptionsUtils:Spacer(22),
             reset_text = {
                 type = "description",
                 order = 4.1,
-                name = function() return QuestieLocale:GetUIString('RESET_QUESTIE_DESC'); end,
+                name = function() return l10n('Hitting this button will reset all of the Questie configuration settings back to their default values. (Excluding Localization)'); end,
                 fontSize = "medium",
             },
             questieReset = {
                 type = "execute",
                 order = 4.2,
-                name = function() return QuestieLocale:GetUIString('RESET_QUESTIE_BTN'); end,
-                desc = function() return QuestieLocale:GetUIString('RESET_QUESTIE_BTN_DESC'); end,
-                func = function (info, value)
+                name = function() return l10n('Reset Questie'); end,
+                desc = function() return l10n('Reset Questie to the default values for all settings.'); end,
+                func = function (_, _)
                     -- update all values to default
                     for k,v in pairs(optionsDefaults.global) do
                        Questie.db.global[k] = v
@@ -223,7 +223,7 @@ function QuestieOptions.tabs.advanced:Initialize()
                     -- only toggle questie if it's off (must be called before resetting the value)
                     if (not Questie.db.char.enabled) then
                         Questie.db.char.enabled = true
-                        QuestieQuest:ToggleNotes(true);
+                        --QuestieQuest:ToggleNotes(true);
                     end
 
                     Questie.db.char.enabled = optionsDefaults.char.enabled;
@@ -233,33 +233,12 @@ function QuestieOptions.tabs.advanced:Initialize()
 
                     Questie.db.profile.minimap.hide = optionsDefaults.profile.minimap.hide;
 
-                    -- update minimap icon to default
-                    if not Questie.db.profile.minimap.hide then
-                        Questie.minimapConfigIcon:Show("Questie");
-                    else
-                        Questie.minimapConfigIcon:Hide("Questie");
-                    end
+                    Questie.db.global.dbIsCompiled = false
 
-                    -- update map / minimap coordinates reset
-                    if not Questie.db.global.minimapCoordinatesEnabled then
-                        QuestieCoords.ResetMinimapText();
-                    end
+                    Questie.db.char.hidden = nil
+                    Questie.db.char.hiddenDailies = optionsDefaults.char.hiddenDailies;
 
-                    if not Questie.db.global.mapCoordinatesEnabled then
-                        QuestieCoords.ResetMapText();
-                    end
-
-                    -- Reset the show/hide on map
-                    if Questie.db.global.mapShowHideEnabled then
-                        Questie_Toggle:Show();
-                    else
-                        Questie_Toggle:Hide();
-                    end
-
-                    QuestieOptionsUtils:Delay(0.3, QuestieOptions.AvailableQuestRedraw, "minLevelFilter and maxLevelFilter reset to defaults");
-
-                    QuestieNameplate:RedrawIcons();
-                    QuestieMap:RescaleIcons();
+                    ReloadUI()
 
                 end,
             },
@@ -267,10 +246,10 @@ function QuestieOptions.tabs.advanced:Initialize()
             recompileDatabase = {
                 type = "execute",
                 order = 4.4,
-                name = function() return QuestieLocale:GetUIString('RECOMPILE_DATABASE_BTN'); end,
-                desc = function() return QuestieLocale:GetUIString('RECOMPILE_DATABASE_BTN_DESC'); end,
-                func = function (info, value)
-                    QuestieConfig.dbIsCompiled = false
+                name = function() return l10n('Recompile Database'); end,
+                desc = function() return l10n('Forces a recompile of the Questie database. This will also reload the UI.'); end,
+                func = function (_, _)
+                    Questie.db.global.dbIsCompiled = false
                     ReloadUI()
                 end,
             },
@@ -278,9 +257,9 @@ function QuestieOptions.tabs.advanced:Initialize()
             openProfiler = {
                 type = "execute",
                 order = 4.6,
-                name = function() return QuestieLocale:GetUIString('SHOW_PROFILER_BTN'); end,
-                desc = function() return QuestieLocale:GetUIString('SHOW_PROFILER_BTN_DESC'); end,
-                func = function (info, value)
+                name = function() return l10n('Open Profiler'); end,
+                desc = function() return l10n('Open the Questie profiler, this is useful for tracking down the source of lag / frame spikes.'); end,
+                func = function (_, _)
                     QuestieLoader:ImportModule("Profiler"):Start()
                 end,
             },
@@ -288,7 +267,7 @@ function QuestieOptions.tabs.advanced:Initialize()
             github_text = {
                 type = "description",
                 order = 4.8,
-                name = function() return Questie:Colorize(QuestieLocale:GetUIString('QUESTIE_DEV_MESSAGE'), 'purple'); end,
+                name = function() return Questie:Colorize(l10n('Questie is under active development for World of Warcraft: Classic. Please check GitHub for the latest alpha builds or to report issues. Or join us on our discord! (( https://github.com/Questie/Questie/ ))'), 'purple'); end,
                 fontSize = "medium",
             },
         },

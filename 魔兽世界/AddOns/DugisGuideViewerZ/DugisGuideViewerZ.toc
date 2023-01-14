@@ -1,0 +1,180 @@
+## Interface: 30400
+## Title: Dugi Questing Essential Wrath |cffffffff3.04|r
+## Notes: In-Game Guide Viewer. Copyright 2010-2022 DugiGuides.com
+## Version: 3.04
+## X-Website: http://www.ultimatewowguide.com/
+## X-Email: support@ultimatewowguide.com
+## X-Category: Quest
+## SavedVariablesPerCharacter: CurrentTitle, CurrentZone, DugisGuideUser, DugisGuideViewerDB, DugisArrowDb, DugisFlightmasterDataTable, DugisNPCFrameDB, DataExport, DugisCharacterCache, DugisLastPosition, QuestId2Title
+## SavedVariables: MapOverlays, DugisFlightmasterLookupTable, TaxiDataCollection, DugisGuideViewerProfiles, CollectedWorldMapTrackingPoints_v2, FollowersCache, TutorialFrameDugisState, TutorialFrameDugisHidden
+## X-CompatibleLocales: enUS, enGB, deDE, frFR, esES, esMX, koKR, ruRU
+
+LuaUtils.lua
+Libs\LibStub\LibStub.lua
+Libs\HereBeDragons-1.0\CallbackHandler-1.0\CallbackHandler-1.0.lua
+Libs\HereBeDragons-1.0\HereBeDragons-Migrate.lua
+Libs\HereBeDragons-1.0\HereBeDragons-2.0.lua
+Libs\HereBeDragons-1.0\HereBeDragons-Pins-2.0.lua
+# Library Files
+#Libs\Astrolabe\Load.xml
+Libs\Load.xml
+
+# Localization
+Localization\Localization.enUS.lua
+Localization\Localization.esMX.lua
+Localization\Localization.deDE.lua
+Localization\Localization.frFR.lua
+Localization\Localization.itIT.lua
+Localization\Localization.koKR.lua
+Localization\Localization.ptBR.lua
+Localization\Localization.ruRU.lua
+Localization\Localization.zhTW.lua
+Localization\LibBabble-SubZone-3.0\Lib.xml
+Localization\LibBabble-Class-3.0\Lib.xml
+Localization\LibBabble-Race-3.0\Lib.xml
+Localization\LibBabble-Faction-3.0\Lib.xml
+
+# Base
+DugisGuideViewer.lua
+Util.lua
+Debug.lua
+Test.lua
+Modules.common.lua
+BossButtonWorkaround.lua
+
+# NPC Localization
+Localization\NPCs_deDE.lua
+Localization\NPCs_enUS.lua
+Localization\NPCs_esES.lua
+Localization\NPCs_frFR.lua
+Localization\NPCs_koKR.lua
+Localization\NPCs_ruRU.lua
+Localization\NPCs_zhCN.lua
+Localization\NPCs_ptBR.lua
+Localization\NPCs_itIT.lua
+
+# Quests Localization
+Localization\QuestID_EN.lua
+Localization\QuestID_FR.lua
+Localization\QuestID_IT.lua
+Localization\QuestID_ES.lua
+Localization\QuestID_DE.lua
+Localization\QuestID_CN.lua
+Localization\QuestID_KO.lua
+Localization\QuestID_RU.lua
+
+# ItemStats Localization
+Localization\ItemStats_enUS.lua
+Localization\ItemStats_ptBR.lua
+Localization\ItemStats_esMX.lua
+Localization\ItemStats_esES.lua
+Localization\ItemStats_deDE.lua
+Localization\ItemStats_frFR.lua
+Localization\ItemStats_ruRU.lua
+Localization\ItemStats_koKR.lua
+Localization\ItemStats_zhTW.lua
+
+# Objects Localization
+Localization\Objects_deDE.lua
+Localization\Objects_enUS.lua
+Localization\Objects_esES.lua
+Localization\Objects_frFR.lua
+Localization\Objects_itIT.lua
+Localization\Objects_koKR.lua
+Localization\Objects_ptBR.lua
+Localization\Objects_ruRU.lua
+Localization\Objects_zhCN.lua
+Localization\Objects_zhTW.lua
+
+# Implementation
+
+ContextMenu.classic.common.lua
+ContextMenu.common.lua
+ItemStats.lua
+MacroData.lua
+WhatsNewData.lua
+#Guides.classic.common.lua
+Widget.lua
+MapUtilsData.lua
+MapUtils.lua
+Localization\Translator.lua
+UIEventHandlers.common.lua
+UIEventHandlers.classic.common.lua
+DugisGuideViewer.common.xml
+UIMarkup.classic.common.xml
+WatchFrame.classic.common.lua
+#SmallFrame.classic.common.lua
+ItemButton.lua
+UnlistedQuest.lua
+Chains.lua
+ReqLevel.lua
+NPCJournalFrame\GUIUtils.classic.common.lua
+
+GPSArrow.lua
+GPSArrow.common.xml
+
+arrow.lua
+Ants.lua
+Professions.lua
+Corpse.lua
+AutoQuestAccept.lua
+ModelViewer.classic.common.lua
+Models\ObjectModelsExtra.lua
+Models\DisplayModelsExtra.lua
+Models\NPCModelsExtra.lua
+Models\ObjectsF.lua
+Models\NpcsF.lua
+MapOverlays.lua
+AutoSell.lua
+AutoRepair.lua
+Target.lua
+QuestPOI.lua
+MiniBlobs.lua
+#StickyFrame.common.lua
+libs\menu.lua
+LDB.lua
+Search.lua
+WorldMapTracking.lua
+WorldMapTrackingPoints.lua
+ExtendedTrackingPoints.lua
+ExtraExtendedTrackingPoints.lua
+ExplorationTrackingPoints.lua
+
+WorldTrackingRawItems.lua
+WorldTrackingRawNPCs.lua
+WorldTrackingRawQuests.lua
+WorldTrackingRawObjects.lua
+
+Taxi.classic.common.lua
+TaxiDB.lua
+TaxiData.lua
+AutoQuestLoot.lua
+Achievements.lua
+LFG.lua
+#Record.lua
+WorldMapTrackingCollection.lua
+GearAdvisorData.lua
+GearAdvisor.lua
+GearAdvisorEquip.lua
+GearAdvisorSettings.lua
+#TalentAdvisor.classic.common.lua
+#TalentAdvisorData.lua
+
+TomTomEmulation.lua
+
+#NPCJournalFrame\NPCJournalFrameData.lua
+#NPCJournalFrame\MountData.lua
+#NPCJournalFrame\BossData.lua
+NPCJournalFrame\NPCJournalFrame.classic.common.lua
+
+NamePlate.lua
+
+AbilitiesData.lua
+
+#GearFinderData.lua
+#GearFinderData1.lua
+#GearFinder.classic.common.lua
+## Title: |cff880303[163UI]|r DugisGuideViewerZ
+## Title-zhCN: |cff880303[有爱]|r DugisGuideViewerZ 任务导航
+## X-Vendor: NetEase
+## X-163UI-Version: 20221103152219

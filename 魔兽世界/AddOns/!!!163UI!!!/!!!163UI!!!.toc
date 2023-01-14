@@ -1,0 +1,12 @@
+## Interface: 30400
+## Title: !!!|cff880303[163UI]|r Core and Lib
+## Title-zhCN: !!!|cff880303[网易有爱]|r 控制台和基本库
+## Version: r20221101
+## Author: 
+## SavedVariables: GLOBAL_CORE_SAVED
+## SavedVariablesPerCharacter: 
+
+_0list.xml
+
+## X-Vendor: NetEase
+## X-163UI-Version: 20221216165106

@@ -1,5 +1,7 @@
 -- This file uses models and textures taken from TomTom. The 3D arrow model was created by Guillotine (curse.guillotine@gmail.com) and 2D minimap textures by Cladhaire.
 
+local L = DBM_CORE_L
+
 ---------------
 --  Globals  --
 ---------------
@@ -178,7 +180,7 @@ end
 ----------------------
 
 --/run DBM.Arrow:ShowRunTo(50, 50, 1, nil, true, true, "Waypoint", custom local mapID)
-local function show(runAway, x, y, distance, time, legacy, dwayed, title, customAreaID)
+local function show(runAway, x, y, distance, time, legacy, _, title, customAreaID)
 	if DBM:HasMapRestrictions() then return end
 	local player
 	if type(x) == "string" then
@@ -245,7 +247,7 @@ function arrowFrame:IsShown()
 	return frame and frame:IsShown()
 end
 
-function arrowFrame:Hide(autoHide)
+function arrowFrame:Hide()
 	textframe:Hide()
 	frame:Hide()
 end
@@ -261,11 +263,37 @@ function arrowFrame:Move()
 	hideDistance = 0
 	frame:EnableMouse(true)
 	frame:Show()
-	DBM.Bars:CreateBar(25, DBM_CORE_L.ARROW_MOVABLE, 237538)
+	DBT:CreateBar(25, L.ARROW_MOVABLE, 237538)
 	DBM:Unschedule(endMove)
 	DBM:Schedule(25, endMove)
 end
 
 function arrowFrame:LoadPosition()
 	frame:SetPoint(DBM.Options.ArrowPoint, DBM.Options.ArrowPosX, DBM.Options.ArrowPosY)
+end
+
+do
+	SLASH_DEADLYBOSSMODSDWAY1 = "/dway"--/way not used because DBM would load before TomTom and can't check
+	SlashCmdList["DEADLYBOSSMODSDWAY"] = function(msg)
+		if DBM:HasMapRestrictions() then
+			DBM:AddMsg(L.NO_ARROW)
+			return
+		end
+		msg = msg:sub(1):trim()
+		local x, y = strsplit(" ", msg) -- Try splitting by space
+		local xNum, yNum = tonumber(x or ""), tonumber(y or "")
+		if not xNum or not yNum then
+			x, y = strsplit(",", msg) -- And then by comma
+			xNum, yNum = tonumber(x or ""), tonumber(y or "")
+		end
+		if xNum and yNum then
+			DBM.Arrow:ShowRunTo(xNum, yNum, 1, nil, true)
+			return
+		end
+		if DBM.Arrow:IsShown() then
+			DBM.Arrow:Hide()
+		else
+			DBM:AddMsg(L.ARROW_WAY_USAGE)
+		end
+	end
 end

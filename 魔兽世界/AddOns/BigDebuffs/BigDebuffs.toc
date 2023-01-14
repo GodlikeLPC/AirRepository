@@ -1,21 +1,35 @@
-## Interface: 11305
+## Interface: 30400
 ## Title: BigDebuffs
-## Title-zhCN: [大脚][集]控制技能提示
-## Title-zhTW: [大腳][集]控制技能提示
 ## Notes: Increases the debuff size of crowd control effects on the Blizzard raid frames
-## Notes-zhCN: |cff00ff00BigDebuffs|r
-## Notes-zhTW: |cff00ff00BigDebuffs|r
-## Version: v9.4
+## Version: v11.7
 ## Author: Jordon
 ## SavedVariables: BigDebuffsDB
-## Dependencies: BigFoot
-## X-Revision: BigFoot
-## LoadOnDemand: 1
+## X-Curse-Project-ID: 82697
+## X-Wago-ID: WYK98e6L
+## X-WoWI-ID: 26006
+
+#@no-lib-strip@
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libs\AceAddon-3.0\AceAddon-3.0.xml
+Libs\AceDB-3.0\AceDB-3.0.xml
+Libs\AceDBOptions-3.0\AceDBOptions-3.0.xml
+Libs\AceEvent-3.0\AceEvent-3.0.xml
+Libs\AceHook-3.0\AceHook-3.0.xml
+Libs\AceGUI-3.0\AceGUI-3.0.xml
+Libs\AceConfig-3.0\AceConfig-3.0.xml
+Libs\AceLocale-3.0\AceLocale-3.0.xml
+Libs\LibSharedMedia-3.0\lib.xml
+Libs\LibClassicDurations\LibClassicDurations.xml
+#@end-no-lib-strip@
 
 Locales\Locales.xml
-
 BigDebuffs.xml
-Retail.lua
-Classic.lua
+BigDebuffs_Wrath.lua
 BigDebuffs.lua
 Options.lua
+
+## Title: |cff880303[163UI]|r BigDebuffs
+## Title-zhCN: |cff880303[有爱]|r BigDebuffs 控制技能提示
+## X-Vendor: NetEase
+## X-163UI-Version: 20230105151404

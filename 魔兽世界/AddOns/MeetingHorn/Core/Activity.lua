@@ -1,4 +1,3 @@
-
 ---@type ns
 local ns = select(2, ...)
 
@@ -42,6 +41,11 @@ local Activity = ns.Addon:NewClass('Activity')
 function Activity:Constructor(id, modeId, comment)
     if id then
         self:SetActivityId(id)
+
+        local raidId = ns.GetRaidId(ns.GetActivityData(id).instanceName)
+        if raidId and raidId ~= -1 then
+            self.raidId = raidId
+        end
     end
     self.modeId = modeId
     self:SetComment(comment or '')
@@ -57,13 +61,14 @@ end
 
 function Activity:Update(proto, leader, guid, channelName, lineId)
     local version, body = ParseProto(proto)
-    local id, modeId, comment, name, mode, members, leaderLevel
+    local id, modeId, comment, name, mode, members, leaderLevel, raidId
     if version == 1 then
         name, mode, comment = body:match('^([^.]+)%.([^.]+)%.%.%.%.%.%.%.%.(.+)$')
     elseif version == 2 then
         name, comment, mode = body:match('^([^.]+)%.([^.]+)%.%.%.%.%.%.%.%.(.+)$')
     elseif version == 3 then
-        name, comment, members, leaderLevel, mode = body:match('^([^.]+)%.([^.]+)%.([^.]+)%.([^.]+)%.%.%.%.%.%.(.+)$')
+        name, comment, members, leaderLevel, raidId, mode = body:match(
+                                                                '^([^.]+)%.([^.]+)%.([^.]+)%.([^.]+)%.([^.]*)%.%.%.%.%.(.+)$')
     end
 
     if not name then
@@ -78,12 +83,20 @@ function Activity:Update(proto, leader, guid, channelName, lineId)
 
     members = tonumber(members)
     leaderLevel = tonumber(leaderLevel)
+    raidId = tonumber(raidId)
 
     local data = ns.GetActivityData(id)
     if not data.category.channels[channelName] then
         return
     end
 
+    local leaderFullName = leader
+    if not strmatch(leaderFullName, '-') then
+        leaderFullName = leaderFullName .. '-' .. GetRealmName()
+    end
+
+    self.raidId = raidId
+    self.sameInstance = raidId and ns.GetRaidId(ns.GetActivityData(id).instanceName) == raidId
     self.modeId = modeId
     self:SetActivityId(id)
     self:SetLeaderGUID(guid)
@@ -93,12 +106,23 @@ function Activity:Update(proto, leader, guid, channelName, lineId)
     self:SetMembers(members)
     self:SetLineId(lineId)
     self:UpdateTick()
+    self:SetCertification(not not ns.CERTIFICATION_MAP[leaderFullName])
+    self:SetOurAddonCreate((channelName == L['CHANNEL: Group'] or channelName == L['CHANNEL: Recruit']) and data.path ==
+                               'Raid')
     return true
 end
 
 function Activity:ToProto()
-    return format('%s.%s.%s.%s......%s', self:GetShortName(), self:GetComment(), ns.GetNumGroupMembers(),
-                  UnitLevel('player'), self:GetMode()) .. '@@'
+    return format('%s.%s.%s.%s.%s.....%s@@', self:GetName(), self:GetComment(), ns.GetNumGroupMembers(),
+                  UnitLevel('player'), self.raidId or '', self:GetMode())
+end
+
+function Activity:HaveProgress()
+    return self.raidId
+end
+
+function Activity:IsSameInstance()
+    return self.sameInstance
 end
 
 function Activity:GetMode()
@@ -142,7 +166,7 @@ function Activity:GetShortName()
 end
 
 function Activity:GetComment()
-    return self.comment
+    return (self.comment == nil or self.comment == "") and " " or self.comment
 end
 
 function Activity:GetChannelName()
@@ -181,7 +205,7 @@ function Activity:GetLeaderLevel()
 end
 
 function Activity:IsSelf()
-    return self.leader == UnitName('player')
+    return self.leader == ns.UnitFullName('player')
 end
 
 function Activity:IsTimeOut()
@@ -192,11 +216,49 @@ function Activity:IsActivity()
     return self.id ~= 0
 end
 
-local function Search(text, pattern)
+local function Match(text, pattern)
     if not text then
         return false
     end
     return text:find(pattern, nil, true)
+end
+
+local defaultParams = { --
+    name = true,
+    comment = true,
+    leader = true,
+}
+function Activity:MatchText(search, params)
+    if not search then
+        return true
+    end
+
+    local t = type(search)
+    if t == 'string' then
+        params = params or defaultParams
+        if params.name then
+            if Match(self.data.nameLower, search) or Match(self.data.shortNameLower, search) then
+                return true
+            end
+        end
+        if params.comment then
+            if Match(self.commentLower, search) then
+                return true
+            end
+        end
+        if params.leader then
+            if Match(self.leaderLower, search) then
+                return true
+            end
+        end
+    elseif t == 'table' then
+        for _, s in ipairs(search) do
+            if self:MatchText(s, search[s] or search.params) then
+                return true
+            end
+        end
+    end
+    return false
 end
 
 function Activity:Match(path, activityId, modeId, search)
@@ -209,10 +271,11 @@ function Activity:Match(path, activityId, modeId, search)
     if modeId and modeId ~= self.modeId then
         return false
     end
-    if search and (not Search(self.data.nameLower, search) and not Search(self.data.shortNameLower, search) and
-        not Search(self.commentLower, search) and not Search(self.leaderLower, search)) then
+
+    if not self:MatchText(search) then
         return false
     end
+
     if ns.Addon.db.profile.options.activityfilter and ns.LFG:IsFilter(self.commentLower) then
         return false
     end
@@ -247,7 +310,7 @@ function Activity:SetLeader(leader)
 end
 
 function Activity:SetComment(comment)
-    self.comment = ns.ParseRaidTag(comment)
+    self.comment = ns.PrepareComment(comment)
     self.commentLower = self.comment:lower()
 end
 
@@ -278,4 +341,20 @@ function Activity:GetLeaderPlayerLocation()
     else
         return PlayerLocation:CreateFromGUID(self.guid)
     end
+end
+
+function Activity:IsCertification()
+    return self.isCertification
+end
+
+function Activity:SetCertification(isCertification)
+    self.isCertification = isCertification
+end
+
+function Activity:SetOurAddonCreate(isOurAddonCreate)
+    self.isOurAddonCreate = isOurAddonCreate
+end
+
+function Activity:IsOurAddonCreate()
+    return self.isOurAddonCreate
 end

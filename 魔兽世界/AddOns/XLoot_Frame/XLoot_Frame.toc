@@ -1,0 +1,19 @@
+## Interface: 30400
+## Interface-Classic: 11403
+## Interface-BCC: 20502
+## Interface-WoTLK: 30400
+## Title: XLoot Frame
+## Notes: A customizable, skinnable loot frame.
+## Version: 9.2.7-1
+## Author: Xuerian
+## X-Category: Inventory
+
+## Dependencies: XLoot
+
+load.xml
+
+## Title: |cff880303[163UI]|r XLoot Frame
+## Title-zhCN: |cff880303[有爱]|r XLoot 拾取框架模块
+## Notes-zhCN: 可以自定义美化样式的拾取框架
+## X-Vendor: NetEase
+## X-163UI-Version: 20220913170724

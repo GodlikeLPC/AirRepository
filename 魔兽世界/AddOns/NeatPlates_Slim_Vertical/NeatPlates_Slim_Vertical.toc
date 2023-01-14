@@ -1,0 +1,14 @@
+## Interface: 30400
+## Title: NeatPlates: Slim Vertical|r
+## Author: Dotfix
+## Version: 2.2
+## Dependencies: NeatPlates, NeatPlatesHub
+
+NeatPlates_Slim_Vertical.lua
+## Title: |cff880303[163UI]|r NeatPlates: Slim Vertical|r
+## Title-zhCN: |cff880303[有爱]|r Neat 姓名板Vertical主题
+## Title-zhTW: |cff880303[有爱]|r Neat 姓名板Vertical主题
+## Notes-zhCN: 强大到爆的多功能姓名版美化插件-Vertical风格模块。
+## Notes-zhTW: 強大到爆的多功能姓名版美化插件-Vertical風格模塊。
+## X-Vendor: NetEase
+## X-163UI-Version: 20230105151404

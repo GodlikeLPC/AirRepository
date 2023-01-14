@@ -38,10 +38,11 @@ function TitanPanelLocationButton_OnLoad(self)
 			ShowLabelText = true,
 			ShowRegularText = false,
 			ShowColoredText = true,
-			DisplayOnRightSide = false
+			DisplayOnRightSide = true,
 		},
 		savedVariables = {
 			ShowZoneText = 1,
+            ShowSubZoneText = 1,
 			ShowCoordsOnMap = true,
 			ShowCursorOnMap = true,
 			ShowLocOnMiniMap = 1,
@@ -52,6 +53,8 @@ function TitanPanelLocationButton_OnLoad(self)
 			CoordsFormat2 = false,
 			CoordsFormat3 = false,
 			UpdateWorldmap = false,
+			MapLocation = false,
+			DisplayOnRightSide = false,
 		}
 	};
 
@@ -69,7 +72,7 @@ end
 -- **************************************************************************
 function TitanPanelLocationButton_OnShow()
 	local mapID = C_Map.GetBestMapForUnit("player");
-	if mapID ~= nil then
+	if mapID ~= nil and C_Map.MapHasArt(mapID) then
     	WorldMapFrame:SetMapID(mapID);
 	end
 	TitanPanelLocation_HandleUpdater();
@@ -116,9 +119,13 @@ function TitanPanelLocationButton_GetButtonText(id)
 			if (button.zoneText == '') then
 				_, _, button.zoneText = C_Map.GetMapInfo(C_Map.GetBestMapUnit("player"));
 			end
-			locationText = TitanUtils_ToString(button.zoneText)..' '..locationText;
+            locationText = TitanUtils_ToString(button.zoneText)..' '..locationText;
 		else
-			locationText = TitanUtils_ToString(button.subZoneText)..' '..locationText;
+			if (TitanGetVar(TITAN_LOCATION_ID, "ShowSubZoneText")) then
+                locationText = TitanUtils_ToString(button.subZoneText)..' '..locationText;
+            else
+                locationText = TitanUtils_ToString(button.zoneText..' - '..button.subZoneText)..' '..locationText;
+            end
 		end
 	else
 		if button.px == 0 and button.py == 0 then
@@ -192,7 +199,7 @@ function TitanPanelLocationButton_OnEvent(self, event, ...)
 	end
 	if TitanGetVar(TITAN_LOCATION_ID, "UpdateWorldmap") then
 		local mapID = C_Map.GetBestMapForUnit("player")
-		if mapID ~= nil then
+		if mapID ~= nil and C_Map.MapHasArt(mapID) then
     		WorldMapFrame:SetMapID(mapID);
 		end
 	end
@@ -278,6 +285,10 @@ function TitanPanelLocationButton_UpdateZoneInfo(self)
 	self.pvpType, _, self.factionName = GetZonePVPInfo();
 end
 
+local function CoordLoc(loc)
+	local res = (TitanGetVar(TITAN_LOCATION_ID, "MapLocation") == loc)
+	return res
+end
 -- **************************************************************************
 -- NAME : TitanPanelRightClickMenu_PrepareLocationMenu()
 -- DESC : Display rightclick menu options
@@ -293,6 +304,12 @@ function TitanPanelRightClickMenu_PrepareLocationMenu()
 			info.text = L["TITAN_LOCATION_MENU_SHOW_ZONE_ON_PANEL_TEXT"];
 			info.func = TitanPanelLocationButton_ToggleDisplay;
 			info.checked = TitanGetVar(TITAN_LOCATION_ID, "ShowZoneText");
+			L_UIDropDownMenu_AddButton(info, _G["L_UIDROPDOWNMENU_MENU_LEVEL"]);
+
+			info = {};
+			info.text = L["TITAN_LOCATION_MENU_SHOW_SUBZONE_ON_PANEL_TEXT"];
+			info.func = TitanPanelLocationButton_ToggleSubZoneDisplay;
+			info.checked = TitanGetVar(TITAN_LOCATION_ID, "ShowSubZoneText");
 			L_UIDropDownMenu_AddButton(info, _G["L_UIDROPDOWNMENU_MENU_LEVEL"]);
 
 			info = {};
@@ -316,6 +333,46 @@ function TitanPanelRightClickMenu_PrepareLocationMenu()
 			info.checked = TitanGetVar(TITAN_LOCATION_ID, "UpdateWorldmap");
 			info.disabled = InCombatLockdown()
 			L_UIDropDownMenu_AddButton(info, _G["L_UIDROPDOWNMENU_MENU_LEVEL"]);
+			
+			TitanPanelRightClickMenu_AddSpacer(_G["L_UIDROPDOWNMENU_MENU_LEVEL"]);
+			TitanPanelRightClickMenu_AddTitle(L["TITAN_LOCATION_MENU_MAP_COORDS_TITLE"], _G["L_UIDROPDOWNMENU_MENU_LEVEL"]);
+			
+			info = {};
+			info.text = L["TITAN_LOCATION_MENU_MAP_COORDS_LOC_1"]
+			info.func = function()
+				TitanSetVar(TITAN_LOCATION_ID, "MapLocation", "TOPLEFT")
+			end
+			info.checked = CoordLoc("TOPLEFT")
+			L_UIDropDownMenu_AddButton(info, _G["L_UIDROPDOWNMENU_MENU_LEVEL"]);
+			info = {};
+			info.text = L["TITAN_LOCATION_MENU_MAP_COORDS_LOC_2"]
+			info.func = function()
+				TitanSetVar(TITAN_LOCATION_ID, "MapLocation", "TOPRIGHT")
+			end
+			info.checked = CoordLoc("TOPRIGHT")
+			L_UIDropDownMenu_AddButton(info, _G["L_UIDROPDOWNMENU_MENU_LEVEL"]);
+			info = {};
+			info.text = L["TITAN_LOCATION_MENU_MAP_COORDS_LOC_3"]
+			info.func = function()
+				TitanSetVar(TITAN_LOCATION_ID, "MapLocation", "BOTTOMLEFT")
+			end
+			info.checked = CoordLoc("BOTTOMLEFT")
+			L_UIDropDownMenu_AddButton(info, _G["L_UIDROPDOWNMENU_MENU_LEVEL"]);
+			info = {};
+			info.text = L["TITAN_LOCATION_MENU_MAP_COORDS_LOC_4"]
+			info.func = function()
+				TitanSetVar(TITAN_LOCATION_ID, "MapLocation", "BOTTOM")
+			end
+			info.checked = CoordLoc("BOTTOM")
+			L_UIDropDownMenu_AddButton(info, _G["L_UIDROPDOWNMENU_MENU_LEVEL"]);
+			info = {};
+			info.text = L["TITAN_LOCATION_MENU_MAP_COORDS_LOC_5"]
+			info.func = function()
+				TitanSetVar(TITAN_LOCATION_ID, "MapLocation", "BOTTOMRIGHT")
+			end
+			info.checked = CoordLoc("BOTTOMRIGHT")
+			L_UIDropDownMenu_AddButton(info, _G["L_UIDROPDOWNMENU_MENU_LEVEL"]);
+			
 		end
 		if _G["L_UIDROPDOWNMENU_MENU_VALUE"] == "CoordFormat" then
 			TitanPanelRightClickMenu_AddTitle(L["TITAN_LOCATION_FORMAT_COORD_LABEL"], _G["L_UIDROPDOWNMENU_MENU_LEVEL"]);
@@ -376,6 +433,7 @@ function TitanPanelRightClickMenu_PrepareLocationMenu()
 	TitanPanelRightClickMenu_AddToggleIcon(TITAN_LOCATION_ID);
 	TitanPanelRightClickMenu_AddToggleLabelText(TITAN_LOCATION_ID);
 	TitanPanelRightClickMenu_AddToggleColoredText(TITAN_LOCATION_ID);
+	TitanPanelRightClickMenu_AddToggleRightSide(TITAN_LOCATION_ID);
 	TitanPanelRightClickMenu_AddSpacer();
 	TitanPanelRightClickMenu_AddCommand(L["TITAN_PANEL_MENU_HIDE"], TITAN_LOCATION_ID, TITAN_PANEL_MENU_FUNC_HIDE);
 end
@@ -386,6 +444,15 @@ end
 -- **************************************************************************
 function TitanPanelLocationButton_ToggleDisplay()
 	TitanToggleVar(TITAN_LOCATION_ID, "ShowZoneText");
+	TitanPanelButton_UpdateButton(TITAN_LOCATION_ID);
+end
+
+-- **************************************************************************
+-- NAME : TitanPanelLocationButton_ToggleSubZoneDisplay()
+-- DESC : Set option to show only subzone text
+-- **************************************************************************
+function TitanPanelLocationButton_ToggleSubZoneDisplay()
+	TitanToggleVar(TITAN_LOCATION_ID, "ShowSubZoneText");
 	TitanPanelButton_UpdateButton(TITAN_LOCATION_ID);
 end
 
@@ -516,8 +583,26 @@ function TitanMapFrame_OnUpdate(self, elapsed)
 	TitanMapPlayerLocation:ClearAllPoints()
 	TitanMapCursorLocation:ClearAllPoints()
 
-	TitanMapPlayerLocation:SetPoint("TOPRIGHT", WorldMapFrame, "TOPRIGHT", -10, -28)
-	TitanMapCursorLocation:SetPoint("TOPRIGHT", WorldMapFrame, "TOPRIGHT", -10, -43)
+	local xbuff = 10 -- to get away from the frame border
+	local buff  = 5  -- between the player and cursor frames
+	local mloc = TitanGetVar(TITAN_LOCATION_ID, "MapLocation") or "TOPRIGHT"
+	
+	if (mloc == "TOPRIGHT") then
+		TitanMapPlayerLocation:SetPoint("TOPRIGHT", WorldMapFrame, "TOPRIGHT", -10, -28)
+		TitanMapCursorLocation:SetPoint("TOPRIGHT", TitanMapPlayerLocation, "BOTTOMRIGHT", 0, 0)
+	elseif (mloc == "TOPLEFT") then
+		TitanMapPlayerLocation:SetPoint("TOPLEFT", WorldMapFrame, "TOPLEFT", 10, -28)
+		TitanMapCursorLocation:SetPoint("TOPLEFT", TitanMapPlayerLocation, "BOTTOMLEFT", 0, 0)
+	elseif (mloc == "BOTTOMLEFT") then
+		TitanMapPlayerLocation:SetPoint("BOTTOMLEFT", WorldMapFrame, "BOTTOMLEFT", 10, 10)
+		TitanMapCursorLocation:SetPoint("BOTTOMLEFT", TitanMapPlayerLocation, "BOTTOMRIGHT", buff, 0)
+	elseif (mloc == "BOTTOMRIGHT") then
+		TitanMapPlayerLocation:SetPoint("BOTTOMRIGHT", TitanMapCursorLocation, "BOTTOMLEFT", -buff, 0)
+		TitanMapCursorLocation:SetPoint("BOTTOMRIGHT", WorldMapFrame, "BOTTOMRIGHT", -xbuff, 10)
+	elseif (mloc == "BOTTOM") then
+		TitanMapPlayerLocation:SetPoint("BOTTOMRIGHT", WorldMapFrame, "BOTTOM", -buff, 10)
+		TitanMapCursorLocation:SetPoint("BOTTOMLEFT", WorldMapFrame, "BOTTOM", 0, 10)
+	end
 end
 
 -- **************************************************************************

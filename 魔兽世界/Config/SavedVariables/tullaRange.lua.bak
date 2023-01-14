@@ -1,3 +1,0 @@
-
-TULLARANGE_COLORS = {
-}

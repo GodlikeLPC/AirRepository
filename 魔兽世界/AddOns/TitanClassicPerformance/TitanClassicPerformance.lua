@@ -724,7 +724,7 @@ function TitanPanelPerfControlSlider_OnShow(self)
 	self:SetValueStep(1);
 	self:SetValue(CalcAppNum(TitanGetVar(TITAN_PERFORMANCE_ID, "NumOfAddons")));
 --	self:SetValue((TitanGetVar(TITAN_PERFORMANCE_ID, "NumOfAddons")));
-	TitanPanelPerfControlFrame:SetBackdropColor(0, 0, 0, 1)
+--	TitanPanelPerfControlFrame:SetBackdropColor(0, 0, 0, 1)
 
 	local scale = _G[drop_down.."1"]:GetScale()
 	local drop_arrow = drop_down.."2Button4ExpandArrow"
@@ -795,8 +795,7 @@ end
 -- **************************************************************************
 function TitanPanelPerfControlFrame_OnLoad(self)
 	_G[self:GetName().."Title"]:SetText(L["TITAN_PERFORMANCE_CONTROL_TITLE"]);
-	self:SetBackdropBorderColor(1, 1, 1);
-	self:SetBackdropColor(0, 0, 0, 1);
+	TitanPanelRightClickMenu_SetCustomBackdrop(self)
 end
 
 -- **************************************************************************

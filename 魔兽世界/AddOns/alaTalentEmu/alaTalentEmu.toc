@@ -1,15 +1,20 @@
-## Interface: 11305
-## Title: ala's Talent Emu
-## Title-zhCN: [大脚][集]天赋模拟器
-## Title-zhTW: [大腳][集]天賦模擬器
-## Notes: |cff00ff00alaTalentEmu|r
+## Interface: 30400
+## Title: ala's Talent Emu [DB Upgrade]
+## SavedVariablesPerCharacter: 
 ## SavedVariables: alaTalentEmuSV
+## Notes: It can be deleted after running once.
+## Dependencies: 
+## OptionalDependencies: 
+## LoadOnDemand: 0
+## DefaultState: enabled
 ## Author: |cff00ff00ALA|r @ |cffff0000163UI|r
 ## Author-zhCN: |cff00ff00ALA|r @ |cffff0000网易有爱|r
 ## Author-zhTW: |cff00ff00ALA|r @ |cffff0000网易有爱|r
-## Version: 113r.200729
-## Dependencies: BigFoot
-## X-Revision: BigFoot
+## Version: 205r.211201
 
-alaTalentEmu.xml
+main.lua
 
+
+## Title-zhCN: |cff880303[有爱]|r ala 天赋模拟器[旧版本兼容]
+## X-Vendor: NetEase
+## X-163UI-Version: 20220901200239

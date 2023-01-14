@@ -81,6 +81,10 @@ L["Mini Icons Desc"] = "Shows the small icons in the lower right of the timer bu
 L["Open On Rightclick"] = true
 L["Player Range"] = true
 L["Player Range Desc"] = "Shows a red dot on a totem timer if player is out of range"
+L["Party Range"] = true
+L["Party Range Desc"] = "Shows dots to the side of a totem timer for any party member that is in rage"
+L["Party Range Position"] = true
+L["Party Range Position Desc"] = "Position of the party range dots"
 L["Pulse desc"] = "Shows a green status bar inside the timers that fills until a totem pulses."
 L["Raid Member Range"] = true
 L["Raid Range Tooltip"] = true
@@ -124,13 +128,13 @@ L["Ankh Tracker"] = true
 L["Ankh Tracker Desc"] = "Shows the remaining cooldown of your reincarnation ability as well as the number of ankhs in your bags. Also is used to save and load totem sets."
 L["Button 4"] = true
 L["EarthShieldDesc"] = "Shows the remaining Earth Shield time and charges. Can be used to cast Earth Shield."
-L["EarthShieldOptionsDesc"] = "If 'recast' is selected as option for a mouse button, the shield is cast on the last person it was cast out of combat or the person assigned by the RaidTotems addon. Default Usage: Target you ES target and cast the spell on it by rightclicking the button out of combat. Then you can target somebody else, but the ES will still be cast on the same person by leftclicking, even in combat."
+L["EarthShieldOptionsDesc"] = "If 'recast' is selected as option for a mouse button, the shield is cast on the last person it was cast out of combat. Default Usage: Target your ES target and cast the spell on it by rightclicking the button out of combat. Then you can target somebody else, but the ES will still be cast on the same person by leftclicking, even in combat."
 L["Earth Shield Tracker"] = true
 L["ES Charges only"] = "Charges only"
 L["ES Charges only desc"] = "Disables the time display and shows ES charges in its place|nChanges take effect the next time you cast ES"
 L["ES Main Tank Desc"] = "On mouseover shows a menu containing up to 4 main tanks of your raid/party"
 L["ES Main Tank menu"] = "Main Tank menu"
-L["esrecast"] = "recast (last target/RaidTotems)"
+L["esrecast"] = "recast (last target)"
 L["Leftclick"] = true
 L["Middle Button"] = true
 L["Rightclick"] = true
@@ -173,10 +177,11 @@ L["Lava Surge Glow"] = true
 L["Lava Surge Glow Desc"] = "Lets the Lava Burst cooldown timer and action bar buttons containing Lava Burst glow if Lava Surge procs"
 L["Long Cooldowns"] = true
 L["Maelstrom Bar Height"] = true
-L["OOC Alpha"] = true
-L["OOC Alpha Desc"] = "Controls the opacity of the buttons out of combat, 0 = transparent, 1 = opaque"
+L["OOC Opacity"] = true
+L["OOC Opacity Desc"] = "Controls the opacity of the buttons out of combat, 0 = transparent, 1 = opaque"
 L["Show OmniCC counters"] = true
 L["Spells"] = true
+L["MaelstromNumberOnlyDesc"] = "Show number instead of lightning bolts"
 
 L["Arena"] = true
 L["Battleground"] = true
@@ -211,4 +216,4 @@ L["Solo"] = true
 L["You cannot delete the default profile."] = true
 L["You need to enter a profile name first."] = true
 
-
+L["Rename"] = true

@@ -1,0 +1,22 @@
+## Interface: 30400
+## Title: WeakAuras Templates
+## Author: The WeakAuras Team
+## Version: 5.3.3
+## Notes: Templates for WeakAuras
+## X-Category: Interface Enhancements
+## Globe-Main: WeakAuras
+## DefaultState: Enabled
+## LoadOnDemand: 1
+## Dependencies: WeakAuras, WeakAurasOptions
+
+locales.xml
+
+TriggerTemplates.lua
+TriggerTemplatesDataWrath.lua
+
+AceGUI-Widgets\AceGUIContainer-WeakAurasTemplateGroup.lua
+
+## Title: |cff880303[163UI]|r WeakAuras Templates
+## Title-zhCN: |cff880303[有爱]|r WeakAuras 模板
+## X-Vendor: NetEase
+## X-163UI-Version: 20221216165106

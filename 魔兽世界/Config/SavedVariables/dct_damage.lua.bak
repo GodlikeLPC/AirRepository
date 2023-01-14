@@ -1,3 +1,0 @@
-
-DCTD_CONFIG = {
-}

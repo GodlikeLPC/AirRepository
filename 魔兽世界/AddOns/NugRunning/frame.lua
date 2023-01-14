@@ -4,10 +4,16 @@ local NugRunning = NugRunning
 local LSM = LibStub("LibSharedMedia-3.0")
 
 LSM:Register("statusbar", "Aluminium", [[Interface\AddOns\NugRunning\statusbar.tga]])
-LSM:Register("font", "ClearFont", [[Interface\AddOns\NugRunning\Calibri.ttf]], GetLocale() ~= "enUS" and 15)
+LSM:Register("font", "AlegreyaSans-Medium", [[Interface\AddOns\NugRunning\AlegreyaSans-Medium.ttf]],  GetLocale() ~= "enUS" and 15)
 
-local isClassic = select(4,GetBuildInfo()) <= 19999
-local UnitSpellHaste = isClassic and function() return 0 end or _G.UnitSpellHaste
+local apiLevel = math.floor(select(4,GetBuildInfo())/10000)
+local UnitSpellHaste = UnitSpellHaste
+if apiLevel <= 2 then UnitSpellHaste = function() return 0 end end
+if apiLevel == 3 then
+    local GetCombatRatingBonus = GetCombatRatingBonus
+    local CR_HASTE_SPELL = CR_HASTE_SPELL
+    UnitSpellHaste = function() return GetCombatRatingBonus(CR_HASTE_SPELL) end
+end
 
 local getStatusbar = function()
 	if not NugRunningConfig.overrideTexture then
@@ -17,10 +23,10 @@ end
 local getFont = function(labelName)
 	if not NugRunningConfig.overrideFonts then
 		local s = NugRunning.db[labelName]
-		return LSM:Fetch("font", s.font), s.size, s.alpha
+		return LSM:Fetch("font", s.font), s.size, s.alpha, s.outline
 	else
 		local s = NugRunningConfig[labelName]
-		return s.font, s.size, s.alpha
+		return s.font, s.size, s.alpha, s.outline
 	end
 end
 
@@ -47,6 +53,9 @@ end
 function TimerBar.SetCount(self,amount)
     if not amount then return end
     if self.opts.stackcolor then
+        local tbl = self.opts.stackcolor
+        local color = tbl[amount]
+        if not color then color = tbl[#tbl] end
         self:SetColor(unpack(self.opts.stackcolor[amount]))
     end
     if self.opts.glowstack then
@@ -192,6 +201,15 @@ function TimerBar.SetCharge(self,val)
     if self.opts.stackcolor then
         self:SetColor(unpack(self.opts.stackcolor[val]))
     end
+    if self.opts.glowstack then
+        if self.glow then
+            if val >= self.opts.glowstack then
+                if not self.glow:IsPlaying() then self.glow:Play() end
+            else
+                self.glow:Stop()
+            end
+        end
+    end
 end
 
 
@@ -253,15 +271,15 @@ function TimerBar.Resize1(self, width, height)
 end
 
 function TimerBar.UpdateFonts(f)
-    local nameFont, nameSize, nameAlpha = getFont("nameFont")
-    f.spellText:SetFont(nameFont, nameSize)
+    local nameFont, nameSize, nameAlpha, nameOutline = getFont("nameFont")
+    f.spellText:SetFont(nameFont, nameSize, nameOutline and "OUTLINE")
     f.spellText:SetAlpha(nameAlpha or 1)
 
     local stackFont, stackSize, _stackAlpha = getFont("stackFont")
     f.stacktext:SetFont(stackFont, stackSize, "OUTLINE")
 
-    local timeFont, timeSize, timeAlpha = getFont("timeFont")
-    f.timeText:SetFont(timeFont, timeSize)
+    local timeFont, timeSize, timeAlpha, timeOutline = getFont("timeFont")
+    f.timeText:SetFont(timeFont, timeSize, timeOutline and "OUTLINE")
     f.timeText:SetJustifyH("RIGHT")
     f.timeText:SetAlpha(timeAlpha or 1)
 end
@@ -488,7 +506,7 @@ NugRunning.ConstructTimerBar = function(width, height)
     ic:SetWidth(height)
     ic:SetHeight(height)
     ic:SetFrameLevel(1)
-    local ict = ic:CreateTexture(nil,"ARTWORK",0)
+    local ict = ic:CreateTexture(nil,"ARTWORK", nil, 0)
     ict:SetTexCoord(.1, .9, .1, .9)
     ict:SetAllPoints(ic)
     f.icon = ict
@@ -531,8 +549,8 @@ NugRunning.ConstructTimerBar = function(width, height)
 
     f.timeText = f.bar:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall");
     f.timeText:SetTextColor(1,1,1)
-    local timeFont, timeSize, timeAlpha = getFont("timeFont")
-    f.timeText:SetFont(timeFont, timeSize)
+    local timeFont, timeSize, timeAlpha, timeOutline = getFont("timeFont")
+    f.timeText:SetFont(timeFont, timeSize, timeOutline and "OUTLINE")
     f.timeText:SetJustifyH("RIGHT")
     f.timeText:SetAlpha(timeAlpha or 1)
     f.timeText:SetVertexColor(1,1,1)
@@ -540,8 +558,8 @@ NugRunning.ConstructTimerBar = function(width, height)
 
     f.spellText = f.bar:CreateFontString(nil, "ARTWORK", "GameFontNormal");
     f.spellText:SetTextColor(1,1,1)
-    local nameFont, nameSize, nameAlpha = getFont("nameFont")
-    f.spellText:SetFont(nameFont, nameSize)
+    local nameFont, nameSize, nameAlpha, nameOutline = getFont("nameFont")
+    f.spellText:SetFont(nameFont, nameSize, nameOutline and "OUTLINE")
     f.spellText:SetWidth(f.bar:GetWidth()*0.8)
     f.spellText:SetHeight(height/2+1)
     f.spellText:SetJustifyH("CENTER")

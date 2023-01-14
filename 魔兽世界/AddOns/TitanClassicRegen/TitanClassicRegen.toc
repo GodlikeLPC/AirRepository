@@ -1,0 +1,10 @@
+## Interface: 30400
+## Title: Titan Panel Classic [|cffeda55fRegen|r] |cff00aa001.5.3.30400|r
+## Notes: Adds a regen monitor to Titan panel to show HP/MANA regen
+## Author: Titan Panel Development Team (http://www.titanpanel.org)
+## SavedVariables: 
+## OptionalDeps: 
+## Dependencies: TitanClassic
+## Version: 1.5.3.30400
+## X-Child-Of: TitanClassic
+TitanClassicRegen.xml

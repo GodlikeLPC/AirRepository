@@ -6,6 +6,10 @@ local QuestieMap = QuestieLoader:ImportModule("QuestieMap")
 local QuestieDBMIntegration = QuestieLoader:ImportModule("QuestieDBMIntegration")
 ---@type QuestieDB
 local QuestieDB = QuestieLoader:ImportModule("QuestieDB")
+---@type QuestieQuestBlacklist
+local QuestieQuestBlacklist = QuestieLoader:ImportModule("QuestieQuestBlacklist")
+---@type DailyQuests
+local DailyQuests = QuestieLoader:ImportModule("DailyQuests")
 
 local HBDPins = LibStub("HereBeDragonsQuestie-Pins-2.0")
 
@@ -15,7 +19,7 @@ local _Qframe = {}
 
 ---@return IconFrame
 function QuestieFramePool.Qframe:New(frameId, OnEnter)
-    ---@class IconFrame
+    ---@class IconFrame : Button
     local newFrame = CreateFrame("Button", "QuestieFrame"..frameId)
     newFrame.frameId = frameId;
 
@@ -26,7 +30,7 @@ function QuestieFramePool.Qframe:New(frameId, OnEnter)
         tinsert(MBB_Ignore, newFrame:GetName())
     end
     if frameId > 5000 then
-        Questie:Debug(DEBUG_CRITICAL, "[QuestieFramePool] Over 5000 frames... maybe there is a leak?", frameId)
+        Questie:Debug(Questie.DEBUG_CRITICAL, "[QuestieFramePool] Over 5000 frames... maybe there is a leak?", frameId)
     end
 
     newFrame.glow = CreateFrame("Button", "QuestieFrame"..frameId.."Glow", newFrame) -- glow frame
@@ -55,7 +59,7 @@ function QuestieFramePool.Qframe:New(frameId, OnEnter)
     glowt:SetHeight(18)
     glowt:SetAllPoints(newFrame.glow)
 
-    ---@class IconTexture
+    ---@class IconTexture : Texture
     newFrame.texture = newTexture;
     newFrame.texture.OLDSetVertexColor = newFrame.texture.SetVertexColor;
     function newFrame.texture:SetVertexColor(r, g, b, a)
@@ -105,7 +109,7 @@ function QuestieFramePool.Qframe:New(frameId, OnEnter)
     newFrame.FadeOut = _Qframe.FadeOut
     newFrame.FadeIn = _Qframe.FadeIn
     newFrame.FakeHide = _Qframe.FakeHide
-    newFrame.FakeUnhide = _Qframe.FakeUnhide
+    newFrame.FakeShow = _Qframe.FakeShow
     newFrame.OnShow = _Qframe.OnShow
     newFrame.OnHide = _Qframe.OnHide
     newFrame.ShouldBeHidden = _Qframe.ShouldBeHidden
@@ -135,7 +139,8 @@ function _Qframe:OnLeave()
     end
 
     if self.data.touchedPins then
-        for _, entry in pairs(self.data.touchedPins) do
+        for i=#self.data.touchedPins,1,-1 do
+            local entry = self.data.touchedPins[i]
             local icon = entry.icon;
             icon.texture:SetVertexColor(unpack(entry.color));
         end
@@ -144,7 +149,6 @@ function _Qframe:OnLeave()
 end
 
 function _Qframe:OnClick(button)
-    --_QuestieFramePool:Questie_Click(self)
     if self and self.UiMapID and WorldMapFrame and WorldMapFrame:IsShown() then
         if button == "RightButton" then
             local currentMapParent = WorldMapFrame:GetMapID()
@@ -164,16 +168,23 @@ function _Qframe:OnClick(button)
         if self.data.Type == "available" and IsShiftKeyDown() then
             StaticPopupDialogs["QUESTIE_CONFIRMHIDE"]:SetQuest(self.data.QuestData.Id)
             StaticPopup_Show ("QUESTIE_CONFIRMHIDE")
-        elseif self.data.Type == "manual" and IsShiftKeyDown() then
+        elseif self.data.Type == "manual" and IsShiftKeyDown() and not self.data.ManualTooltipData.disableShiftToRemove then
             QuestieMap:UnloadManualFrames(self.data.id)
         end
     end
     if self and self.UiMapID and IsControlKeyDown() and TomTom and TomTom.AddWaypoint then
         -- tomtom integration (needs more work, will come with tracker
+        local m = self.UiMapID
+        local x = self.x/100
+        local y = self.y/100
+        local title = self.data.Name
+        local add = true
         if Questie.db.char._tom_waypoint and TomTom.RemoveWaypoint then -- remove old waypoint
-            TomTom:RemoveWaypoint(Questie.db.char._tom_waypoint)
+            local waypoint = Questie.db.char._tom_waypoint
+            TomTom:RemoveWaypoint(waypoint)
+            add = (waypoint[1] ~= m or waypoint[2] ~= x or waypoint[3] ~= y or waypoint.title ~= title or waypoint.from ~= "Questie")
         end
-        Questie.db.char._tom_waypoint = TomTom:AddWaypoint(self.UiMapID, self.x/100, self.y/100, {title = self.data.Name, crazy = true})
+        Questie.db.char._tom_waypoint = add and TomTom:AddWaypoint(m, x, y, {title = title, crazy = true, from = "Questie"})
     elseif self.miniMapIcon then
         local _, _, _, x, y = self:GetPoint()
         Minimap:PingLocation(x, y)
@@ -197,12 +208,6 @@ function _Qframe:GlowUpdate()
         end
     end
 end
-
---function _Qframe:BaseOnUpdate() -- why do this here when its called in QuestieMap.fadeLogicTimerShown?
---    if self.GlowUpdate then
---        self:GlowUpdate()
---    end
---end
 
 function _Qframe:BaseOnShow()
     local data = self.data
@@ -234,9 +239,9 @@ end
 
 function _Qframe:UpdateTexture(texture)
     --Different settings depending on noteType
-    local globalScale = 0.7
-    local objectiveColor = false
-    local alpha = 1;
+    local globalScale
+    local objectiveColor
+    local alpha
 
     if(self.miniMapIcon) then
         globalScale = Questie.db.global.globalMiniMapScale;
@@ -268,7 +273,13 @@ function _Qframe:UpdateTexture(texture)
 end
 
 function _Qframe:Unload()
-    --Questie:Debug(DEBUG_SPAM, "[_Qframe:Unload]")
+    if not self._loaded then
+        self._needsUnload = true
+        return -- icon is still in the draw queue
+    end
+    self._needsUnload = nil
+    self._loaded = nil
+    --Questie:Debug(Questie.DEBUG_SPAM, "[_Qframe:Unload]")
     self:SetScript("OnUpdate", nil)
     self:SetScript("OnShow", nil)
     self:SetScript("OnHide", nil)
@@ -318,7 +329,6 @@ function _Qframe:Unload()
     self:Hide()
     self.glow:Hide()
     self.data = nil -- Just to be safe
-    self.loaded = nil
     self.x = nil
     self.y = nil
     self.AreaID = nil
@@ -357,6 +367,7 @@ function _Qframe:FadeIn()
     end
 end
 
+--- This is needed because HBD will show the icons again after switching zones and stuff like that
 function _Qframe:FakeHide()
     if not self.hidden then
         self.shouldBeShowing = self:IsShown();
@@ -373,7 +384,8 @@ function _Qframe:FakeHide()
     end
 end
 
-function _Qframe:FakeUnhide()
+--- This is needed because HBD will show the icons again after switching zones and stuff like that
+function _Qframe:FakeShow()
     if self.hidden then
         self.hidden = false
         self.Show = self._show;
@@ -386,25 +398,37 @@ function _Qframe:FakeUnhide()
     end
 end
 
----Checks wheather the frame/icon should be hidden or not
----@return boolean @True if the frame/icon should be hidden and :FakeHide should be called, false otherwise
+---Checks wheather the frame/icon should be hidden or not. Only for quest icons/frames.
+---@return boolean @True if the frame/icon should be hidden and :FakeHide() should be called, false otherwise
 function _Qframe:ShouldBeHidden()
     local questieGlobalDB = Questie.db.global
-    if (not Questie.db.char.enabled)
-        or ((not questieGlobalDB.enableObjectives) and (self.data.Type == "monster" or self.data.Type == "object" or self.data.Type == "event" or self.data.Type == "item"))
-        or ((not questieGlobalDB.enableTurnins) and self.data.Type == "complete")
-        or ((not questieGlobalDB.enableAvailable) and self.data.Type == "available")
-        or ((not Questie.db.char.showRepeatableQuests) and QuestieDB:IsRepeatable(self.data.Id))
-        or ((not Questie.db.char.showEventQuests) and QuestieDB:IsActiveEventQuest(self.data.Id))
-        or ((not Questie.db.char.showDungeonQuests) and QuestieDB:IsDungeonQuest(self.data.Id))
-        or ((not Questie.db.char.showRaidQuests) and QuestieDB:IsRaidQuest(self.data.Id))
-        or ((not Questie.db.char.showPvPQuests) and QuestieDB:IsPvPQuest(self.data.Id))
-        or ((not Questie.db.char.showAQWarEffortQuests) and QuestieDB:IsAQWarEffortQuest(self.data.Id))
+    local questieCharDB = Questie.db.char
+    local data = self.data
+    local iconType = data.Type -- v6.5.1 values: available, complete, manual, monster, object, item, event. This function is not called with manual.
+    local questId = data.Id
+
+    if (not questieCharDB.enabled) -- all quest icons disabled
         or ((not questieGlobalDB.enableMapIcons) and (not self.miniMapIcon))
         or ((not questieGlobalDB.enableMiniMapIcons) and (self.miniMapIcon))
-        or (self.data.ObjectiveData and self.data.ObjectiveData.HideIcons)
-        or (self.data.QuestData and self.data.QuestData.HideIcons and self.data.Type ~= "complete") then
-
+        or ((not questieGlobalDB.enableTurnins) and iconType == "complete")
+        or ((not questieGlobalDB.enableAvailable) and iconType == "available")
+        or ((not questieGlobalDB.enableObjectives) and (iconType == "monster" or iconType == "object" or iconType == "event" or iconType == "item"))
+        or (data.ObjectiveData and data.ObjectiveData.HideIcons)
+        or (data.QuestData and data.QuestData.HideIcons and iconType ~= "complete")
+        -- Hide only available quest icons of following quests. I.e. show objectives and complete icons always (when they are in questlog).
+        -- i.e. (iconType == "available")  ==  (iconType ~= "monster" and iconType ~= "object" and iconType ~= "event" and iconType ~= "item" and iconType ~= "complete"):
+        or (iconType == "available"
+            and ((not DailyQuests:IsActiveDailyQuest(questId)) -- hide not-today-dailies
+                or ((not questieCharDB.showRepeatableQuests) and QuestieDB.IsRepeatable(questId))
+                or ((not questieCharDB.showEventQuests) and QuestieDB.IsActiveEventQuest(questId))
+                or ((not questieCharDB.showDungeonQuests) and QuestieDB.IsDungeonQuest(questId))
+                or ((not questieCharDB.showRaidQuests) and QuestieDB.IsRaidQuest(questId))
+                or ((not questieCharDB.showPvPQuests) and QuestieDB.IsPvPQuest(questId))
+                -- this quest group isn't loaded at all while disabled:
+                -- or ((not questieCharDB.showAQWarEffortQuests) and QuestieQuestBlacklist.AQWarEffortQuests[questId])
+                )
+            )
+    then
         return true
     end
 

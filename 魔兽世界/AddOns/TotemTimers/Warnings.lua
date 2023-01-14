@@ -4,7 +4,7 @@ local L = LibStub("AceLocale-3.0"):GetLocale("TotemTimers", true)
 local Sink = LibStub:GetLibrary("LibSink-2.0")
 local LSM = LibStub:GetLibrary("LibSharedMedia-3.0", true)
 
-local Warnings = nil
+local Warnings = TotemTimers.DefaultProfile.Warnings
 
 local lastWarning = nil
 local lastWarningTime = nil
@@ -15,7 +15,7 @@ end
 
 
 function XiTimers.PlayWarning(self, warning, spell, icon)
-    if not Warnings[warning].enabled or (warning == lastWarning and GetTime()-lastWarningTime < 1) then return end
+    if not Warnings[warning] or not Warnings[warning].enabled or (warning == lastWarning and GetTime()-lastWarningTime < 1) then return end
     lastWarning = warning
     lastWarningTime = GetTime()
     local text = L[Warnings[warning].text]

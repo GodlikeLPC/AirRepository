@@ -4,7 +4,7 @@ local Graph = LibStub:GetLibrary("LibGraph-2.0")
 local AceLocale = LibStub("AceLocale-3.0")
 local L = AceLocale:GetLocale("Recount")
 
-local revision = tonumber(string.sub("$Revision: 1447 $", 12, -3))
+local revision = tonumber(string.sub("$Revision: 1563 $", 12, -3))
 if Recount.Version < revision then
 	Recount.Version = revision
 end
@@ -418,7 +418,8 @@ function Recount:SetDeathDetails(Who, Data)
 	me:RefreshDeathDetails()
 
 	Recount.DetailWindow.DeathMode.WhosDeaths = Who
-	Recount.DetailWindow.Title:SetText(L["Detail Window"].." - "..L["Death Details for"].." "..Who)
+	Recount.DetailWindow.CurTitle = L["Detail Window"].." - "..L["Death Details for"].." "..Who
+	Recount.DetailWindow.Title:SetText(Recount.DetailWindow.CurTitle)
 
 
 	Recount.DetailWindow:Show()
@@ -1533,7 +1534,7 @@ end
 
 --Create Detail Window Function
 function Recount:CreateDetailWindow()
-	Recount.DetailWindow = CreateFrame("Frame", "Recount_DetailWindow", UIParent)
+	Recount.DetailWindow = CreateFrame("Frame", "Recount_DetailWindow", UIParent, BackdropTemplateMixin and "BackdropTemplate")
 
 	local theFrame = Recount.DetailWindow
 
@@ -2101,7 +2102,7 @@ function Recount:CreateDetailWindow()
 	DeathMode.OutgoingText:SetPoint("LEFT", DeathMode.Outgoing, "RIGHT", 2, 0)
 	Recount:AddFontString(DeathMode.OutgoingText)
 
-	DeathMode.ShowDeathGraph = CreateFrame("Button", nil, DeathMode, "OptionsButtonTemplate")
+	DeathMode.ShowDeathGraph = CreateFrame("Button", nil, DeathMode, "UIPanelButtonTemplate")
 	DeathMode.ShowDeathGraph:SetWidth(110)
 	DeathMode.ShowDeathGraph:SetHeight(24)
 	DeathMode.ShowDeathGraph:SetPoint("BOTTOMRIGHT", DeathMode, "BOTTOMRIGHT", -4, 4)

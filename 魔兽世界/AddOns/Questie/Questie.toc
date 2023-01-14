@@ -1,107 +1,168 @@
-## Interface: 11305
-## Title: |cFFFFFFFFQuestie|r|cFF00FF00 v6.0.4|r
-## Author: Aero/Logon/Muehe/TheCrux(BreakBB)/Dyaxler/Schaka/Zoey/Everyone else
+## Interface: 30400
+## Title: Questie|cFF00FF00 v7.4.5|r
+## Author: Aero/Logon/Muehe/TheCrux(BreakBB)/Drejjmit/Dyaxler/Schaka/Zoey/Everyone else
 ## Notes: A standalone Classic QuestHelper
-## Version: 6.0.4
+## Version: 7.4.5
 ## RequiredDeps:
-## OptionalDeps: Ace3, LibDataBroker-1.1, LibCompress
+## OptionalDeps: Ace3, CallbackHandler-1.0, HereBeDragons, LibDataBroker-1.1, LibDBIcon-1.0, LibSharedMedia-3.0, LibStub, LibUIDropDownMenu
 ## SavedVariables: QuestieConfig
 ## SavedVariablesPerCharacter: QuestieConfigCharacter
+## X-Curse-Project-ID: 334372
 
+Modules\WorldMapTaintWorkaround.lua
+
+embeds.xml
 
 Modules\VersionCheck.lua
 
-embeds.xml
+Libs\LibUIDropDownMenu\LibUIDropDownMenu.xml
 Libs\HereBeDragons\HereBeDragons-2.0.lua
 Libs\HereBeDragons\HereBeDragons-Pins-2.0.lua
 Libs\HereBeDragons\HereBeDragons-Migrate.lua
 
-#Loader module
+# Loader module
 Modules\Libs\QuestieLoader.lua
 
-#stream module (used by DB)
+# Thread Manager
+Modules\Libs\ThreadLib.lua
+#Message Handler
+Modules\Libs\MessageHandler.lua
+
+#Quest XP
+Database\QuestXP\QuestieXP.lua
+Database\QuestXP\DB\xpDB-wotlk.lua
+
+# stream module (used by DB)
 Modules\QuestieStream.lua
 
-#Databases
+# Zones
+Database\Zones\zoneTables.lua
+Database\Zones\zoneDB.lua
+
+# Databases
+Database\Wotlk\wotlkItemDB.lua
+Database\Wotlk\wotlkNpcDB.lua
+Database\Wotlk\wotlkObjectDB.lua
+Database\Wotlk\wotlkQuestDB.lua
 Database\QuestieDB.lua
 Database\questDB.lua
 Database\objectDB.lua
-Database\spawnDB.lua
+Database\npcDB.lua
 Database\itemDB.lua
+Database\Constants.lua
+Database\MeetingStones.lua
 
-#Corrections
+# Corrections
+Database\Corrections\AutoTableUpdates.lua
 Database\Corrections\QuestieCorrections.lua
 Database\Corrections\QuestieItemBlacklist.lua
-Database\Corrections\QuestieItemFixes.lua
-Database\Corrections\QuestieNPCFixes.lua
-Database\Corrections\QuestieObjectFixes.lua
+Database\Corrections\QuestieNPCBlacklist.lua
 Database\Corrections\QuestieQuestBlacklist.lua
-Database\Corrections\QuestieQuestFixes.lua
+Database\Corrections\SoMPhases.lua
 Database\Corrections\QuestieEvent.lua
 
-#Zones
-Database\Zones\zoneDB.lua
-Database\Zones\zoneTables.lua
+# Automatic General Corrections
+Database\Corrections\Automatic\itemStartFixes.lua
 
-#Compiler
+# Classic Corrections
+Database\Corrections\Classic\classicQuestFixes.lua
+Database\Corrections\Classic\classicNPCFixes.lua
+Database\Corrections\Classic\classicItemFixes.lua
+Database\Corrections\Classic\classicObjectFixes.lua
+
+# TBC Corrections
+Database\Corrections\TBC\tbcQuestFixes.lua
+Database\Corrections\TBC\tbcNPCFixes.lua
+Database\Corrections\TBC\tbcItemFixes.lua
+Database\Corrections\TBC\tbcObjectFixes.lua
+
+# Wotlk Corrections
+Database\Corrections\Wotlk\wotlkQuestFixes.lua
+Database\Corrections\Wotlk\wotlkNPCFixes.lua
+Database\Corrections\Wotlk\wotlkItemFixes.lua
+Database\Corrections\Wotlk\wotlkObjectFixes.lua
+
+# Compiler
 Database\compiler.lua
 
-#Localization
-Locale\QuestieLocale.lua
-Locale\enUS\locale.xml
-Locale\esES\locale.xml
-Locale\esMX\locale.xml
-Locale\deDE\locale.xml
-Locale\zhCN\locale.xml
-Locale\zhTW\locale.xml
-Locale\frFR\locale.xml
-Locale\koKR\locale.xml
-Locale\ptBR\locale.xml
-Locale\ruRU\locale.xml
+# Localization
+Localization\l10n.lua
+Localization\Translations\Translations.xml
 
-##Libs
+Localization\lookups\lookupQuestCategories.lua
+Localization\lookups\lookupZones.lua
+Localization\lookups\Wotlk\lookupItems\lookupItems.xml
+Localization\lookups\Wotlk\lookupNpcs\lookupNpcs.xml
+Localization\lookups\Wotlk\lookupObjects\lookupObjects.xml
+Localization\lookups\Wotlk\lookupQuests\lookupQuests.xml
+
+# Libs
 Modules\Libs\QuestieLib.lua
-#Modules\Libs\QuestieCompress.lua
-Modules\Libs\QuestiePlayer.lua
 Modules\Libs\QuestieSerializer.lua
 Modules\Libs\QuestieCombatQueue.lua
-Modules\Libs\QuestieHash.lua
+Modules\Libs\RamerDouglasPeucker.lua
 
-##Modules
-Modules\QuestieTooltips.lua
+# Modules
+Modules\QuestieValidateGameCache.lua
+Modules\QuestieInit.lua
+Modules\MinimapIcon.lua
+Modules\QuestieProfessions.lua
+Modules\QuestieReputation.lua
 Modules\QuestieEventHandler.lua
 Modules\Migration.lua
+Modules\QuestieMenu.lua
+Modules\QuestieAnnounce.lua
+Modules\QuestieShutUp.lua
+Modules\TaskQueue.lua
+Modules\QuestiePlayer.lua
 
-#Auto
+# QuestLinks
+Modules\QuestLinks\ChatFilter.lua
+Modules\QuestLinks\Hooks.lua
+Modules\QuestLinks\Link.lua
+
+# Tooltips
+Modules\Tooltips\Tooltip.lua
+Modules\Tooltips\MapIconTooltip.lua
+Modules\Tooltips\TooltipHandler.lua
+
+# Auto
 Modules\Auto\QuestieAuto.lua
 Modules\Auto\Privates.lua
 Modules\Auto\DisallowedIDs.lua
 
-#FramePool
+# FramePool
 Modules\FramePool\QuestieFramePool.lua
 Modules\FramePool\QuestieFrame.lua
 
-#Map
+# Map
 Modules\Map\QuestieMap.lua
 Modules\Map\QuestieMapUtils.lua
+Modules\Map\HBDHooks.lua
 
-#Quest
+# Quest
+Modules\Quest\QuestLogCache.lua
+Modules\Quest\DailyQuests.lua
+Modules\Quest\GossipFrameDailyMarker.lua
+Modules\Quest\IsleOfQuelDanas.lua
+Modules\Quest\QuestEventHandler.lua
 Modules\Quest\QuestieQuest.lua
 Modules\Quest\QuestieQuestPrivates.lua
 
 Modules\QuestieNameplate.lua
 Modules\QuestieCoordinates.lua
 
-#Network
+# Network
 Modules\Network\QuestieComms.lua
 Modules\Network\QuestieCommsData.lua
 
-#Journey
+# Journey
 Modules\Journey\QuestieJourney.lua
 Modules\Journey\QuestieJourneyPrivates.lua
 Modules\Journey\QuestieJourneyUtils.lua
 Modules\Journey\History.lua
 Modules\Journey\QuestDetailsFrame.lua
+Modules\Journey\tabs\MyJourney\Note.lua
 Modules\Journey\tabs\MyJourney\MyJourney.lua
 Modules\Journey\tabs\MyJourney\MyJourneyTab.lua
 Modules\Journey\tabs\QuestsByZone\QuestsByZone.lua
@@ -111,39 +172,42 @@ Modules\Journey\tabs\QuestsByZone\QuestsByZoneTab.lua
 Modules\Journey\QuestieSearch.lua
 Modules\Journey\QuestieSearchResults.lua
 
-#Tracker
+# Tracker
 Modules\Tracker\QuestieTracker.lua
-Modules\Tracker\QuestieTrackerUtils.lua
-Modules\Tracker\QuestieTrackerMenu.lua
-Modules\Tracker\QuestieTrackerPrivates.lua
+Modules\Tracker\TrackerUtils.lua
+Modules\Tracker\TrackerMenu.lua
+Modules\Tracker\FadeTicker.lua
+Modules\Tracker\TrackerBaseFrame.lua
 Modules\Tracker\QuestieQuestTimers.lua
+Modules\Tracker\ActiveQuestsHeader.lua
+Modules\Tracker\AchievementTracker.lua
+Modules\Tracker\LinePool.lua
 
-Modules\QuestieProfessions.lua
-Modules\QuestieReputation.lua
 Modules\QuestieDBMIntegration.lua
 Modules\QuestieSlash.lua
 
-#Options
+# Options
 Modules\Options\QuestieOptions.lua
 Modules\Options\QuestieOptionsDefaults.lua
 Modules\Options\QuestieOptionsUtils.lua
-Modules\Options\QuestieOptionsMinimapIcon.lua
 Modules\Options\AdvancedTab\QuestieOptionsAdvanced.lua
 Modules\Options\DBMTab\QuestieOptionsDBM.lua
 Modules\Options\GeneralTab\QuestieOptionsGeneral.lua
 Modules\Options\MapTab\QuestieOptionsMap.lua
 Modules\Options\MinimapTab\QuestieOptionsMinimap.lua
 Modules\Options\NameplateTab\QuestieOptionsNameplate.lua
+Modules\Options\SocialTab\QuestieOptionsSocial.lua
 Modules\Options\TrackerTab\QuestieOptionsTracker.lua
+Modules\Options\TooltipTab\QuestieOptionsTooltip.lua
 
-#Cleanup
+# Cleanup
 Modules\QuestieCleanup.lua
 
-#Profiler
+# Profiler
 Modules\QuestieProfiler.lua
 
-#Debug
-Modules\Debug.lua
-
-#Main
+# Main
 Questie.lua
+
+## X-Vendor: NetEase
+## X-163UI-Version: 20221118173118

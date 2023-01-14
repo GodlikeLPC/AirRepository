@@ -1,0 +1,13 @@
+## Interface: 30400
+## Title: Combuctor Config
+## Author: Tuller and Jaliborc (João Cardoso)
+## Notes: An options menu for Combuctor
+## Dependencies: Combuctor
+## LoadOnDemand: 1
+
+..\Combuctor\addons\config\config.xml
+
+## Title: |cff880303[163UI]|r Combuctor Config
+## Title-zhCN: |cff880303[有爱]|r Combuctor 选项
+## X-Vendor: NetEase
+## X-163UI-Version: 20220905154958

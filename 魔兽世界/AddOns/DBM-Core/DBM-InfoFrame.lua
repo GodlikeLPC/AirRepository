@@ -6,12 +6,31 @@ DBM.InfoFrame = {}
 -------------------
 -- Local Globals --
 -------------------
+local isRetail = WOW_PROJECT_ID == (WOW_PROJECT_MAINLINE or 1)
+
+local DDM = _G["LibStub"]:GetLibrary("LibDropDownMenu")
+local UIDropDownMenu_AddButton, UIDropDownMenu_Initialize, ToggleDropDownMenu = DDM.UIDropDownMenu_AddButton, DDM.UIDropDownMenu_Initialize, DDM.ToggleDropDownMenu
+
 local DBM = DBM
 local L = DBM_CORE_L
-local UnitClass, GetTime, GetPartyAssignment, UnitGroupRolesAssigned, GetRaidTargetIndex, UnitExists, UnitGetTotalAbsorbs, UnitName, UnitHealth, UnitPower, UnitPowerMax, UnitIsDeadOrGhost, UnitThreatSituation, UnitPosition, UnitIsUnit, UIDropDownMenu_CreateInfo, UIDropDownMenu_AddButton = UnitClass, GetTime, GetPartyAssignment, UnitGroupRolesAssigned, GetRaidTargetIndex, UnitExists, UnitGetTotalAbsorbs, UnitName, UnitHealth, UnitPower, UnitPowerMax, UnitIsDeadOrGhost, UnitThreatSituation, UnitPosition, UnitIsUnit, UIDropDownMenu_CreateInfo, UIDropDownMenu_AddButton
-local error, tostring, type, pairs, ipairs, select, tonumber, tsort, twipe, mfloor, mmax, mmin, mrandom, schar, ssplit, CAfter = error, tostring, type, pairs, ipairs, select, tonumber, table.sort, table.wipe, math.floor, math.max, math.min, math.random, string.char, string.split, C_Timer.After
+local UnitClass, GetTime, GetPartyAssignment, UnitGroupRolesAssigned, GetRaidTargetIndex, UnitExists, UnitGetTotalAbsorbs, UnitName, UnitHealth, UnitPower, UnitPowerMax, UnitIsDeadOrGhost, UnitThreatSituation, UnitPosition, UnitIsUnit = UnitClass, GetTime, GetPartyAssignment, UnitGroupRolesAssigned, GetRaidTargetIndex, UnitExists, UnitGetTotalAbsorbs, UnitName, UnitHealth, UnitPower, UnitPowerMax, UnitIsDeadOrGhost, UnitThreatSituation, UnitPosition, UnitIsUnit
+local error, tostring, type, pairs, ipairs, select, tonumber, tsort, twipe, mfloor, mmax, mmin, mrandom, schar, ssplit = error, tostring, type, pairs, ipairs, select, tonumber, table.sort, table.wipe, math.floor, math.max, math.min, math.random, string.char, string.split
 local NORMAL_FONT_COLOR, SPELL_FAILED_OUT_OF_RANGE = NORMAL_FONT_COLOR, SPELL_FAILED_OUT_OF_RANGE
 local RAID_CLASS_COLORS = _G["CUSTOM_CLASS_COLORS"] or RAID_CLASS_COLORS-- for Phanx' Class Colors
+
+--Hard code STANDARD_TEXT_FONT since skinning mods like to taint it (or worse, set it to nil, wtf?)
+local standardFont
+if LOCALE_koKR then
+	standardFont = "Fonts\\2002.TTF"
+elseif LOCALE_zhCN then
+	standardFont = "Fonts\\ARKai_T.ttf"
+elseif LOCALE_zhTW then
+	standardFont = "Fonts\\blei00d.TTF"
+elseif LOCALE_ruRU then
+	standardFont = "Fonts\\FRIZQT___CYR.TTF"
+else
+	standardFont = "Fonts\\FRIZQT__.TTF"
+end
 
 --------------
 --  Locals  --
@@ -59,7 +78,7 @@ do
 		local info
 
 		if level == 1 then
-			info = UIDropDownMenu_CreateInfo()
+			info = {}
 			info.text = LOCK_FRAME
 			if DBM.Options.InfoFrameLocked then
 				info.checked = true
@@ -67,7 +86,7 @@ do
 			info.func = toggleLocked
 			UIDropDownMenu_AddButton(info, 1)
 
-			info = UIDropDownMenu_CreateInfo()
+			info = {}
 			info.keepShownOnClick = true
 			info.text = L.INFOFRAME_SHOW_SELF
 			if DBM.Options.InfoFrameShowSelf then
@@ -76,7 +95,7 @@ do
 			info.func = toggleShowSelf
 			UIDropDownMenu_AddButton(info, 1)
 
-			info = UIDropDownMenu_CreateInfo()
+			info = {}
 			info.text = L.INFOFRAME_SETLINES
 			info.notCheckable = true
 			info.hasArrow = true
@@ -84,7 +103,7 @@ do
 			info.menuList = "lines"
 			UIDropDownMenu_AddButton(info, 1)
 
-			info = UIDropDownMenu_CreateInfo()
+			info = {}
 			info.text = L.INFOFRAME_SETCOLS
 			info.notCheckable = true
 			info.hasArrow = true
@@ -92,7 +111,7 @@ do
 			info.menuList = "cols"
 			UIDropDownMenu_AddButton(info, 1)
 
-			info = UIDropDownMenu_CreateInfo()
+			info = {}
 			info.text = HIDE
 			info.notCheckable = true
 			info.func = infoFrame.Hide
@@ -100,95 +119,109 @@ do
 			UIDropDownMenu_AddButton(info, 1)
 		elseif level == 2 then
 			if menu == "lines" then
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = L.INFOFRAME_LINESDEFAULT
 				info.func = setLines
 				info.arg1 = 0
 				info.checked = (DBM.Options.InfoFrameLines == 0)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = L.INFOFRAME_LINES_TO:format(3)
 				info.func = setLines
 				info.arg1 = 3
 				info.checked = (DBM.Options.InfoFrameLines == 3)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = L.INFOFRAME_LINES_TO:format(5)
 				info.func = setLines
 				info.arg1 = 5
 				info.checked = (DBM.Options.InfoFrameLines == 5)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = L.INFOFRAME_LINES_TO:format(8)
 				info.func = setLines
 				info.arg1 = 8
 				info.checked = (DBM.Options.InfoFrameLines == 8)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = L.INFOFRAME_LINES_TO:format(10)
 				info.func = setLines
 				info.arg1 = 10
 				info.checked = (DBM.Options.InfoFrameLines == 10)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = L.INFOFRAME_LINES_TO:format(15)
 				info.func = setLines
 				info.arg1 = 15
 				info.checked = (DBM.Options.InfoFrameLines == 15)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = L.INFOFRAME_LINES_TO:format(20)
 				info.func = setLines
 				info.arg1 = 20
 				info.checked = (DBM.Options.InfoFrameLines == 20)
 				UIDropDownMenu_AddButton(info, 2)
+
+				info = {}
+				info.text = L.INFOFRAME_LINES_TO:format(isRetail and 30 or 40)
+				info.func = setLines
+				info.arg1 = isRetail and 30 or 40 -- Use 40 in classic for full man raids
+				info.checked = (DBM.Options.InfoFrameLines == 30)
+				UIDropDownMenu_AddButton(info, 2)
 			elseif menu == "cols" then
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = L.INFOFRAME_LINESDEFAULT
 				info.func = setCols
 				info.arg1 = 0
 				info.checked = (DBM.Options.InfoFrameCols == 0)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = L.INFOFRAME_COLS_TO:format(1)
 				info.func = setCols
 				info.arg1 = 1
 				info.checked = (DBM.Options.InfoFrameCols == 1)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = L.INFOFRAME_COLS_TO:format(2)
 				info.func = setCols
 				info.arg1 = 2
 				info.checked = (DBM.Options.InfoFrameCols == 2)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = L.INFOFRAME_COLS_TO:format(3)
 				info.func = setCols
 				info.arg1 = 3
 				info.checked = (DBM.Options.InfoFrameCols == 3)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = L.INFOFRAME_COLS_TO:format(4)
 				info.func = setCols
 				info.arg1 = 4
 				info.checked = (DBM.Options.InfoFrameCols == 4)
 				UIDropDownMenu_AddButton(info, 2)
 
-				info = UIDropDownMenu_CreateInfo()
+				info = {}
 				info.text = L.INFOFRAME_COLS_TO:format(5)
 				info.func = setCols
 				info.arg1 = 5
 				info.checked = (DBM.Options.InfoFrameCols == 5)
+				UIDropDownMenu_AddButton(info, 2)
+
+				info = {}
+				info.text = L.INFOFRAME_COLS_TO:format(6)
+				info.func = setCols
+				info.arg1 = 6
+				info.checked = (DBM.Options.InfoFrameCols == 6)
 				UIDropDownMenu_AddButton(info, 2)
 			end
 		end
@@ -199,14 +232,15 @@ end
 --  Create the frame  --
 ------------------------
 function createFrame()
-	frame = CreateFrame("Frame", "DBMInfoFrame", UIParent)
+	frame = CreateFrame("Frame", "DBMInfoFrame", UIParent, "BackdropTemplate")
 	frame:Hide()
 	frame:SetFrameStrata("DIALOG")
-	frame:SetBackdrop({
+	frame.backdropInfo = {
 		bgFile		= "Interface\\DialogFrame\\UI-DialogBox-Background", -- 131071
 		tile		= true,
 		tileSize	= 16
-	})
+	}
+	frame:ApplyBackdrop()
 	frame:SetPoint(DBM.Options.InfoFramePoint, UIParent, DBM.Options.InfoFramePoint, DBM.Options.InfoFrameX, DBM.Options.InfoFrameY)
 	frame:SetSize(10, 10)
 	frame:SetClampedToScreen(true)
@@ -233,7 +267,7 @@ function createFrame()
 	end)
 	frame:SetScript("OnMouseDown", function(_, button)
 		if button == "RightButton" then
-			local dropdownFrame = CreateFrame("Frame", "DBMInfoFrameDropdown", frame, "UIDropDownMenuTemplate")
+			local dropdownFrame = DDM.Create_DropDownMenu("Frame", "DBMInfoFrameDropdown", frame)
 			UIDropDownMenu_Initialize(dropdownFrame, initializeDropdown)
 			ToggleDropDownMenu(1, nil, dropdownFrame, "cursor", 5, -10)
 		end
@@ -322,14 +356,14 @@ local function updateIcons()
 	for uId in DBM:GetGroupMembers() do
 		local icon = GetRaidTargetIndex(uId)
 		local icon2 = GetRaidTargetIndex(uId .. "target")
-		if icon then
+		if icon and icon <= 8 then
 			icons[DBM:GetUnitFullName(uId)] = ("|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_%d:0|t"):format(icon)
 		end
-		if icon2 then
+		if icon2 and icon2 <= 8 then
 			icons[DBM:GetUnitFullName(uId .. "target")] = ("|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_%d:0|t"):format(icon2)
 		end
 	end
-	for i = 1, 5 do
+	for i = 1, 10 do
 		local icon = GetRaidTargetIndex("boss" .. i)
 		if icon then
 			icons[UnitName("boss" .. i)] = ("|TInterface\\TargetingFrame\\UI-RaidTargetingIcon_%d:0|t"):format(icon)
@@ -378,15 +412,37 @@ local function updateEnemyPower()
 	local specificUnit = value[3]
 	if powerType then -- Only do power type defined
 		if specificUnit then
-			local currentPower, maxPower = UnitPower(specificUnit, powerType), UnitPowerMax(specificUnit, powerType)
-			if maxPower and maxPower > 0 then
-				local percent = currentPower / maxPower * 100
-				if percent >= threshold then
-					lines[UnitName(specificUnit)] = mfloor(percent) .. "%"
+			if not isRetail then
+				specificUnit = UnitExists(specificUnit) or DBM:GetUnitIdFromGUID(specificUnit)--unitID already passed or GUID we convert into unitID
+			end
+			if UnitExists(specificUnit) then
+				local currentPower, maxPower = UnitPower(specificUnit, powerType), UnitPowerMax(specificUnit, powerType)
+				if maxPower and maxPower > 0 then
+					local percent = currentPower / maxPower * 100
+					if percent >= threshold then
+						lines[UnitName(specificUnit)] = mfloor(percent) .. "%"
+					end
 				end
 			end
 		else
-			if specificUnit then
+			for i = 1, 10 do
+				local uId = "boss" .. i
+				local currentPower, maxPower = UnitPower(uId), UnitPowerMax(uId)
+				if maxPower and maxPower > 0 then
+					local percent = currentPower / maxPower * 100
+					if percent >= threshold then
+						lines[UnitName(uId)] = mfloor(percent) .. "%"
+					end
+				end
+			end
+		end
+	else -- Check primary power type and alternate power types together. This should only be used if BOTH power types exist on same boss
+		if specificUnit then
+			if not isRetail then
+				specificUnit = UnitExists(specificUnit) or DBM:GetUnitIdFromGUID(specificUnit)--unitID already passed or GUID we convert into unitID
+			end
+			if UnitExists(specificUnit) then
+				-- Primary Power
 				local currentPower, maxPower = UnitPower(specificUnit), UnitPowerMax(specificUnit)
 				if maxPower and maxPower > 0 then
 					local percent = currentPower / maxPower * 100
@@ -394,34 +450,30 @@ local function updateEnemyPower()
 						lines[UnitName(specificUnit)] = mfloor(percent) .. "%"
 					end
 				end
-			else
-				for i = 1, 5 do
-					local uId = "boss" .. i
-					local currentPower, maxPower = UnitPower(uId), UnitPowerMax(uId)
-					if maxPower and maxPower > 0 then
-						local percent = currentPower / maxPower * 100
-						if percent >= threshold then
-							lines[UnitName(uId)] = mfloor(percent) .. "%"
-						end
+				-- Alternate Power
+				local currentAltPower, maxAltPower = UnitPower(specificUnit, 10), UnitPowerMax(specificUnit, 10)
+				if maxAltPower and maxAltPower > 0 then
+					if currentAltPower / maxAltPower * 100 >= threshold then
+						lines[UnitName(specificUnit)] = L.INFOFRAME_ALT .. currentAltPower
 					end
 				end
 			end
-		end
-	else -- Check primary power type and alternate power types together. This should only be used if BOTH power types exist on same boss, else fix your shit MysticalOS
-		for i = 1, 5 do
-			local uId = "boss" .. i
-			-- Primary Power
-			local currentPower, maxPower = UnitPower(uId), UnitPowerMax(uId)
-			if maxPower and maxPower > 0 then
-				if currentPower / maxPower * 100 >= threshold then
-					lines[UnitName(uId)] = currentPower
+		else
+			for i = 1, 10 do
+				local uId = "boss" .. i
+				-- Primary Power
+				local currentPower, maxPower = UnitPower(uId), UnitPowerMax(uId)
+				if maxPower and maxPower > 0 then
+					if currentPower / maxPower * 100 >= threshold then
+						lines[UnitName(uId)] = currentPower
+					end
 				end
-			end
-			-- Alternate Power
-			local currentAltPower, maxAltPower = UnitPower(uId, 10), UnitPowerMax(uId, 10)
-			if maxAltPower and maxAltPower > 0 then
-				if currentAltPower / maxAltPower * 100 >= threshold then
-					lines[UnitName(uId)] = L.INFOFRAME_ALT .. currentAltPower
+				-- Alternate Power
+				local currentAltPower, maxAltPower = UnitPower(uId, 10), UnitPowerMax(uId, 10)
+				if maxAltPower and maxAltPower > 0 then
+					if currentAltPower / maxAltPower * 100 >= threshold then
+						lines[UnitName(uId)] = L.INFOFRAME_ALT .. currentAltPower
+					end
 				end
 			end
 		end
@@ -436,6 +488,7 @@ local function updateEnemyAbsorb()
 	local totalAbsorb = value[2]
 	local specificUnit = value[3]
 	if specificUnit then
+		specificUnit = UnitExists(specificUnit) or DBM:GetUnitIdFromGUID(specificUnit)--unitID already passed or GUID we convert into unitID
 		if UnitExists(specificUnit) then
 			local absorbAmount
 			if spellInput then -- Get specific spell absorb
@@ -444,18 +497,15 @@ local function updateEnemyAbsorb()
 				absorbAmount = UnitGetTotalAbsorbs(specificUnit)
 			end
 			if absorbAmount and absorbAmount > 0 then
-				local text
 				if totalAbsorb then
-					text = absorbAmount / totalAbsorb * 100
-					lines[UnitName(specificUnit)] = mfloor(text) .. "%"
+					lines[UnitName(specificUnit)] = mfloor(absorbAmount / totalAbsorb * 100) .. "%"
 				else
-					text = absorbAmount
-					lines[UnitName(specificUnit)] = mfloor(text)
+					lines[UnitName(specificUnit)] = mfloor(absorbAmount)
 				end
 			end
 		end
-	else
-		for i = 1, 5 do
+	else--Generic absorbs for bosses. Not to be mistaken for updateMultiEnemyAbsorb, which supports checking multiple units that might or might not be bosses
+		for i = 1, 10 do
 			local uId = "boss" .. i
 			if UnitExists(uId) then
 				local absorbAmount
@@ -465,7 +515,72 @@ local function updateEnemyAbsorb()
 					absorbAmount = UnitGetTotalAbsorbs(uId)
 				end
 				if absorbAmount and absorbAmount > 0 then
-					lines[UnitName(uId)] = mfloor(totalAbsorb and absorbAmount / totalAbsorb * 100 or absorbAmount) .. "%"
+					if totalAbsorb then
+						lines[UnitName(uId)] = mfloor(totalAbsorb and absorbAmount / totalAbsorb * 100) .. "%"
+					else
+						lines[UnitName(uId)] = mfloor(absorbAmount)
+					end
+				end
+			end
+		end
+	end
+	updateLines()
+	updateIcons()
+end
+
+--Really hate splitting this off from updateEnemyAbsorb but having them merged was even uglier
+--Note, this method also less efficient than boss only or single unit absorb tracking.
+--Don't use this function to be lazy (ie just passing 1 guid instead of finding valid unit at mod level)
+local function updateMultiEnemyAbsorb()
+	twipe(lines)
+	local spellInput = value[1]
+	local totalAbsorb = value[2]
+	local guidTable = value[3]--Multi target by table
+	local guidTracked = {}
+	for i = 1, 10 do
+		if #guidTable == #guidTracked then--Stop searching, found everything we're looking for.
+			break
+		end
+		local uId = "boss" .. i
+		if UnitExists(uId) then
+			local targetGUID = UnitGUID(uId)
+			if guidTable[targetGUID] and not guidTracked[targetGUID] then
+				guidTracked[targetGUID] = true
+				local absorbAmount
+				if spellInput then -- Get specific spell absorb
+					absorbAmount = select(16, DBM:UnitBuff(uId, spellInput)) or select(16, DBM:UnitDebuff(uId, spellInput))
+				else -- Get all of them
+					absorbAmount = UnitGetTotalAbsorbs(uId)
+				end
+				if absorbAmount and absorbAmount > 0 then
+					if totalAbsorb then
+						lines[UnitName(uId)] = mfloor(totalAbsorb and absorbAmount / totalAbsorb * 100) .. "%"
+					else
+						lines[UnitName(uId)] = mfloor(absorbAmount)
+					end
+				end
+			end
+		end
+	end
+	for unitId in DBM:GetGroupMembers() do--Do not use self on this function, because self might be bossModPrototype
+		if #guidTable == #guidTracked then--Stop searching, found everything we're looking for.
+			break
+		end
+		local uId = unitId .. "target"
+		local targetGUID = UnitGUID(unitId)
+		if guidTable[targetGUID] and not guidTracked[targetGUID] then
+			guidTracked[targetGUID] = true
+			local absorbAmount
+			if spellInput then -- Get specific spell absorb
+				absorbAmount = select(16, DBM:UnitBuff(uId, spellInput)) or select(16, DBM:UnitDebuff(uId, spellInput))
+			else -- Get all of them
+				absorbAmount = UnitGetTotalAbsorbs(uId)
+			end
+			if absorbAmount and absorbAmount > 0 then
+				if totalAbsorb then
+					lines[UnitName(uId)] = mfloor(totalAbsorb and absorbAmount / totalAbsorb * 100) .. "%"
+				else
+					lines[UnitName(uId)] = mfloor(absorbAmount)
 				end
 			end
 		end
@@ -478,8 +593,7 @@ local function updateAllAbsorb()
 	twipe(lines)
 	local spellInput = value[1]
 	local totalAbsorb = value[2]
-	local totalAbsorb2 = value[3]
-	for i = 1, 5 do
+	for i = 1, 10 do
 		local uId = "boss" .. i
 		if UnitExists(uId) then
 			local absorbAmount
@@ -488,16 +602,24 @@ local function updateAllAbsorb()
 			else -- Get all of them
 				absorbAmount = UnitGetTotalAbsorbs(uId)
 			end
-			if absorbAmount then
-				lines[UnitName(uId)] = mfloor(totalAbsorb and absorbAmount / totalAbsorb * 100 or absorbAmount) .. "%"
+			if absorbAmount and absorbAmount > 0 then
+				if totalAbsorb then
+					lines[UnitName(uId)] = mfloor(totalAbsorb and absorbAmount / totalAbsorb * 100) .. "%"
+				else
+					lines[UnitName(uId)] = mfloor(absorbAmount)
+				end
 			end
 		end
 	end
 	if spellInput then
 		for uId in DBM:GetGroupMembers() do
 			local absorbAmount = select(16, DBM:UnitBuff(uId, spellInput)) or select(16, DBM:UnitDebuff(uId, spellInput))
-			if absorbAmount then
-				lines[DBM:GetUnitFullName(uId)] = mfloor(totalAbsorb and absorbAmount / totalAbsorb2 * 100 or absorbAmount) .. "%"
+			if absorbAmount and absorbAmount > 0 then
+				if totalAbsorb then
+					lines[UnitName(uId)] = mfloor(totalAbsorb and absorbAmount / totalAbsorb * 100) .. "%"
+				else
+					lines[UnitName(uId)] = mfloor(absorbAmount)
+				end
 			end
 		end
 	end
@@ -510,9 +632,18 @@ local function updatePlayerAbsorb()
 	local spellInput = value[1]
 	local totalAbsorb = value[2]
 	for uId in DBM:GetGroupMembers() do
-		local absorbAmount = select(16, DBM:UnitBuff(uId, spellInput)) or select(16, DBM:UnitDebuff(uId, spellInput))
-		if absorbAmount then
-			lines[DBM:GetUnitFullName(uId)] = mfloor(totalAbsorb and absorbAmount / totalAbsorb * 100 or absorbAmount)
+		local absorbAmount
+		if spellInput then -- Get specific spell absorb
+			absorbAmount = select(16, DBM:UnitBuff(uId, spellInput)) or select(16, DBM:UnitDebuff(uId, spellInput))
+		else--Not even spell input given, this is a very generic infoframe
+			absorbAmount = UnitGetTotalAbsorbs(uId)
+		end
+		if absorbAmount and absorbAmount > 0 then
+			if totalAbsorb then
+				lines[UnitName(uId)] = mfloor(totalAbsorb and absorbAmount / totalAbsorb * 100) .. "%"
+			else
+				lines[UnitName(uId)] = mfloor(absorbAmount)
+			end
 		end
 	end
 	updateLines()
@@ -644,9 +775,9 @@ local function updatePlayerDebuffStacks()
 	twipe(lines)
 	local spellInput = value[1]
 	for uId in DBM:GetGroupMembers() do
-		local spellName, _, count = DBM:UnitDebuff(uId, spellInput)
-		if spellName and count then
-			lines[DBM:GetUnitFullName(uId)] = count
+		local spellName, _, count, _, _, _, _, _, _, _, _, _, _, _, _, count2 = DBM:UnitDebuff(uId, spellInput)
+		if spellName and (count or count2) then
+			lines[DBM:GetUnitFullName(uId)] = count2 or count
 		end
 	end
 	updateIcons()
@@ -776,6 +907,7 @@ local events = {
 	["playerpower"] = updatePlayerPower,
 	["enemypower"] = updateEnemyPower,
 	["enemyabsorb"] = updateEnemyAbsorb,
+	["multienemyabsorb"] = updateMultiEnemyAbsorb,
 	["allabsorb"] = updateAllAbsorb,
 	["playerabsorb"] = updatePlayerAbsorb,
 	["playerbuff"] = updatePlayerBuffs,
@@ -842,42 +974,45 @@ local function onUpdate(frame, table)
 		local icon = icons[extraName or leftText] and icons[extraName or leftText] .. leftText
 		if friendlyEvents[currentEvent] then
 			local unitId = DBM:GetRaidUnitId(DBM:GetUnitFullName(extraName or leftText)) or "player"--Prevent nil logical error
-			if unitId and select(4, UnitPosition(unitId)) == currentMapId then
-				local _, class = UnitClass(unitId)
-				if class then
-					color = RAID_CLASS_COLORS[class]
-					if DBM.Options.StripServerName then -- StripServerName option is checked here, even though it's checked in GetShortServerName function, because we have to apply custom 3rd column hack reconstruction
-						local shortName = DBM:GetShortServerName(extraName or leftText)
-						if extraName then -- 3 column hack is present, we need to reconstruct leftText with shortened name
-							leftText = extra.."*"..shortName
-						else -- LeftText is name, just replace it with shortname
-							leftText = shortName
-						end
-					end
-				end
-				linesShown = linesShown + 1
-				if unitId and UnitIsUnit(unitId, "player") then -- It's player.
-					if currentEvent == "health" or currentEvent == "playerpower" or currentEvent == "playerabsorb" or currentEvent == "playerbuff" or currentEvent == "playergooddebuff" or currentEvent == "playerbaddebuff" or currentEvent == "playerdebuffremaining" or currentEvent == "playerdebuffstacks" or currentEvent == "playerbuffremaining" or currentEvent == "playertargets" or currentEvent == "playeraggro" then--Red
-						infoFrame:SetLine(linesShown, icon or leftText, rightText, 255, 0, 0, 255, 255, 255)
-					else -- Green
-						infoFrame:SetLine(linesShown, icon or leftText, rightText, 0, 255, 0, 255, 255, 255)
-					end
-				else -- It's not player, do nothing special with it. Ordinary class colored text.
-					if currentEvent == "playerdebuffremaining" or currentEvent == "playerbuffremaining" then
-						local numberValue = tonumber(rightText)
-						if numberValue < 6 then
-							infoFrame:SetLine(linesShown, icon or leftText, rightText, color.r, color.g, color.b, 255, 0, 0)--Red
-						elseif numberValue < 11 then
-							infoFrame:SetLine(linesShown, icon or leftText, rightText, color.r, color.g, color.b, 255, 127.5, 0)--Orange
-						else
-							if numberValue == 9000 then -- Out of range players
-								infoFrame:SetLine(linesShown, icon or leftText, SPELL_FAILED_OUT_OF_RANGE, color.r, color.g, color.b, 255, 0, 0)--Red
-							else
-								infoFrame:SetLine(linesShown, icon or leftText, rightText, color.r, color.g, color.b, 255, 255, 255)--White
+			if unitId then
+				local _, _, _, mapId = UnitPosition(unitId)
+				if mapId == currentMapId then
+					local _, class = UnitClass(unitId)
+					if class then
+						color = RAID_CLASS_COLORS[class]
+						if DBM.Options.StripServerName then -- StripServerName option is checked here, even though it's checked in GetShortServerName function, because we have to apply custom 3rd column hack reconstruction
+							local shortName = DBM:GetShortServerName(extraName or leftText)
+							if extraName then -- 3 column hack is present, we need to reconstruct leftText with shortened name
+								leftText = extra.."*"..shortName
+							else -- LeftText is name, just replace it with shortname
+								leftText = shortName
 							end
 						end
-					else
-						infoFrame:SetLine(linesShown, icon or leftText, rightText, color.r, color.g, color.b, 255, 255, 255)
+					end
+					linesShown = linesShown + 1
+					if unitId and UnitIsUnit(unitId, "player") then -- It's player.
+						if currentEvent == "health" or currentEvent == "playerpower" or currentEvent == "playerabsorb" or currentEvent == "playerbuff" or currentEvent == "playergooddebuff" or currentEvent == "playerbaddebuff" or currentEvent == "playerdebuffremaining" or currentEvent == "playerdebuffstacks" or currentEvent == "playerbuffremaining" or currentEvent == "playertargets" or currentEvent == "playeraggro" then--Red
+							infoFrame:SetLine(linesShown, icon or leftText, rightText, 255, 0, 0, 255, 255, 255)
+						else -- Green
+							infoFrame:SetLine(linesShown, icon or leftText, rightText, 0, 255, 0, 255, 255, 255)
+						end
+					else -- It's not player, do nothing special with it. Ordinary class colored text.
+						if currentEvent == "playerdebuffremaining" or currentEvent == "playerbuffremaining" then
+							local numberValue = tonumber(rightText)
+							if numberValue < 6 then
+								infoFrame:SetLine(linesShown, icon or leftText, rightText, color.r, color.g, color.b, 255, 0, 0)--Red
+							elseif numberValue < 11 then
+								infoFrame:SetLine(linesShown, icon or leftText, rightText, color.r, color.g, color.b, 255, 127.5, 0)--Orange
+							else
+								if numberValue == 9000 then -- Out of range players
+									infoFrame:SetLine(linesShown, icon or leftText, SPELL_FAILED_OUT_OF_RANGE, color.r, color.g, color.b, 255, 0, 0)--Red
+								else
+									infoFrame:SetLine(linesShown, icon or leftText, rightText, color.r, color.g, color.b, 255, 255, 255)--White
+								end
+							end
+						else
+							infoFrame:SetLine(linesShown, icon or leftText, rightText, color.r, color.g, color.b, 255, 255, 255)
+						end
 					end
 				end
 			end
@@ -914,8 +1049,10 @@ local function onUpdate(frame, table)
 			infoFrame:SetLine(linesShown, icon or leftText, rightText, color.r, color.g, color.b, color2.r, color2.g, color2.b)
 		end
 	end
-	local maxWidth1, maxWidth2 = {}, {}
-	local linesPerRow = mmin(maxLines, mfloor(linesShown / maxCols + 0.99))
+	local maxWidth1, maxWidth2, linesPerRow = {}, {}, 5
+	if linesShown > 5 then
+		linesPerRow = mmin(maxLines, mfloor(linesShown / maxCols + 0.99))
+	end
 	local shouldUpdate = prevLines ~= linesShown
 	for i = 1, linesShown do
 		if shouldUpdate then
@@ -928,23 +1065,30 @@ local function onUpdate(frame, table)
 		maxWidth1[m] = mmax(maxWidth1[m] or 0, frame.lines[i * 2 - 1]:GetStringWidth())
 		maxWidth2[m] = mmax(maxWidth2[m] or 0, frame.lines[i * 2]:GetStringWidth())
 	end
+	local size = DBM.Options.InfoFrameFontSize
 	local width = 0
 	for i, _ in pairs(maxWidth1) do
 		local maxWid, maxWid2 = maxWidth1[i], maxWidth2[i]
-		width = width + maxWid + maxWid2 + 18
+		width = width + maxWid + maxWid2 + size + (size / 2)
 		for ii = 1, linesPerRow do
 			local m = ((i - 1) * linesPerRow * 2) + (ii * 2)
 			if not frame.lines[m] then
 				break
 			end
-			frame.lines[m - 1]:SetSize(maxWid, 12)
-			frame.lines[m]:SetSize(maxWid2, 12)
+			frame.lines[m - 1]:SetSize(maxWid, size)
+			frame.lines[m]:SetSize(maxWid2, size)
 		end
 	end
 	if width == 0 then
 		width = 105
 	end
-	frame:SetSize(width, (linesPerRow * 12) + 12)
+	local height = size
+	if linesShown > linesPerRow then
+		height = height + (linesPerRow * size)
+	else
+		height = height + (mmin(linesShown, maxLines) * size)
+	end
+	frame:SetSize(width, height)
 	frame:Show()
 	prevLines = linesShown
 end
@@ -1036,21 +1180,25 @@ function infoFrame:Update(time)
 	end
 	if frame:IsShown() then
 		if time then
-			CAfter(time, function()
-				onUpdate(frame)
-			end)
+			DBM:Unschedule(onUpdate)
+			DBM:Schedule(time, onUpdate, frame)
 		else
 			onUpdate(frame)
 		end
 	end
 end
 
-function infoFrame:UpdateTable(table)
+function infoFrame:UpdateTable(table, time)
 	if not frame then
 		createFrame()
 	end
 	if frame:IsShown() and table then
-		onUpdate(frame, table)
+		if time then
+			DBM:Unschedule(onUpdate)
+			DBM:Schedule(time, onUpdate, frame, table)
+		else
+			onUpdate(frame, table)
+		end
 	end
 end
 
@@ -1072,20 +1220,34 @@ function infoFrame:ClearLines()
 end
 
 function infoFrame:AlignLine(lineNum, linesPerRow)
+	local size = DBM.Options.InfoFrameFontSize
 	local line = frame.lines[lineNum]
 	line:SetJustifyH(lineNum % 2 == 0 and "RIGHT" or "LEFT")
 	if lineNum == 1 then -- 1st entry left
-		line:SetPoint("TOPLEFT", frame, "TOPLEFT", 6, -6)
+		line:SetPoint("TOPLEFT", frame, "TOPLEFT", size / 2, -(size / 2))
 	elseif lineNum == 2 then -- 1st entry right
-		line:SetPoint("TOPLEFT", frame.lines[1], "TOPRIGHT", 6, 0)
+		line:SetPoint("TOPLEFT", frame.lines[1], "TOPRIGHT", size / 2, 0)
 	else
 		if lineNum % linesPerRow == 1 then -- Column 2-x, 1st entry left
-			line:SetPoint("TOPLEFT", frame.lines[lineNum - linesPerRow + 1], "TOPRIGHT", 12, 0)
+			line:SetPoint("TOPLEFT", frame.lines[lineNum - linesPerRow + 1], "TOPRIGHT", size, 0)
 		elseif lineNum % 2 == 0 then -- Column 2-x, Right entry
-			line:SetPoint("TOPLEFT", frame.lines[lineNum - 1], "TOPRIGHT", 6, 0)
+			line:SetPoint("TOPLEFT", frame.lines[lineNum - 1], "TOPRIGHT", size / 2, 0)
 		else -- Column 2-x, Left entry
-			line:SetPoint("TOPLEFT", frame.lines[lineNum - 2], "LEFT", 0, -6)
+			line:SetPoint("TOPLEFT", frame.lines[lineNum - 2], "LEFT", 0, -(size / 2))
 		end
+	end
+end
+
+function infoFrame:UpdateStyle()
+	if not frame then
+		createFrame()
+	end
+	prevLines = 0
+	local font = DBM.Options.InfoFrameFont == "standardFont" and standardFont or DBM.Options.InfoFrameFont
+	local size = DBM.Options.InfoFrameFontSize
+	local style = DBM.Options.InfoFrameFontStyle == "none" and nil or DBM.Options.InfoFrameFontStyle
+	for i = 1, #frame.lines do
+		frame.lines[i]:SetFont(font, size, style)
 	end
 end
 
@@ -1095,8 +1257,14 @@ function infoFrame:SetLine(lineNum, leftText, rightText, colorR, colorG, colorB,
 	end
 	lineNum = lineNum * 2 - 1
 	if not frame.lines[lineNum] then
+		local font = DBM.Options.InfoFrameFont == "standardFont" and standardFont or DBM.Options.InfoFrameFont
+		local size = DBM.Options.InfoFrameFontSize
+		local style = DBM.Options.InfoFrameFontStyle == "none" and nil or DBM.Options.InfoFrameFontStyle
 		frame.lines[lineNum] = frame:CreateFontString("Line" .. lineNum, "OVERLAY", "GameFontNormal")
+		frame.lines[lineNum]:SetFont(font, size, style)
 		frame.lines[lineNum + 1] = frame:CreateFontString("Line" .. lineNum + 1, "OVERLAY", "GameFontNormal")
+		frame.lines[lineNum + 1]:SetFont(font, size, style)
+		frame.lines[lineNum + 1]:SetJustifyH("RIGHT")
 	end
 	frame.lines[lineNum]:SetText(leftText)
 	frame.lines[lineNum]:SetTextColor(colorR or 255, colorG or 255, colorB or 255)
@@ -1126,10 +1294,16 @@ end
 
 function infoFrame:SetLines(lines)
 	modLines = lines
+	if DBM.Options.InfoFrameLines == 0 then
+		maxLines = lines
+	end
 end
 
 function infoFrame:SetColumns(columns)
 	modCols = columns
+	if DBM.Options.InfoFrameCols == 0 then
+		maxCols = columns
+	end
 end
 
 function infoFrame:IsShown()

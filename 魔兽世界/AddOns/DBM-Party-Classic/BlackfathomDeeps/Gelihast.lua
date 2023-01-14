@@ -1,7 +1,7 @@
 local mod	= DBM:NewMod("Gelihast", "DBM-Party-Classic", 1)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20200731154050")
+mod:SetRevision("20221010035226")
 mod:SetCreatureID(6243)
 --mod:SetEncounterID(1667)
 
@@ -14,25 +14,20 @@ mod:RegisterEventsInCombat(
 
 local warningNet			= mod:NewTargetNoFilterAnnounce(6533, 2)
 
-local timerNetCD			= mod:NewAITimer(180, 6533, nil, nil, nil, 5, nil, DBM_CORE_L.TANK_ICON)
+local timerNetCD			= mod:NewAITimer(180, 6533, nil, nil, nil, 5, nil, DBM_COMMON_L.TANK_ICON)
 
 function mod:OnCombatStart(delay)
 	timerNetCD:Start(1-delay)
 end
 
-do
-	local Net = DBM:GetSpellInfo(6533)
-	function mod:SPELL_CAST_SUCCESS(args)
-		--if args.spellId == 6533 then
-		if args.spellName == Net then
-			timerNetCD:Start()
-		end
+function mod:SPELL_CAST_SUCCESS(args)
+	if args.spellId == 6533 then
+		timerNetCD:Start()
 	end
+end
 
-	function mod:SPELL_AURA_APPLIED(args)
-		--if args.spellId == 6533 then
-		if args.spellName == Net then
-			warningNet:Show(args.destName)
-		end
+function mod:SPELL_AURA_APPLIED(args)
+	if args.spellId == 6533 then
+		warningNet:Show(args.destName)
 	end
 end

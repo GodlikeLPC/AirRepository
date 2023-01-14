@@ -1,0 +1,11 @@
+## Interface: 100002
+## Title: Details!: Compare 2.0
+## Notes: Replace the Compare tab in the player breakdown window.
+## RequiredDeps: Details
+
+Details_Compare2.lua
+
+## Title: |cff880303[163UI]|r Details_Compare2
+## Title-zhCN: |cff880303[有爱]|r Details Compare2
+## X-Vendor: NetEase
+## X-163UI-Version: 20221208155130

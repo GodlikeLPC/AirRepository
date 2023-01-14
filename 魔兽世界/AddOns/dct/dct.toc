@@ -1,4 +1,4 @@
-﻿## Interface: 11305
+## Interface: 30400
 ## Title: dct
 ## Title-zhCN: |cffffe00a<|r|cffff7d0aDCT|r|cffffe00a>|r |cff0055FF核心|r
 ## Title-zhTW: |cffffe00a<|r|cffff7d0aDCT|r|cffffe00a>|r |cff0055FF核心|r
@@ -6,20 +6,15 @@
 ## Notes-zhCN: |cff00ff00dct|r|n|cffbc8f8f战斗指示器核心模块，提供受到的伤害效果显示。|r
 ## Notes-zhTW: |cff00ff00dct|r|n|cffbc8f8f戰鬥指示器核心模組，提供受到的傷害效果顯示。|r
 ## Author: Dennie
-## Dependencies: BigFoot
-## X-Revision: BigFoot
-## X-Alias: 战斗指示器
-## LoadOnDemand: 1
+## Dependencies: 
+## LoadOnDemand: 0
 ## SavedVariables: DCT_SAVE,DCT_FONT_SAVE
 ## SavedVariablesPerCharacter: DCT_SAVE_PERCHAR
-
 DCT_ui_patch.lua
 DCT_font.lua
 DCT_default_config.Lua
-
 locals\cn_DCT_default_config.Lua
 locals\tw_DCT_default_config.Lua
-
 DCT_anibase.lua
 DCT_aniframe.lua
 DCT_cd.lua
@@ -27,3 +22,5 @@ DCT.lua
 DCT.xml
 DCT_castbar.lua
 DCT_castbar.xml
+## X-Vendor: NetEase
+## X-163UI-Version: 20220901200239

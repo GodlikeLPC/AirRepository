@@ -1,0 +1,25 @@
+﻿<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+    <Script file="..\Libs\LibStub\LibStub.lua"/>
+    <Include file="..\Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml"/>
+    <Include file="..\Libs\AceGUI-3.0\AceGUI-3.0.xml"/>
+    <Include file="..\Libs\AceConfig-3.0\AceConfig-3.0.xml"/>
+    <Include file="..\Libs\AceGUI-3.0-SharedMediaWidgets\widget.xml"/>
+
+    <Script file="..\Locales\ruRU.lua"/>
+    <Script file="..\Locales\zhCN.lua"/>
+    <Script file="..\Locales\deDE.lua"/>
+    <Script file="..\Locales\koKR.lua"/>
+
+    <Script file="GlobalSettings.lua"/>
+    <Script file="ProfileSettings.lua"/>
+    <Script file="ProfileSelection.lua"/>
+    <Script file="WidgetForms.lua"/>
+    <Script file="WidgetConfig.lua"/>
+    <Script file="StatusConfig.lua"/>
+    <Include file="SpellListItemTemplate.xml"/>
+    <Script file="DebuffHighlight.lua"/>
+    <Script file="Blacklist.lua"/>
+    <Script file="SpellList.lua"/>
+    <Script file="LoadHooks.lua"/>
+</Ui>

@@ -10,10 +10,12 @@ local Token = AtlasLoot.Data.Token
 local Recipe = AtlasLoot.Data.Recipe
 local Profession = AtlasLoot.Data.Profession
 local Sets = AtlasLoot.Data.Sets
-local Mount = AtlasLoot.Data.Mount
+local ItemSet = AtlasLoot.Data.ItemSet
+local Companion = AtlasLoot.Data.Companion
 local ContentPhase = AtlasLoot.Data.ContentPhase
 local Droprate = AtlasLoot.Data.Droprate
 local Requirements = AtlasLoot.Data.Requirements
+local VendorPrice = AtlasLoot.Data.VendorPrice
 local ItemFrame, Favourites
 
 -- lua
@@ -23,7 +25,7 @@ local next, wipe, tab_remove = _G.next, _G.wipe, _G.table.remove
 local format, split, sfind, slower = _G.string.format, _G.string.split, _G.string.find, _G.string.lower
 
 -- WoW
-local GetItemInfo, IsEquippableItem = _G.GetItemInfo, _G.IsEquippableItem
+local GetItemInfo, IsEquippableItem, GetItemInfoInstant = _G.GetItemInfo, _G.IsEquippableItem, _G.GetItemInfoInstant
 local LOOT_BORDER_BY_QUALITY = _G["LOOT_BORDER_BY_QUALITY"]
 
 -- AL
@@ -35,6 +37,7 @@ local ITEM_COLORS = {}
 local DUMMY_ITEM_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
 local SET_ITEM = "|cff00ff00"..AL["Set item"]..":|r "
 local WHITE_TEXT = "|cffffffff%s|r"
+local ITEM_DESC_EXTRA_SEP = "%s | %s"
 
 local itemIsOnEnter, buttonOnEnter = nil, nil
 
@@ -96,7 +99,7 @@ function Item.OnSet(button, second)
 			end
 		end
 		button.secButton.Droprate = button.__atlaslootinfo.Droprate
-		button.secButton.SetID = Sets:GetItemSetForItemID(button.secButton.ItemID)
+		button.secButton.SetID = ItemSet.GetSetIDforItemID(button.secButton.ItemID)
 
 		Item.Refresh(button.secButton)
 	else
@@ -112,6 +115,11 @@ function Item.OnSet(button, second)
 		button.Droprate = Droprate:GetData(button.__atlaslootinfo.npcID, button.ItemID)-- button.__atlaslootinfo.Droprate
 
 		Item.Refresh(button)
+
+		-- Set Vendor price is aviable
+		if VendorPrice.ItemHasVendorPrice(button.ItemID) then
+			button:SetExtraType("Price", VendorPrice.GetVendorPriceForItem(button.ItemID))
+		end
 	end
 end
 
@@ -138,9 +146,9 @@ function Item.OnMouseAction(button, mouseButton)
 		elseif Recipe.IsRecipe(button.ItemID) then
 			button.ExtraFrameShown = true
 			AtlasLoot.Button:ExtraItemFrame_GetFrame(button, Recipe.GetRecipeDataForExtraFrame(button.ItemID))
-		elseif button.type ~= "secButton" and ( button.SetData or Sets:GetItemSetForItemID(button.ItemID) ) then -- sec buttons should not be clickable for sets
+		elseif button.type ~= "secButton" and ( button.SetData or ItemSet.GetSetIDforItemID(button.ItemID) ) then -- sec buttons should not be clickable for sets
 			if not button.SetData then
-				button.SetData = Sets:GetSetItems(Sets:GetItemSetForItemID(button.ItemID))
+				button.SetData = ItemSet.GetSetDataForExtraFrame(ItemSet.GetSetIDforItemID(button.ItemID))
 			end
 			button.ExtraFrameShown = true
 			AtlasLoot.Button:ExtraItemFrame_GetFrame(button, button.SetData)
@@ -218,8 +226,16 @@ function Item.OnEnter(button, owner)
 	if button.Droprate and AtlasLoot.db.showDropRate then
 		tooltip:AddDoubleLine(AL["Droprate:"], format(WHITE_TEXT, button.Droprate.."%"))
 	end
-	if AtlasLoot.db.showIDsInTT then
-		tooltip:AddDoubleLine("ItemID:", format(WHITE_TEXT, button.ItemID or 0))
+	if not AtlasLoot.db.showTooltipInfoGlobal then
+		if AtlasLoot.db.showCompanionLearnedInfo and AtlasLoot.Data.Companion.IsCompanion(button.ItemID) then
+			tooltip:AddDoubleLine(AtlasLoot.Data.Companion.GetTypeName(button.ItemID), AtlasLoot.Data.Companion.GetCollectedString(button.ItemID))
+		end
+		if AtlasLoot.db.showIDsInTT then
+			tooltip:AddDoubleLine(AL["ItemID:"], format(WHITE_TEXT, button.ItemID or 0))
+		end
+		if AtlasLoot.db.showItemLvlInTT and button.ItemLvl then
+			tooltip:AddDoubleLine(AL["Item level:"], format(WHITE_TEXT, button.ItemLvl or 0))
+		end
 	end
 	if AtlasLoot.db.ContentPhase.enableTT and ContentPhase:GetForItemID(button.ItemID) then
 		tooltip:AddDoubleLine(AL["Content phase:"], format(WHITE_TEXT, ContentPhase:GetForItemID(button.ItemID)))
@@ -229,7 +245,7 @@ function Item.OnEnter(button, owner)
 	if IsShiftKeyDown() or db.alwaysShowCompareTT then
 		GameTooltip_ShowCompareItem(tooltip)
 	end
-	if Mount.IsMount(button.ItemID) then
+	if Companion.IsCompanion(button.ItemID) then
 		Item.ShowQuickDressUp(button.ItemID, tooltip)
 	elseif IsControlKeyDown() or db.alwaysShowPreviewTT then
 		Item.ShowQuickDressUp(button.ItemID, tooltip)
@@ -254,11 +270,13 @@ function Item.OnClear(button)
 	button.ItemString = nil
 	button.SetData = nil
 	button.RawName = nil
+	button.ItemLvl = nil
 	button.secButton.ItemID = nil
 	button.secButton.Droprate = nil
 	button.secButton.ItemString = nil
 	button.secButton.SetData = nil
 	button.secButton.RawName = nil
+	button.secButton.ItemLvl = nil
 	button.secButton.pvp:Hide()
 
 	itemIsOnEnter = nil
@@ -271,6 +289,34 @@ function Item.OnClear(button)
 	end
 end
 
+function Item.GetDescription(itemID, itemEquipLoc, itemType, itemSubType)
+	if not itemEquipLoc then
+		local _
+		_, itemType, itemSubType, itemEquipLoc = GetItemInfoInstant(itemID)
+	end
+	local ret
+	if Token.IsToken(itemID) then
+		local tokenDesc = Token.GetTokenDescription(itemID)
+		if Token.TokenTypeAddDescription(itemID) then
+			ret = format(ITEM_DESC_EXTRA_SEP, GetItemDescInfo(itemEquipLoc, itemType, itemSubType), tokenDesc)
+		else
+			ret = tokenDesc
+		end
+	elseif Companion.IsCompanion(itemID) then
+		ret = Companion.GetDescription(itemID, AtlasLoot:GameVersion_GE(AtlasLoot.WRATH_VERSION_NUM, true, false))
+	elseif ItemSet.GetSetIDforItemID(itemID) then
+		ret = AL["|cff00ff00Set item:|r "]..GetItemDescInfo(itemEquipLoc, itemType, itemSubType)
+	else
+		ret = Recipe.GetRecipeDescriptionWithRank(itemID) or
+		Profession.GetColorSkillRankItem(itemID) or
+		GetItemDescInfo(itemEquipLoc, itemType, itemSubType)
+	end
+	if ret and Requirements.HasRequirements(itemID) then
+		ret = Requirements.GetReqString(itemID)..ret
+	end
+	return ret
+end
+
 function Item.Refresh(button)
 	if not button.ItemID then return end
 	local itemID = button.ItemID
@@ -281,8 +327,17 @@ function Item.Refresh(button)
 	end
 	button.RawName = itemName
 
+	if itemLevel and itemLevel > 0 then
+		button.ItemLvl = itemLevel
+	end
+
 	button.overlay:Show()
 	button.overlay:SetQualityBorder(itemQuality)
+
+	-- check if its a heirloom
+	if itemQuality == 7 then
+		button.ItemString = GetItemString(button.ItemID, true)
+	end
 
 	if button.type == "secButton" then
 		button:SetNormalTexture(itemTexture or DUMMY_ITEM_ICON)
@@ -305,16 +360,7 @@ function Item.Refresh(button)
 		-- ##################
 		-- description
 		-- ##################
-		button.extra:SetText(
-			Token.GetTokenDescription(itemID) or
-			Recipe.GetRecipeDescriptionWithRank(itemID) or
-			Profession.GetColorSkillRankItem(itemID) or
-			(Mount.IsMount(button.ItemID) and ALIL["Mount"] or nil) or
-			( Sets:GetItemSetForItemID(itemID) and AL["|cff00ff00Set item:|r "] or "")..GetItemDescInfo(itemEquipLoc, itemType, itemSubType)
-		)
-		if Requirements.HasRequirements(itemID) then
-			button.extra:SetText(Requirements.GetReqString(itemID)..button.extra:GetText())
-		end
+		button.extra:SetText(Item.GetDescription(itemID, itemEquipLoc, itemType, itemSubType))
 	end
 	if Favourites and Favourites:IsFavouriteItemID(itemID) then
 		Favourites:SetFavouriteIcon(itemID, button.favourite)
@@ -348,11 +394,18 @@ end
 --################################
 -- Item dess up
 --################################
+local function ModelReset(self)
+	self:SetCreature(0)
+	self:ClearModel()
+	self:Undress()
+	_G.Model_Reset(self)
+end
+
 function Item.ShowQuickDressUp(itemLink, ttFrame)
-	if not itemLink or not ttFrame or ( not IsEquippableItem(itemLink) and not Mount.IsMount(itemLink) ) then return end
+	if not itemLink or not ttFrame or ( not IsEquippableItem(itemLink) and not Companion.IsCompanion(itemLink) ) then return end
 	if not Item.previewTooltipFrame then
 		local name = "AtlasLoot-SetToolTip"
-		local frame = CreateFrame("Frame", name)
+		local frame = CreateFrame("Frame", name, nil, _G.BackdropTemplateMixin and "BackdropTemplate" or nil)
 		frame:SetClampedToScreen(true)
 		frame:SetSize(230, 280)
 		frame:SetBackdrop(ALPrivate.BOX_BORDER_BACKDROP)
@@ -407,17 +460,16 @@ function Item.ShowQuickDressUp(itemLink, ttFrame)
 
 	frame = Item.previewTooltipFrame.modelFrame
 	frame:Reset()
-	frame:Undress()
-	local npcID = Mount.GetMountNpcID(itemLink)
-	if npcID then
-		frame:SetDisplayInfo(npcID)
+	local creatureID = Companion.GetCreatureID(itemLink)
+	if creatureID then
+		frame:SetCreature(creatureID)
+		frame:SetCamDistanceScale(AtlasLoot:GameVersion_GE(AtlasLoot.WRATH_VERSION_NUM, 1, 2))
 		frame:SetPortraitZoom(frame.zoomLevel)
-		frame:SetCamDistanceScale(2)
 	else
 		frame:SetCamDistanceScale(1)
 		frame:SetUnit("player")
 		local info = {GetItemInfo(itemLink)}
-		if not (info[9] == "INVTYPE_CLOAK") then
+		if info[9] ~= "INVTYPE_CLOAK" then
 			frame:SetRotation(frame.curRotation)
 		else
 			frame:SetRotation(frame.curRotation + math.pi)
@@ -445,12 +497,9 @@ local function EventFrame_OnEvent(frame, event, arg1, arg2)
 					local typFunc = button:GetTypeFunctions()
 					if typFunc then
 						typFunc.Refresh(button)
-						if ItemFrame and ItemFrame.SearchString then
-							local text = button.RawName or button.name:GetText()
-							if text and not sfind(slower(text), ItemFrame.SearchString, 1, true) then
-								button:SetAlpha(0.33)
-							end
-						end
+					end
+					if ItemFrame then
+						ItemFrame.UpdateFilterItem(button)
 					end
 				end
 			end
@@ -467,7 +516,7 @@ local function EventFrame_OnEvent(frame, event, arg1, arg2)
 				if arg1 == "LSHIFT" or arg1 == "RSHIFT" then
 					GameTooltip_ShowCompareItem(itemIsOnEnter)
 				elseif arg1 == "LCTRL" or arg1 == "RCTRL" then
-					if Mount.IsMount(buttonOnEnter.ItemID) then
+					if Companion.IsCompanion(buttonOnEnter.ItemID) then
 						--Item.ShowQuickDressUp(buttonOnEnter.ItemID, itemIsOnEnter)
 					else
 						--local _, link = itemIsOnEnter:GetItem()
@@ -480,7 +529,7 @@ local function EventFrame_OnEvent(frame, event, arg1, arg2)
 					ShoppingTooltip2:Hide()
 					--ShoppingTooltip3:Hide()
 				elseif arg1 == "LCTRL" or arg1 == "RCTRL" then
-					if Item.previewTooltipFrame and not Mount.IsMount(buttonOnEnter.ItemID) and Item.previewTooltipFrame:IsShown() then Item.previewTooltipFrame:Hide() end
+					if Item.previewTooltipFrame and not Companion.IsCompanion(buttonOnEnter.ItemID) and Item.previewTooltipFrame:IsShown() then Item.previewTooltipFrame:Hide() end
 				end
 			end
 		end

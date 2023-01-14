@@ -1,16 +1,13 @@
--- Copyright © 2008 - 2012 Xianghar  <xian@zron.de>
--- All Rights Reserved.
--- This code is not to be modified or distributed without written permission by the author.
--- Current distribution permissions only include curse.com, wowinterface.com and their respective addon updaters
-
 if select(2,UnitClass("player")) ~= "SHAMAN" then return end
+
+local _, TotemTimers = ...
 
 local SpellIDs = TotemTimers.SpellIDs
 local SpellNames = TotemTimers.SpellNames
-local Version = 11.0
+local Version = 11.3
 
 TotemTimers.DefaultGlobalSettings = {
-	Version = 11.0,
+	Version = 11.3,
     Profiles = {},
     Sink = {}
 }
@@ -25,22 +22,25 @@ TotemTimers.DefaultProfile = {
     --General            
         Lock = false,
         FlashRed = true,
-        ShowTimerBars = true,
+        --ShowTimerBars = true,
         HideBlizzTimers = true,
         Tooltips = true,
         TooltipsAtButtons = true,
         TimeFont = "Friz Quadrata TT",
-        TimeColor = {r=1,g=1,b=1},
+        TimeColor = {r=1,g=1,b=1,a=1},
         TimerBarTexture = "Blizzard",
         TimerBarColor = {r=0.5,g=0.5,b=1.0,a=1.0},
         ShowKeybinds = true,
         HideInVehicle = true,
-        StopPulse = true,
+        StopPulse = false,
+        TrackerStopPulse = false,
+        EnhanceCDsStopPulse = false,
         TimersOnButtons = false,
         LavaSurgeAura = true,
         LavaSurgeGlow = true,
         FulminationAura = true,
         FulminationGlow = true,
+        CooldownAlpha = 0.8,
         
         LastTotems = {
             [WATER_TOTEM_SLOT] = SpellNames[SpellIDs.HealingStream],
@@ -71,9 +71,15 @@ TotemTimers.DefaultProfile = {
         ColorTimerBars = false,
         ShowCooldowns = true,
         CheckPlayerRange = true,
-        CheckRaidRange = true,	
+        CheckRaidRange = true,
+        PartyRangePosition = "TOP",
         ShowRaidRangeTooltip = true,
         Timer_Clickthrough = false,
+        IncludeInMacro = {[1] = true, [2] = true, [3] = true, [4] = true,},
+        MacroReset = 15,
+        TwistingTimer = false,
+        MultiCast = true,
+        DisabledMultiSpells = {},
         
     --Trackers
         TrackerArrange = "horizontal",
@@ -88,21 +94,24 @@ TotemTimers.DefaultProfile = {
         WeaponTracker = true,
         WeaponBarDirection = "auto",
         WeaponMenuOnRightclick = false,
-        LastWeaponEnchant = TotemTimers.SpellNames[TotemTimers.SpellIDs.RockbiterWeapon],
+        LastWeaponEnchant = TotemTimers.SpellIDs.RockbiterWeapon,
         EarthShieldTracker = true,
         EarthShieldLeftButton = "recast", 
         EarthShieldRightButton = "target",
         EarthShieldMiddleButton = "targettarget",
         EarthShieldButton4 = "player",
-        ShieldLeftButton = TotemTimers.SpellNames[TotemTimers.SpellIDs.LightningShield],
-        ShieldRightButton = TotemTimers.SpellNames[TotemTimers.SpellIDs.WaterShield],
-        ShieldMiddleButton = TotemTimers.SpellNames[TotemTimers.SpellIDs.TotemicCall],
+        ShieldLeftButton = SpellIDs.LightningShield,
+        ShieldRightButton = SpellIDs.WaterShield,
+        ShieldMiddleButton = SpellIDs.TotemicCall,
+        ShieldButton4 = SpellIDs.EarthShield,
         EarthShieldTargetName = true,
         ESMainTankMenu = true,
         ESMainTankMenuDirection = "auto",
         ESChargesOnly = false,
         Tracker_Clickthrough = false,
         ShieldChargesOnly = true,
+        EarthShieldOnSelf = false,
+
         
     --Warnings
         ActivateHiddenTimers = false,
@@ -260,6 +269,9 @@ TotemTimers.DefaultProfile = {
                 [9] = 9, -- Wind Shear
                 [10] = 10, -- Unleash Elements
                 [11] = 11, -- Spiritwalker's Grace
+                [10] = 10,
+                [11] = 11,
+                [12] = 12,
             },
             [3] = {
                 [1] = 1, 
@@ -271,6 +283,9 @@ TotemTimers.DefaultProfile = {
                 [7] = 7,
 				[8] = 8,
 				[9] = 9,
+                [10] = 10,
+                [11] = 11,
+                [12] = 12,
             },
         },
         EnhanceCDs = true,
@@ -278,31 +293,35 @@ TotemTimers.DefaultProfile = {
         EnhanceCDsTimeHeight = 12,
         EnhanceCDsMaelstromHeight = 14,
         ShowOmniCCOnEnhanceCDs = true,
+        OOCAlpha = 1,
         EnhanceCDsOOCAlpha = 0.4,
         CDTimersOnButtons = true,
         FlameShockDurationOnTop = false,
-        EnhanceCDs_Clickthrough = false,
+        EnhanceCDsClickthrough = false,
+        EnhanceCDsFlameShockDuration = true,
+        EnhanceCDsFlameShockDuration_Specialization = {true, true, true},
+        FlameShockDurationSize = 2,
+        FlameShockDurationStopPulse = false,
+        EnhanceCDsMaelstrom = true,
+        MaelstromSize = 2,
+        MaelstromStopPulse = false,
+        MaelstromNumberOnly = false,
+        EnhanceCDsTotemTwisting = true,
+
+
+        WindfuryDownrank = false,
 		
 		
-		-- LongCooldowns = true,
-		--[[ LongCooldownSpells = {
-			[SpellIDs.Bloodlust] = true,
-			[SpellIDs.Heroism] = true,
-			[SpellIDs.AstralShift] = true,
-			[SpellIDs.SpiritwalkersGrace] = true,
-			[SpellIDs.AncestralGuidance] = true,
-			[SpellIDs.CallOfElements] = true,
-			[SpellIDs.ElementalMastery] = true,
-			[SpellIDs.AncestralSwiftness] = true,
-			[SpellIDs.Ascendance] = true,
-			[SpellIDs.FeralSpirit] = true,
-		}, ]]
+		LongCooldowns = true,
+        LongCooldownSpells = {},
 		LongCooldownsArrange = "horizontal",
+        LongCooldownsStopPulse = false,
+
 		CooldownSpacing = 5,
     
         FramePositions = {
-            TotemTimersFrame = {"CENTER", nil, "CENTER", -200,0},
-            TotemTimers_TrackerFrame = {"CENTER", nil, "CENTER", 50,0},
+            TotemTimersFrame = { "LEFT", "UIParent", "BOTTOM", -218, 150, },--{"CENTER", nil, "CENTER", -200,0},
+            TotemTimers_TrackerFrame = { "LEFT", "UIParent", "BOTTOM", 218-118, 150, },--{"CENTER", nil, "CENTER", 50,0},
             TotemTimers_EnhanceCDsFrame = {"CENTER", nil, "CENTER", 0, -170},
             TotemTimers_CastBar1 = {"CENTER", nil, "CENTER", -200,-190},
             TotemTimers_CastBar2  = {"CENTER", nil, "CENTER", -200,-225},
@@ -310,6 +329,7 @@ TotemTimers.DefaultProfile = {
             TotemTimers_CastBar4  = {"CENTER", nil, "CENTER", 50, -225}, 
             TotemTimers_CrowdControlFrame = {"CENTER", nil, "CENTER", -50, -50},
 			TotemTimers_LongCooldownsFrame = {"CENTER", nil, "CENTER", 150, -80},
+            TotemTimers_MultiSpellFrame = {"CENTER", nil, "CENTER", -300, -205},
         },
         
         TimerPositions = { 
@@ -384,10 +404,10 @@ end
 
 function TotemTimers.SelectActiveProfile()
     local player = UnitName("player")
-    local specialization -- = GetSpecialization()
+    local specialization = TotemTimers.Specialization -- = GetSpecialization()
     if not specialization then specialization = 2 end
     local _,instance = IsInInstance()
-	if not instance then instance = "party" end
+	if not instance then instance = "none" end
     TotemTimers.ActiveProfile = TotemTimers_Profiles[TotemTimers_GlobalSettings.Profiles[player][specialization][instance]] or TotemTimers_Profiles.default
 end
 
@@ -401,6 +421,14 @@ function TotemTimers.ExecuteProfile()
 end
 
 local SettingsConverters = {
+    [11.0] = function() TotemTimers_GlobalSettings.Version = Version end,
+    [11.1] = function() TotemTimers_GlobalSettings.Version = Version end,
+    [11.2] = function()
+        for k,profile in pairs(TotemTimers_Profiles) do
+            if profile.OOCAlpha == 0.4 then profile.OOCAlpha = 1 end
+        end
+        TotemTimers_GlobalSettings.Version = Version
+    end,
 }
 
 	
@@ -409,7 +437,7 @@ function TotemTimers.UpdateProfiles()
     if not TotemTimers_Profiles then TotemTimers_Profiles = {default={}} end
     
 	if not TotemTimers_GlobalSettings.Version or TotemTimers_GlobalSettings.Version < 11.0 then
-		DEFAULT_CHAT_FRAME:AddMessage("TotemTimers: Pre-11.0 or no saved settings found, loading defaults...")
+		DEFAULT_CHAT_FRAME:AddMessage("TotemTimers: Too old or no saved settings found, loading defaults...")
         TotemTimers_GlobalSettings = {}
 		TotemTimers.ResetAllProfiles()
 	elseif TotemTimers_GlobalSettings.Version ~= Version then
@@ -432,7 +460,12 @@ function TotemTimers.UpdateProfiles()
             end
         end
 	end
+
 	for _,profile in pairs(TotemTimers_Profiles) do
+	    if profile.ShowTimerBars == false then
+	        profile.TimerBarColor.a = 0
+	    end
+	    profile.ShowTimerBars = nil
 		for i,j in pairs(TotemTimers.DefaultProfile.FramePositions) do
 			if not profile.FramePositions[i] then
 				profile.FramePositions[i] = copy(j)
@@ -452,6 +485,12 @@ function TotemTimers.UpdateProfiles()
 		
 		local totems = {} -- add missing totems to order if old settings exist
 		for i=1,4 do
+            --remove totems not available in new expansions, needs to go backwards in table because table.remove reduces keys
+            for t=#profile.TotemOrder[i],1,-1 do
+                if not TotemData[profile.TotemOrder[i][t]] then
+                    table.remove(profile.TotemOrder[i], t)
+                end
+            end
 			for t=1,#profile.TotemOrder[i] do
 				totems[profile.TotemOrder[i][t]] = true
 			end
@@ -505,6 +544,8 @@ function TotemTimers.ResetProfilePositions(name)
     TotemTimers_Profiles[name].FramePositions = copy(TotemTimers.DefaultProfile.FramePositions)
     TotemTimers_Profiles[name].TimerPositions = copy(TotemTimers.DefaultProfile.TimerPositions)
     TotemTimers.ProcessSetting("FramePositions")
+    TotemTimers.OrderTimers()
+    TotemTimers.OrderTrackers()
 end
 
 function TotemTimers.CopyProfile(p1,p2)
@@ -518,11 +559,11 @@ end
 
 
 local GeneralList = {
-    Lock, FlashRed, ShowTimerBars,
+    Lock, FlashRed, --ShowTimerBars,
     HideBlizzTimers, Tooltips, TooltipsAtButtons,
     TimeFont, TimeColor, TimerBarTexture,
     TimerBarColor, ShowKeybinds, HideInVehicle,
-    StopPulse, TimersOnButtons, LavaSurgeAura,
+    TimersOnButtons, LavaSurgeAura,
     LavaSurgeGlow, FulminationAura, FulminationGlow,
 }
 

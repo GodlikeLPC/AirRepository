@@ -1,0 +1,30 @@
+## Interface: 30400
+## Title: NeatPlates Hub
+## Notes: Provides a common configuration panel for supported themes.
+## Author: Luxocracy and friends
+## Dependencies: NeatPlates, NeatPlatesWidgets
+## OptionalDeps: NeatPlatesHubDE, NeatPlatesHubES, NeatPlatesHubMX, NeatPlatesHubFR, NeatPlatesHubKR, NeatPlatesHubRU, NeatPlatesHubCN, NeatPlatesHubTW
+## SavedVariables: NeatPlatesHubSettings
+
+Defaults.lua
+Helpers.lua
+Templates.lua
+
+functions\Core.lua
+functions\Filter.lua
+functions\Style.lua
+functions\Alpha.lua
+functions\Scale.lua
+functions\Color.lua
+functions\Text.lua
+functions\Widgets.lua
+
+Hub.lua
+
+## Title: |cff880303[163UI]|r NeatPlates Hub
+## Title-zhCN: |cff880303[有爱]|r Neat 姓名板主题核心接口
+## Title-zhTW: |cff880303[有爱]|r Neat 姓名板主题核心接口
+## Notes-zhCN: 强大到爆的多功能姓名版美化插件-风格兼容模块。
+## Notes-zhTW: 強大到爆的多功能姓名版美化插件-風格兼容模塊。
+## X-Vendor: NetEase
+## X-163UI-Version: 20230105151404

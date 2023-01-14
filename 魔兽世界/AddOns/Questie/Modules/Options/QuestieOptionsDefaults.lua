@@ -4,17 +4,17 @@ local QuestieOptionsDefaults = QuestieLoader:CreateModule("QuestieOptionsDefault
 function QuestieOptionsDefaults:Load()
     return {
         global = {
-            clusterLevelHotzone = 70,
+            clusterLevelHotzone = 50,
             enableIconLimit = false,
             iconLimit = 200,
-            availableScale = 1.3,
+            availableScale = 1.2,
             eventScale = 1.35,
             lootScale = 1,
             iconFadeLevel = 0.3,
             trackerLocked = true,
             monsterScale = 1,
             objectScale = 1,
-            globalScale = 0.7,
+            globalScale = 0.6,
             globalMiniMapScale = 0.7,
             fadeLevel = 20,
             fadeOverPlayer = true,
@@ -40,7 +40,7 @@ function QuestieOptionsDefaults:Load()
             dbmHUDShowLoot = false,
             dbmHUDShowInteract = true,
             mapShowHideEnabled = true,
-            nameplateTargetFrameEnabled = false,
+            nameplateTargetFrameEnabled = true,
             nameplateTargetFrameX = -30,
             nameplateTargetFrameY = 25,
             nameplateTargetFrameScale = 1.7,
@@ -57,6 +57,12 @@ function QuestieOptionsDefaults:Load()
             enableTooltipsQuestLevel = true,
             enableMapIcons = true,
             enableMiniMapIcons = true,
+            questieShutUp = false,
+
+            -- TBC Isle of Quel'Danas
+            isleOfQuelDanasPhase = 1,
+            isIsleOfQuelDanasPhaseReminderDisabled = false,
+            --
 
             -- Tracker Settings Tab
             autoTrackQuests = true,
@@ -67,8 +73,9 @@ function QuestieOptionsDefaults:Load()
             hookTracking = true,
             trackerHeaderEnabled = true,
             trackerHeaderAutoMove = false,
-            stickyDurabilityFrame = true,
+            stickyDurabilityFrame = false,
             hideTrackerInCombat = false,
+            hideTrackerInDungeons = true,
             trackerFadeMinMaxButtons = true,
             trackerFadeQuestItemButtons = false,
             trackerBackdropEnabled = false,
@@ -89,19 +96,27 @@ function QuestieOptionsDefaults:Load()
             trackerFontSizeObjective = 10,
             trackerFontObjective = 'Friz Quadrata TT',
             trackerQuestPadding = 4,
+            trackerFontOutline = nil,
             trackerBackdropAlpha = 1,
             --trackerReset = QuestieTracker:ResetLocation()
-            trackerEnabled = true,
             globalTrackerLocation = true,
+            showQuestXpAtMaxLevel = true,
             questieTLoc = "char",
-
         },
         char = {
-            minLevelFilter = GetQuestGreenRange(), -- Raised the default to allow more quests to be shown
+            minLevelFilter = GetQuestGreenRange("player"), -- Raised the default to allow more quests to be shown
             maxLevelFilter = 7,
             complete = {},
             hidden = {},
-            enableMinimalisticIcons = false,
+            hiddenDailies = {
+                nhc = {},
+                hc = {},
+                cooking = {},
+                fishing = {},
+                pvp = {},
+            },
+            lastDailyRequestResetTime = 0,
+            lastDailySetDate = "",
             enabled = true,
             lowlevel = false,
             manualMinLevelOffset = false,
@@ -112,15 +127,24 @@ function QuestieOptionsDefaults:Load()
             autocomplete = false,
             autoModifier = "shift",
             acceptTrivial = false,
+            questAnnounceChannel = "party",
+            questAnnounceItems = true,
+            questAnnounceAccepted = false,
+            questAnnounceAbandoned = false,
+            questAnnounceObjectives = true,
+            questAnnounceCompleted = false,
             isTrackerExpanded = true,
             hideUnexploredMapIcons = false,
+            hideUntrackedQuestsMapIcons = false,
             showRepeatableQuests = true,
             showEventQuests = true,
             showDungeonQuests = true,
             showRaidQuests = true,
             showPvPQuests = true,
-            showAQWarEffortQuests = true,
+            showAQWarEffortQuests = false,
+            showQuestsInNpcTooltip = true,
+            ldbDisplayText = "Questie"
         },
-        profile = {minimap = {hide = false}}
+        profile = { minimap = { hide = false } }
     }
 end

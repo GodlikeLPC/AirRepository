@@ -11,7 +11,7 @@ local FilterSize	= 20
 local RampUp		= 5
 local RampDown		= 10
 
-Recount.Version = tonumber(string.sub("$Revision: 1544 $", 12, -3))
+Recount.Version = tonumber(string.sub("$Revision: 1603 $", 12, -3))
 
 local _G = _G
 local abs = abs
@@ -55,6 +55,8 @@ local InterfaceOptionsFrame = InterfaceOptionsFrame
 local UIParent = UIParent
 
 local RecountTempTooltip = RecountTempTooltip
+
+local WOW_RETAIL = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 
 Recount.events = CreateFrame("Frame")
 
@@ -413,7 +415,9 @@ Recount.consoleOptions = {
 			type = 'execute',
 			func = function()
 				-- Resike: Throws an error in AceConfigDialog if clicked twice.
-				InterfaceOptionsFrame:Hide()
+				if not WOW_RETAIL then
+					InterfaceOptionsFrame:Hide()
+				end
 				AceConfigDialog:SetDefaultSize("Recount", 500, 550)
 				AceConfigDialog:Open("Recount")
 			end
@@ -1720,13 +1724,6 @@ end
 function Recount:OnInitialize()
 	local acedb = LibStub:GetLibrary("AceDB-3.0")
 	Recount.db = acedb:New("RecountDB", Default_Profile)
-	
-	--Terry@bf
-	if BFRecountLDBIcon and RecountLauncher then
-		BFRecountLDBIcon:Register("Recount", RecountLauncher, Recount.db.profile.MiniMap)
-	end
-	--end Terry@bf
-
 	--Recount.db2 = acedb:New("RecountPerCharDB", DefaultConfig)
 	RecountPerCharDB = RecountPerCharDB or { }
 	Recount.db2 = RecountPerCharDB
@@ -1821,7 +1818,7 @@ function Recount:OnEnable()
 	--Recount.events:RegisterEvent("PLAYER_PET_CHANGED")
 	Recount.events:RegisterEvent("ZONE_CHANGED_NEW_AREA") -- Elsia: This is needed for zone change deletion and collection
 	Recount.events:RegisterEvent("PLAYER_ENTERING_WORLD") -- Attempt to fix Onyxia instance entrance which isn't a new zone.
-	if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
+	if WOW_RETAIL then
 		Recount.events:RegisterEvent("PET_BATTLE_OPENING_START")
 		Recount.events:RegisterEvent("PET_BATTLE_CLOSE")
 	end
@@ -1839,7 +1836,7 @@ function Recount:OnEnable()
 end
 
 function Recount:PetBattleUpdate()
-	if Recount.db.profile.HidePetBattle and WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC and C_PetBattles.IsInBattle() and Recount.MainWindow:IsShown() then
+	if Recount.db.profile.HidePetBattle and WOW_RETAIL and C_PetBattles.IsInBattle() and Recount.MainWindow:IsShown() then
 		Recount.MainWindow:Hide()
 
 		Recount.MainWindow.wasHidden = true

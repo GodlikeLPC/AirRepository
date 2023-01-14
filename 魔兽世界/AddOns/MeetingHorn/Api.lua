@@ -1,6 +1,6 @@
-
----@type ns
-local ADDON_NAME, ns = ...
+local ADDON_NAME = ...
+---@class ns
+local ns = select(2, ...)
 local L = ns.L
 
 ---@class MeetingHornCategoryData
@@ -27,400 +27,119 @@ local L = ns.L
 
 ns.MIN_INTERVAL = 10
 ns.ADDON_PREFIX = format('|cff00ffff%s|r：', L.ADDON_NAME)
-ns.ADDON_VERSION = GetAddOnMetadata(ADDON_NAME, 'Version')
+ns.ADDON_VERSION = GetAddOnMetadata(ADDON_NAME, 'Version'):gsub('%-%d+', '')
 ns.ADDON_TAG = '<' .. L.ADDON_NAME .. '>'
 
 ns.APPLICANT_STATUS = {Normal = 1, Invited = 2, Declined = 3, Joined = 4}
 
-local function invert(list, key)
-    local result = {}
-    for i, v in ipairs(list) do
-        result[v[key]] = v
-    end
-    return result
-end
+ns.PROJECT_DATA = { --
+    [2] = {maxLevel = 60, name = EXPANSION_NAME0, projects = {2}},
+    [5] = {maxLevel = 70, name = EXPANSION_NAME1, projects = {5, 2}},
+    [11] = {maxLevel = 80, name = EXPANSION_NAME2, projects = {11, 5, 2}},
+}
 
-local BASE_INTERVAL = 50
-local BASE_TIMEOUT = 90
+ns.SEARCH_ALIAS = { --
+    ['5h'] = {'h', 'yx', '英雄', params = {comment = true}, ['英雄'] = {comment = true, name = true}},
+}
 
-local function category(path, name, channel, interval, timeout, inCity)
-    if not channel then
-        channel = {L['CHANNEL: Group'], '寻求组队'}
-    end
+local INSTANCE_DATA = {
+    [2717] = {projectId = 2, logo = 'Ragnaros'}, -- 熔火之心
+    -- [2159] = {projectId = 2, logo = 'Onyxia'}, -- 奥妮克希亚的巢穴
+    [2677] = {projectId = 2, logo = 'Nefarian'}, -- 黑翼之巢
+    [3428] = {projectId = 2, logo = 'CThun', instanceName = L['Ahn\'Qiraj Temple']}, -- 安其拉神殿
+    -- [3456] = {projectId = 2, logo = 'KelThuzad'}, -- 纳克萨玛斯
+    [1977] = {projectId = 2, logo = 'Avatar of Hakkar'}, -- 祖尔格拉布
+    [3429] = {projectId = 2, logo = 'Ossirian the Unscarred'}, -- 安其拉废墟
+    -- tbc
+    [3457] = {projectId = 5, logo = 'Prince Malchezaar'}, -- 卡拉赞
+    [3923] = {projectId = 5, logo = 'Gruul the Dragonkiller'}, -- 格鲁尔的巢穴
+    [3836] = {projectId = 5, logo = 'Magtheridon'}, -- 玛瑟里顿的巢穴
+    [3607] = {projectId = 5, logo = 'Lady Vashj'}, -- 毒蛇神殿
+    [3845] = {projectId = 5, logo = 'KaelThas Sunstrider'}, -- 风暴要塞
+    [3606] = {projectId = 5, logo = 'Archimonde'}, -- 海加尔山
+    [3959] = {projectId = 5, logo = 'Illidan Stormrage'}, -- 黑暗神庙
+    [3805] = {projectId = 5, logo = 'Daakara'}, -- 祖阿曼
+    [4075] = {projectId = 5, logo = 'Kiljaeden', instanceName = '太阳之井'}, -- 太阳井
+    -- wlk
+    [3456] = {projectId = 11, logo = 'KelThuzad'}, -- 纳克萨玛斯
+    [4493] = {projectId = 11, logo = 1385765}, -- 黑曜石圣殿
+    [4500] = {projectId = 11, logo = 1385753}, -- 永恒之眼
+    [2159] = {projectId = 11, logo = 'Onyxia'}, -- 奥妮克希亚的巢穴
+    [4603] = {projectId = 11, logo = 1385767}, -- 阿尔卡冯的宝库
+    [4273] = {projectId = 11, logo = 1385774}, -- 奥杜尔
+    [4722] = {projectId = 11, logo = 607542}, -- 十字军的试炼
+    [4812] = {projectId = 11, logo = 607688}, -- 冰冠堡垒
+    [4987] = {projectId = 11, logo = 1385738}, -- 红玉圣殿
+}
 
-    local channels = {}
-    if type(channel) == 'table' then
-        for i, v in ipairs(channel) do
-            channels[v] = true
+ns.INSTANCE_DATA = {}
+ns.CURRENT_RELEASE_INSTANCES = {}
+
+for mapId, v in pairs(INSTANCE_DATA) do
+    local name = C_Map.GetAreaInfo(mapId)
+    if name then
+        if type(v.logo) == 'string' then
+            v.logo = [[Interface\ENCOUNTERJOURNAL\UI-EJ-BOSS-]] .. v.logo
         end
-        channel = channel[1]
-    else
-        channels[channel] = true
-    end
+        ns.INSTANCE_DATA[name] = v
 
-    return {
-        path = path,
-        name = name,
-        channel = channel,
-        channels = channels,
-        interval = interval or BASE_INTERVAL,
-        timeout = timeout or BASE_TIMEOUT,
-        inCity = inCity,
-    }
-end
-
----@type MeetingHornCategoryData[]
-local CATEGORY_LIST = {
-    category('Quest', L.CATEGORY_QUEST), --
-    category('Raid', L.CATEGORY_RAID), --
-    category('Dungeon', L.CATEGORY_DUNGEON), --
-    category('Boss', L.CATEGORY_BOSS), --
-    category('PvP', L.CATEGORY_PVP), --
-    category('Recruit', L.CATEGORY_RECRUIT, L['CHANNEL: Recruit'], 150, 300, true), --
-    category('Port', L.CATEGORY_PORT, L['CHANNEL: Group'], 150, 300), --
-    category('Summon', L.CATEGORY_SUMMON, L['CHANNEL: Group'], 150, 300), --
-    category('Other', OTHER), --
-    --[===[@debug@
-    category('Debug', 'Debug', 'MeetingHornDebug'), --
-    --@end-debug@]===]
-}
-
-local CLASS_INFO = FillLocalizedClassList{}
-local MODE_LIST = {'带新', '自强', 'Roll', 'AA', '菜刀', '传送', '其它'}
-local MODE_IDS = tInvert(MODE_LIST)
-local CATEGORY_DATA = invert(CATEGORY_LIST, 'path')
-local SHORT_NAMES = {
-    [2717] = L['SHORT: Molten Core'], -- 熔火之心
-    [2159] = L['SHORT: Onyxia\'s Lair'], -- 奥妮克希亚的巢穴
-    [2677] = L['SHORT: Blackwing Lair'], -- 黑翼之巢
-    [3428] = L['SHORT: Ahn\'Qiraj Temple'], -- 安其拉神殿
-    [3456] = L['SHORT: Naxxramas'], -- 纳克萨玛斯
-    [1977] = L['SHORT: Zul\'Gurub'], -- 祖尔格拉布
-    [3429] = L['SHORT: Ruins of Ahn\'Qiraj'], -- 安其拉废墟
-    [2017] = L['SHORT: Stratholme'], -- 斯坦索姆
-    [2057] = L['SHORT: Scholomance'], -- 通灵学院
-    ['Dire Maul - North'] = L['SHORT: Dire Maul - North'], -- 厄运之槌 - 北
-    ['Dire Maul - West'] = L['SHORT: Dire Maul - West'], -- 厄运之槌 - 西
-    ['Dire Maul - East'] = L['SHORT: Dire Maul - East'], -- 厄运之槌 - 东
-    ['Upper Blackrock Spire'] = L['SHORT: Upper Blackrock Spire'], -- 黑石塔上层
-    ['Lower Blackrock Spire'] = L['SHORT: Lower Blackrock Spire'], -- 黑石塔下层
-    [1584] = L['SHORT: Blackrock Depths'], -- 黑石深渊
-    [1477] = L['SHORT: The Temple of Atal\'Hakkar'], -- 阿塔哈卡神庙
-    [2100] = L['SHORT: Maraudon'], -- 玛拉顿
-    [1176] = L['SHORT: Zul\'Farrak'], -- 祖尔法拉克
-    [1337] = L['SHORT: Uldaman'], -- 奥达曼
-    [722] = L['SHORT: Razorfen Downs'], -- 剃刀高地
-    ['Scarlet Monastery - Cathedral'] = L['SHORT: Scarlet Monastery - Cathedral'], -- 血色修道院 - 大教堂
-    ['Scarlet Monastery - Armory'] = L['SHORT: Scarlet Monastery - Armory'], -- 血色修道院 - 军械库
-    ['Scarlet Monastery - Library'] = L['SHORT: Scarlet Monastery - Library'], -- 血色修道院 - 图书馆
-    ['Scarlet Monastery - Graveyard'] = L['SHORT: Scarlet Monastery - Graveyard'], -- 血色修道院 - 墓地
-    [491] = L['SHORT: Razorfen Kraul'], -- 剃刀沼泽
-    [721] = L['SHORT: Gnomeregan'], -- 诺莫瑞根
-    [717] = L['SHORT: The Stockade'], -- 监狱
-    [719] = L['SHORT: Blackfathom Deeps'], -- 黑暗深渊
-    [209] = L['SHORT: Shadowfang Keep'], -- 影牙城堡
-    [718] = L['SHORT: Wailing Caverns'], -- 哀嚎洞穴
-    [1581] = L['SHORT: Deadmines'], -- 死亡矿井
-    [2437] = L['SHORT: Ragefire Chasm'], -- 怒焰裂谷
-    [2597] = L['SHORT: Alterac Valley'], -- 奥特兰克山谷
-    [3277] = L['SHORT: Warsong Gulch'], -- 战歌峡谷
-    [3358] = L['SHORT: Arathi Basin'], -- 阿拉希盆地
-    ['Lord Kazzak'] = L['SHORT: Lord Kazzak'], -- 卡扎克
-    ['Azuregos'] = L['SHORT: Azuregos'], -- 艾索雷葛斯
-    ['Ysondre'] = L['SHORT: Ysondre'], -- 伊森德雷
-    ['Taerar'] = L['SHORT: Taerar'], -- 泰拉尔
-    ['Emeriss'] = L['SHORT: Emeriss'], -- 艾莫莉丝
-    ['Lethon'] = L['SHORT: Lethon'], -- 莱索恩
-}
-local INSTANCE_NAMES = {
-    [C_Map.GetAreaInfo(2717)] = C_Map.GetAreaInfo(2717), -- 熔火之心
-    [C_Map.GetAreaInfo(2159)] = C_Map.GetAreaInfo(2159), -- 奥妮克希亚的巢穴
-    [C_Map.GetAreaInfo(2677)] = C_Map.GetAreaInfo(2677), -- 黑翼之巢
-    [C_Map.GetAreaInfo(3428)] = C_Map.GetAreaInfo(3428), -- 安其拉神殿
-    [C_Map.GetAreaInfo(3456)] = C_Map.GetAreaInfo(3456), -- 纳克萨玛斯
-    [C_Map.GetAreaInfo(1977)] = C_Map.GetAreaInfo(1977), -- 祖尔格拉布
-    [C_Map.GetAreaInfo(3429)] = C_Map.GetAreaInfo(3429), -- 安其拉废墟
-}
-
-local function names(key)
-    local id = tonumber(key)
-    if id then
-        return {C_Map.GetAreaInfo(id), SHORT_NAMES[key]}
-    end
-    return {L[key], SHORT_NAMES[key]}
-end
-
-local function base(name, path, minLevel, members, class)
-    local shortName, shortNameLower
-    if type(name) == 'table' then
-        name, shortName = unpack(name)
-    end
-
-    if shortName == '' then
-        shortName = nil
-    end
-    if shortName then
-        shortNameLower = shortName:lower()
-    end
-
-    return {
-        name = name,
-        nameLower = name:lower(),
-        shortName = shortName,
-        shortNameLower = shortNameLower,
-        path = path,
-        members = members or 40,
-        category = CATEGORY_DATA[path],
-        minLevel = minLevel or 0,
-        class = class,
-        instanceName = INSTANCE_NAMES[name],
-    }
-end
-
-local function raid(key, members)
-    return base(names(key), 'Raid', 60, members or 40)
-end
-
-local function dungeon(key, minLevel, members)
-    return base(names(key), 'Dungeon', minLevel, members or 5)
-end
-
-local function pvp(key, minLevel, members)
-    return base(names(key), 'PvP', minLevel, members)
-end
-
-local function quest(key, minLevel)
-    return base(names(key), 'Quest', minLevel, 40)
-end
-
-local function boss(key)
-    return base(names(key), 'Boss', 60, 40)
-end
-
----@type MeetingHornActivityData[]
-local ACTIVITY_LIST = { --
-    -- raid
-    raid(2717), -- 熔火之心
-    raid(2159), -- 奥妮克希亚的巢穴
-    raid(2677), -- 黑翼之巢
-    raid(3428), -- 安其拉神殿
-    raid(3456), -- 纳克萨玛斯
-    raid(1977, 20), -- 祖尔格拉布
-    raid(3429, 20), -- 安其拉废墟
-    -- 地下城
-    dungeon(2017, 58), -- 斯坦索姆
-    dungeon(2057, 58), -- 通灵学院
-    dungeon('Dire Maul - North', 58), -- 厄运之槌 - 北
-    dungeon('Dire Maul - West', 58), -- 厄运之槌 - 西
-    dungeon('Dire Maul - East', 58), -- 厄运之槌 - 东
-    dungeon('Upper Blackrock Spire', 55, 10), -- 黑石塔上层
-    dungeon('Lower Blackrock Spire', 55), -- 黑石塔下层
-    dungeon(1584, 52), -- 黑石深渊
-    dungeon(1477, 50), -- 阿塔哈卡神庙
-    dungeon(2100, 46), -- 玛拉顿
-    dungeon(1176, 44), -- 祖尔法拉克
-    dungeon(1337, 41), -- 奥达曼
-    dungeon(722, 37), -- 剃刀高地
-    dungeon('Scarlet Monastery - Cathedral', 35), -- 血色修道院 - 大教堂
-    dungeon('Scarlet Monastery - Armory', 32), -- 血色修道院 - 军械库
-    dungeon('Scarlet Monastery - Library', 29), -- 血色修道院 - 图书馆
-    dungeon('Scarlet Monastery - Graveyard', 26), -- 血色修道院 - 墓地
-    dungeon(491, 29), -- 剃刀沼泽
-    dungeon(721, 29), -- 诺莫瑞根
-    dungeon(717, 24), -- 监狱
-    dungeon(719, 24), -- 黑暗深渊
-    dungeon(209, 22), -- 影牙城堡
-    dungeon(718, 17), -- 哀嚎洞穴
-    dungeon(1581, 17), -- 死亡矿井
-    dungeon(2437, 13), -- 怒焰裂谷
-    -- 世界boss
-    boss('Lord Kazzak'), -- 卡扎克
-    boss('Azuregos'), -- 艾索雷葛斯
-    boss('Ysondre'), -- 伊森德雷
-    boss('Taerar'), -- 泰拉尔
-    boss('Emeriss'), -- 艾莫莉丝
-    boss('Lethon'), -- 莱索恩
-    -- 战场
-    pvp(2597, 40), -- 奥特兰克山谷
-    pvp(3277, 10), -- 战歌峡谷
-    pvp(3358, 15), -- 阿拉希盆地
-    base(L['Wild PvP'], 'PvP'), -- 野外PVP
-    -- 任务
-    quest(1377), -- 希利苏斯
-    quest(618), -- 冬泉谷
-    quest(139), -- 东瘟疫之地
-    quest(46), -- 燃烧平原
-    quest(41), -- 逆风小径
-    quest(28), -- 西瘟疫之地
-    quest(16), -- 艾萨拉
-    quest(361), -- 费伍德森林
-    quest(490), -- 安戈洛环形山
-    quest(4), -- 诅咒之地
-    quest(51), -- 灼热峡谷
-    quest(357), -- 菲拉斯
-    quest(440), -- 塔纳利斯
-    quest(47), -- 辛特兰
-    quest(15), -- 尘泥沼泽
-    quest(3), -- 荒芜之地
-    quest(8), -- 悲伤沼泽
-    quest(405), -- 凄凉之地
-    quest(36), -- 奥特兰克山脉
-    quest(45), -- 阿拉希高地
-    quest(33), -- 荆棘谷
-    quest(400), -- 千针石林
-    quest(10), -- 暮色森林
-    quest(267), -- 希尔斯布莱德丘陵
-    quest(11), -- 湿地
-    quest(331), -- 灰谷
-    quest(406), -- 石爪山脉
-    quest(44), -- 赤脊山
-    quest(148), -- 黑海岸
-    quest(17), -- 贫瘠之地
-    quest(38), -- 洛克莫丹
-    quest(130), -- 银松森林
-    quest(40), -- 西部荒野
-    quest(14), -- 杜隆塔尔
-    quest(215), -- 莫高雷
-    quest(141), -- 泰达希尔
-    quest(1), -- 丹莫罗
-    quest(12), -- 艾尔文森林
-    quest(85), -- 提瑞斯法林地
-    -- 传送
-    base(L.CATEGORY_PORT, 'Port', 40, nil, 'MAGE'), --
-    -- 召唤
-    base(L.CATEGORY_SUMMON, 'Summon', 20, nil, 'WARLOCK'), --
-    -- 招募
-    base(L.CATEGORY_RECRUIT, 'Recruit'), --
-    -- 其它
-    base(OTHER, 'Other'), --
-    --[===[@debug@
-    base('Debug', 'Debug'),
-    --@end-debug@]===]
-}
-
-ACTIVITY_LIST[0] = {path = 'Other', name = CHANNEL, interval = 30, timeout = 60, category = CATEGORY_DATA['Other']}
-
-local function pick(path, isCreator)
-    local result = {}
-    local minLevel = 60
-    for i, v in ipairs(ACTIVITY_LIST) do
-        if v.path == path then
-            tinsert(result, {
-                text = v.name,
-                value = i,
-                disabled = isCreator and function()
-                    return UnitLevel('player') < v.minLevel or (v.class and v.class ~= UnitClassBase('player')) or
-                               (v.category.inCity and not ns.LFG:IsInCity())
-                end,
-                tooltipWhileDisabled = true,
-                tooltipOnButton = true,
-                tooltipMore = isCreator and function(tip)
-                    tip:SetText(v.name)
-                    if UnitLevel('player') < v.minLevel then
-                        tip:AddLine(format(L['Requires Level %s'], v.minLevel), 1, 0, 0)
-                    end
-                    if v.class and v.class ~= UnitClassBase('player') then
-                        tip:AddLine(format(L['Requires Class %s'], ns.GetClassLocale(v.class)), 1, 0, 0)
-                    end
-                    if v.category.inCity and not ns.LFG:IsInCity() then
-                        tip:AddLine(L['Requires Zone City'], 1, 0, 0)
-                    end
-                end,
-            })
-
-            minLevel = math.min(minLevel, v.minLevel)
+        if v.projectId == WOW_PROJECT_ID then
+            ns.CURRENT_RELEASE_INSTANCES[v.instanceName or name] = true
         end
     end
-    return result, minLevel
 end
 
-ns.ACTIVITY_MENU = {}
-ns.ACTIVITY_FILTER_MENU = {{text = ALL}}
-ns.MODE_MENU = {}
-ns.MODE_FILTER_MENU = {{text = ALL}}
-
-for _, category in ipairs(CATEGORY_LIST) do
-    local path = category.path
-    local children, minLevel = pick(path, true)
-    if #children > 1 then
-        tinsert(ns.ACTIVITY_MENU, {
-            text = category.name,
-            hasArrow = true,
-            notClickable = true,
-            disabled = function()
-                return UnitLevel('player') < minLevel
-            end,
-            menuTable = children,
-        })
-        tinsert(ns.ACTIVITY_FILTER_MENU, {text = category.name, hasArrow = true, value = path, menuTable = pick(path)})
-    else
-        tinsert(ns.ACTIVITY_MENU, children[1])
-        tinsert(ns.ACTIVITY_FILTER_MENU, pick(path)[1])
+function ns.GetInstanceName(mapName)
+    local data = ns.INSTANCE_DATA[mapName]
+    if data then
+        return data.instanceName or mapName
     end
 end
 
-for id, mode in ipairs(MODE_LIST) do
-    local menuItem = {text = mode, value = id}
-    tinsert(ns.MODE_MENU, menuItem)
-    tinsert(ns.MODE_FILTER_MENU, menuItem)
+function ns.GetInstanceLogo(mapName)
+    local data = ns.INSTANCE_DATA[mapName]
+    return data and data.logo
 end
 
-local ACTIVITY_IDS = {}
+ns.GOODLEADER_INSTANCES = {
+    --[=[@classic@
+    {projectId = 2, mapId = 2717, bossId = 672, image = 'moltencore'}, --
+    {projectId = 2, mapId = 2159, bossId = 1084, image = 'onyxia'}, --
+    {projectId = 2, mapId = 2677, bossId = 617, image = 'blackwinglair'}, --
+    {projectId = 2, mapId = 3428, bossId = 717, image = 'templeofahnqiraj'}, --
+    {projectId = 2, mapId = 3456, bossId = 1114, name = L['克尔苏加德'], image = 'naxxramas'}, --
+    {projectId = 2, mapId = 3456, bossId = 1121, name = L['军事区'], image = 'naxxramas'}, --
+    {projectId = 2, mapId = 3456, bossId = 1115, name = L['瘟疫区'], image = 'naxxramas'}, --
+    {projectId = 2, mapId = 3456, bossId = 1116, name = L['蜘蛛区'], image = 'naxxramas'}, --
+    {projectId = 2, mapId = 3456, bossId = 1120, name = L['构造区'], image = 'naxxramas'}, --
+    {projectId = 2, mapId = 1977, bossId = 793, image = 'zulgurub'}, --
+    {projectId = 2, mapId = 3429, bossId = 723, image = 'ruinsofahnqiraj'}, --
+    --@end-classic@]=]
+    --[=[@bcc@
+    {projectId = 5, mapId = 3457, bossId = 661, image = 'Karazhan'}, -- 卡拉赞
+    {projectId = 5, mapId = 3923, bossId = 650, image = 'GruulsLair'}, -- 格鲁尔的巢穴
+    {projectId = 5, mapId = 3836, bossId = 651, image = 'MagtheridonsLair'}, -- 玛瑟里顿的巢穴
+    {projectId = 5, mapId = 3607, bossId = 628, image = 'CoilfangReservoir'}, -- 毒蛇神殿
+    {projectId = 5, mapId = 3845, bossId = 733, image = 'TempestKeep'}, -- 风暴要塞
+    {projectId = 5, mapId = 3606, bossId = 622, image = 'CavernsOfTime'}, -- 海加尔山
+    {projectId = 5, mapId = 3959, bossId = 609, image = 'BlackTemple'}, -- 黑暗神庙
+    {projectId = 5, mapId = 3805, bossId = 1189, image = 'ZulAman'}, -- 祖阿曼
+    {projectId = 5, mapId = 4075, bossId = 729, image = 'SunwellPlateau'}, -- 太阳井
+    --@end-bcc@]=]
+    -- @lkc@
+    {projectId = 11, mapId = 3456, bossId = 1114, difficulties = {3, 4}, image = 'naxxramas'}, -- 纳克萨玛斯
+    {projectId = 11, mapId = 4493, bossId = 742, difficulties = {3, 4}, image = 1396588}, -- 黑曜石圣殿
+    {projectId = 11, mapId = 4500, bossId = 734, difficulties = {3, 4}, image = 1396581}, -- 永恒之眼
+    -- {projectId = 11, mapId = 4603, bossId = 0, image = 1396596}, -- 阿尔卡冯的宝库
+    {projectId = 11, mapId = 4273, bossId = 756, difficulties = {3, 4}, image = 1396595}, -- -- 奥杜尔
+    {projectId = 11, mapId = 4722, bossId = 645, difficulties = {3, 4, 5, 6}, image = 1396594}, -- -- 十字军的试炼
+    {projectId = 11, mapId = 2159, bossId = 1084, difficulties = {3, 4}, image = 'onyxia'}, -- -- 奥妮克希亚的巢穴
+    {projectId = 11, mapId = 4812, bossId = 856, difficulties = {3, 4, 5, 6}, image = 1396583}, -- -- 冰冠堡垒
+    {projectId = 11, mapId = 4987, bossId = 887, difficulties = {3, 4, 5, 6}, image = 1396590}, -- -- 红玉圣殿
+    -- @end-lkc@
+}
 
-for id, v in ipairs(ACTIVITY_LIST) do
-    assert(not ACTIVITY_IDS[v.name])
-    ACTIVITY_IDS[v.name] = id
-
-    if v.shortName then
-        assert(not ACTIVITY_IDS[v.shortName])
-        ACTIVITY_IDS[v.shortName] = id
-    end
-end
-
-local OUR_CHANNELS = {}
-
-for i, v in ipairs(CATEGORY_LIST) do
-    OUR_CHANNELS[v.channel] = true
-
-    for k, v in pairs(v.channels) do
-        OUR_CHANNELS[k] = true
-    end
-end
-
-function ns.NameToId(name)
-    return ACTIVITY_IDS[name]
-end
-
-function ns.ModeToId(mode)
-    return MODE_IDS[mode]
-end
-
-function ns.IdToMode(id)
-    return MODE_LIST[id]
-end
-
-function ns.IsOurChannel(name)
-    if OUR_CHANNELS[name] then
-        return true
-    end
-    return OUR_CHANNELS[ns.Channel:GetUsChannelName(name)]
-end
-
-function ns.GetOurChannels()
-    return OUR_CHANNELS
-end
-
----@param id number
----@return MeetingHornActivityData
-function ns.GetActivityData(id)
-    return ACTIVITY_LIST[id]
-end
-
----@param path string
----@return MeetingHornCategoryData
-function ns.GetCategoryData(path)
-    return CATEGORY_DATA[path]
-end
+local CLASS_INFO = FillLocalizedClassList {}
 
 function ns.IsCompatChannel(channelName)
     return --[[channelName == '交易' or]] channelName:match('^大脚世界频道')
@@ -450,18 +169,13 @@ function ns.GetClassLocale(classFileName)
     return CLASS_INFO[classFileName]
 end
 
-local function GetSlotItemLevel(slot)
-    local id = GetInventoryItemID('player', slot)
+local function GetSlotItemLevel(unit, slot)
+    local id = GetInventoryItemID(unit, slot)
     if not id then
         return 0
     end
     local itemLevel = select(4, GetItemInfo(id))
     return itemLevel
-end
-
-local function IsNoRangeWeaponClass()
-    local class = select(2, UnitClass('player'))
-    return class == 'PALADIN' or class == 'SHAMAN' or class == 'DRUID'
 end
 
 local ITEMS = { --
@@ -479,8 +193,8 @@ local ITEMS = { --
     [13] = GetSlotItemLevel,
     [14] = GetSlotItemLevel,
     [15] = GetSlotItemLevel,
-    [16] = function(slot)
-        local id = GetInventoryItemID('player', slot)
+    [16] = function(unit, slot)
+        local id = GetInventoryItemID(unit, slot)
         if not id then
             return 0
         end
@@ -491,20 +205,19 @@ local ITEMS = { --
         return itemLevel
     end,
     [17] = GetSlotItemLevel,
-    [18] = function()
-        if IsNoRangeWeaponClass() then
-            return 0
-        end
-        return GetSlotItemLevel(18)
-    end,
+    [18] = GetSlotItemLevel,
 }
 
 function ns.GetPlayerItemLevel()
+    return ns.GetUnitItemLevel('player')
+end
+
+function ns.GetUnitItemLevel(unit)
     local itemLevel = 0
     for slot, func in pairs(ITEMS) do
-        itemLevel = itemLevel + func(slot)
+        itemLevel = itemLevel + (func(unit, slot) or 0)
     end
-    local count = IsNoRangeWeaponClass() and 16 or 17
+    local count = 17
     return floor(itemLevel / count * 10) / 10
 end
 
@@ -518,23 +231,47 @@ function ns.GetRaidId(raidName)
     return -1
 end
 
-function ns.GetGroupLeader()
-    if IsInRaid() then
-        for i = 1, 40 do
-            local unit = 'raid' .. i
-            if UnitIsGroupLeader(unit) then
-                return UnitName(unit), UnitGUID(unit)
-            end
-        end
+local SOLO_GROUPS = {player = true}
+local PARTY_GROUPS = (function()
+    local r = {player = true}
+    for i = 1, 4 do
+        r['party' .. i] = true
+    end
+    return r
+end)()
+local RAID_GROUPS = (function()
+    local r = {}
+    for i = 1, 40 do
+        r['raid' .. i] = true
+    end
+    return r
+end)()
+
+function ns.IterateGroup()
+    if IsInRaid(LE_PARTY_CATEGORY_HOME) then
+        return pairs(RAID_GROUPS)
     elseif IsInGroup(LE_PARTY_CATEGORY_HOME) then
-        for i = 1, 4 do
-            local unit = 'party' .. i
-            if UnitIsGroupLeader(unit) then
-                return UnitName(unit), UnitGUID(unit)
-            end
+        return pairs(PARTY_GROUPS)
+    else
+        return pairs(SOLO_GROUPS)
+    end
+end
+
+function ns.UnitFullName(unit)
+    local name, realm = UnitFullName(unit)
+    if not name then
+        return
+    end
+    return format('%s-%s', name, realm or GetRealmName():gsub('%s+', ''))
+end
+
+function ns.GetGroupLeader()
+    for unit in ns.IterateGroup() do
+        if UnitIsGroupLeader(unit) then
+            return ns.UnitFullName(unit), UnitGUID(unit)
         end
     end
-    return UnitName('player'), UnitGUID('player')
+    return ns.UnitFullName('player'), UnitGUID('player')
 end
 
 function ns.GetGroupLooter()
@@ -542,11 +279,15 @@ function ns.GetGroupLooter()
         for i = 1, 40 do
             local name, _, _, _, _, _, _, _, _, _, isML = GetRaidRosterInfo(i)
             if isML then
-                return UnitName(name), UnitGUID(name)
+                return ns.UnitFullName(name), UnitGUID(name)
             end
         end
     end
     return ns.GetGroupLeader()
+end
+
+function ns.IsInGroup()
+    return IsInGroup(LE_PARTY_CATEGORY_HOME)
 end
 
 function ns.tRemoveIf(t, condition)
@@ -561,11 +302,15 @@ function ns.tRemoveIf(t, condition)
     return any
 end
 
+function ns.SystemMessage(text)
+    return DEFAULT_CHAT_FRAME:AddMessage(text, 1, 1, 0)
+end
+
 function ns.Message(msg, ...)
     if select('#', ...) > 0 then
-        return SendSystemMessage(string.format(ns.ADDON_PREFIX .. msg, ...))
+        return ns.SystemMessage(string.format(ns.ADDON_PREFIX .. msg, ...))
     end
-    return SendSystemMessage(ns.ADDON_PREFIX .. msg)
+    return ns.SystemMessage(ns.ADDON_PREFIX .. msg)
 end
 
 function ns.FireHardWare()
@@ -587,5 +332,240 @@ local function replace(x)
 end
 
 function ns.ParseRaidTag(text)
-    return (text:gsub('{([^{]+)}', replace))
+    return (text:gsub('{([^{]+)}', ''))
+end
+
+function ns.RemoveLink(text)
+    return (text:gsub('|H[^|]+|h([^|]+)|h', '%1'):gsub('|cff%x%x%x%x%x%x', ''):gsub('|r', ''))
+end
+
+function ns.PrepareComment(text)
+    return ns.ParseRaidTag(ns.RemoveLink(text))
+end
+
+function ns.FindAuraById(id, unit, filter)
+    return AuraUtil.FindAura(function(idToFind, _, _, ...)
+        local spellId = select(10, ...)
+        return idToFind == spellId
+    end, unit, filter, id)
+end
+
+function ns.RandomCall(sec, func, ...)
+    local delay = random() * sec + 5
+    local args = {...}
+    C_Timer.After(delay, function()
+        func(unpack(args))
+    end)
+
+    --[=[@debug@
+    print('Random Call', delay, sec, func, ...)
+    --@end-debug@]=]
+end
+
+local function SplitName(fullName)
+    local name, realm = fullName:match('(.+)%-(.+)')
+    if name then
+        return name, realm
+    end
+    return fullName, GetRealmName():gsub('%s+', '')
+end
+
+function ns.MakeQRCode(leader)
+    local name, realm = SplitName(leader)
+    return format('https://tavern.blizzard.cn/miniprogram/goodLeader/detail?%s-%s-%s', realm, name, WOW_PROJECT_ID)
+end
+
+function ns.memorize(func)
+    local cache = {}
+    return function(k, ...)
+        if not k then
+            return
+        end
+        if cache[k] == nil then
+            cache[k] = func(k, ...)
+        end
+        return cache[k]
+    end
+end
+
+local R = ns.memorize(function(d)
+    local r = {}
+    for i, v in ipairs {strsplit(',', d)} do
+        r[v] = true
+    end
+    return r
+end)
+
+local CLASS_ROLES = { --
+    DRUID = {R('DAMAGER,MAGIC,RANGE'), R('TANK'), R('HEALER')},
+    HUNTER = {R('DAMAGER,PHYSICAL,RANGE')},
+    MAGE = {R('DAMAGER,MAGIC,RANGE')},
+    PALADIN = {R('HEALER'), R('TANK'), R('DAMAGER,PHYSICAL,MELEE')},
+    PRIEST = {R('HEALER'), R('HEALER'), R('DAMAGER,MAGIC,RANGE')},
+    ROGUE = {R('DAMAGER,PHYSICAL,MELEE')},
+    SHAMAN = {R('DAMAGER,MAGIC,RANGE'), R('DAMAGER,PHYSICAL,MELEE'), R('HEALER')},
+    WARLOCK = {R('DAMAGER,MAGIC,RANGE')},
+    WARRIOR = {R('DAMAGER,PHYSICAL,MELEE'), R('DAMAGER,PHYSICAL,MELEE'), R('TANK')},
+    DEATHKNIGHT = {R('TANK'), R('DAMAGER,PHYSICAL,MELEE'), R('DAMAGER,PHYSICAL,MELEE')},
+}
+
+local function GetCurrentRoles()
+    local class = UnitClassBase('player')
+
+    local roles = CLASS_ROLES[class]
+    if #roles == 1 then
+        return roles[1]
+    end
+
+    local maxTalentTabIndex
+    do
+        local maxPoints = -1
+        for i = 1, GetNumTalentTabs() do
+            local name, _, points = GetTalentTabInfo(i)
+            if points > maxPoints then
+                maxTalentTabIndex = i
+                maxPoints = points
+            end
+        end
+    end
+
+    return roles[maxTalentTabIndex]
+end
+
+function ns.PlayerIsRole(role)
+    return GetCurrentRoles()[role]
+end
+
+function ns.OpenUrlDialog(url)
+    if not StaticPopupDialogs['MEETINGHORN_COPY_URL'] then
+        StaticPopupDialogs['MEETINGHORN_COPY_URL'] = {
+            text = '请按<|cff00ff00Ctrl+C|r>复制网址到浏览器打开',
+            button1 = OKAY,
+            timeout = 0,
+            exclusive = 1,
+            whileDead = 1,
+            hideOnEscape = 1,
+            hasEditBox = true,
+            editBoxWidth = 260,
+            EditBoxOnTextChanged = function(editBox, url)
+                if editBox:GetText() ~= url then
+                    editBox:SetMaxBytes(nil)
+                    editBox:SetMaxLetters(nil)
+                    editBox:SetText(url)
+                    editBox:HighlightText()
+                    editBox:SetCursorPosition(0)
+                    editBox:SetFocus()
+                end
+            end,
+        }
+    end
+
+    StaticPopup_Show('MEETINGHORN_COPY_URL', nil, nil, url)
+end
+
+function ns.GetAddonSource()
+    for line in gmatch(
+                    '\066\105\103\070\111\111\116\058\049\010\033\033\033\049\054\051\085\073\033\033\033\058\050\010\068\117\111\119\097\110\058\052\010\069\108\118\085\073\058\056',
+                    '[^\r\n]+') do
+        local n, v = line:match('^(.+):(%d+)$')
+        if IsAddOnLoaded(n) then
+            return tonumber(v)
+        end
+    end
+    return 0
+end
+
+function ns.ListToMap(list)
+    local map = {}
+    do
+        for i, v in pairs(list) do
+            map[v] = true
+        end
+    end
+    return map
+end
+
+do
+    local ImageFrame
+    local function ImageButtonOnClick(button)
+        if not ImageFrame then
+            ImageFrame = CreateFrame('Frame', nil, UIParent, 'MeetingHornImageFrameTemplate')
+        end
+
+        if ImageFrame.which == button and ImageFrame:IsVisible() then
+            ImageFrame.which = nil
+            ImageFrame:Hide()
+        else
+            local params = button.params
+            ImageFrame.which = button
+            ImageFrame.Text:SetText(params.summary)
+            ImageFrame.Image:SetTexture(params.texture)
+            ImageFrame:SetHeight(ImageFrame.Text:GetHeight() - 13 + 215)
+            ImageFrame:SetParent(button)
+            ImageFrame:ClearAllPoints()
+            ImageFrame:SetPoint(unpack(params.points))
+            ImageFrame:Show()
+        end
+    end
+
+    function ns.ApplyImageButton(button, params)
+        if params.text then
+            button:SetText(params.text)
+        end
+        button.params = params
+        button:SetScript('OnClick', ImageButtonOnClick)
+    end
+end
+
+function ns.DataMake(allowCrossRealm)
+    ns.CERTIFICATION_MAP = ns.CERTIFICATION_MAP or {}
+
+    local function decode(v)
+        return v:gsub('..', function(x)
+            return string.char(tonumber(x, 16))
+        end)
+    end
+
+    local currentRealm
+    local function Realm(realm)
+        realm = decode(realm)
+        if allowCrossRealm or realm == GetRealmName() then
+            currentRealm = realm
+        else
+            currentRealm = nil
+        end
+    end
+
+    local function Name(name)
+        if not currentRealm then
+            return
+        end
+
+        name = decode(name)
+
+        ns.CERTIFICATION_MAP[format('%s-%s', name, currentRealm)] = true
+    end
+    setfenv(2, {R = Realm, N = Name})
+end
+
+function ns.FormatSummary(text, tbl)
+    return text:gsub('{{([%w_]+)}}', function(key)
+        if type(tbl[key]) == 'function' then
+            return tbl[key](tbl) or ''
+        end
+        return tbl[key] or ''
+    end)
+end
+
+function ns.PrepareSearch(search)
+    if not search or search:trim() == '' then
+        return
+    end
+
+    local alias = ns.SEARCH_ALIAS[search]
+    if alias then
+        return alias
+    end
+
+    return search:lower()
 end

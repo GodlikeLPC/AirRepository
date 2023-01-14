@@ -1,0 +1,15 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+
+	<Script file="_1core.lua"/>
+	<Script file="_2function.lua"/>
+	<Script file="_5fix.lua"/>
+
+	<Include file="default\default.xml"/>
+	<Include file="compatible\compatible.xml"/>
+	<Include file="theme\theme.xml"/>
+
+	<Script file="_9last.lua"/>
+
+</Ui>
+

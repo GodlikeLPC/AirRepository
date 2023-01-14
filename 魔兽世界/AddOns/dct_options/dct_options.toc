@@ -1,4 +1,4 @@
-﻿## Interface: 11305
+## Interface: 30400
 ## Title: <DCT> Options
 ## Title-zhCN: |cffffe00a<|r|cffff7d0aDCT|r|cffffe00a>|r 菜单模块
 ## Title-zhTW: |cffffe00a<|r|cffff7d0aDCT|r|cffffe00a>|r 功能表模組
@@ -7,18 +7,14 @@
 ## Notes-zhTW: |cff00ff00dct_options|r|n|cffbc8f8f為戰鬥指示器提供圖形化設置介面。|r 
 ## Author: Dennie
 ## Dependencies: dct
-## X-Revision: BigFoot
 ## SavedVariables: DCTOP_SAVE
 ## LoadOnDemand: 1
-
 pre_set.lua
 config_options.lua
-
 locals\cn_pre_set.lua
 locals\cn_loc_options.lua
 locals\tw_pre_set.lua
 locals\tw_loc_options.lua
-
 options.lua
 options.xml
 options_ex.lua
@@ -35,3 +31,5 @@ options_spec.lua
 options_spec.xml
 options_spec2.lua
 options_spec2.xml
+## X-Vendor: NetEase
+## X-163UI-Version: 20220901200239

@@ -27,6 +27,12 @@ local BUTTON_HEIGHT = 15
 
 local COIN_TEXTURE = ALPrivate.COIN_TEXTURE
 
+local COIN_TEXTURE_LINK = {
+	["Achievement"] 	= "AC",
+	["Reputation"] 		= "REPUTATION",
+	["Faction"] 		= "REPUTATION",
+}
+
 
 -- functions
 local UpdateContent, UpdateScroll
@@ -89,6 +95,12 @@ local function SetSelected(self, id, dataNum, startSelect)
 	end
 	if not startSelect then
 		UpdateScroll(self)
+	end
+end
+
+local function GetSelected(self)
+	if self.selected and self.data then
+		return self.data[self.selected[1]]
 	end
 end
 
@@ -234,9 +246,9 @@ do
 			frame.coin = frame:CreateTexture(frameName.."-coin", "ARTWORK")
 			frame.coin:SetPoint("RIGHT", frame, "RIGHT")
 			--frame.coin:SetTexture(_G.AtlasLoot.IMAGE_PATH.."silver")--gold
-			frame.coin:SetHeight(16)
-			frame.coin:SetWidth(16)
-
+			frame.coin:SetHeight(self.buttonHeight)
+			frame.coin:SetWidth(self.buttonHeight)
+			frame.coin.obj = self
 		end
 
 		frame:ClearAllPoints()
@@ -263,28 +275,28 @@ do
 
 	local function SetupCoin(coinTexture, button, selected)
 		button.coin:SetDesaturated(false)
-		if coinTexture == "Achievement" then
-			button.coin:SetTexture(COIN_TEXTURE.AC)
-			button.coin:SetTexCoord(0, 0.625, 0, 0.625)
-			if selected then
-				button.coin:SetDesaturated(false)
-			else
-				button.coin:SetDesaturated(true)
+		button.coin:SetTexCoord(0, 1, 0, 1)
+		button.coin:SetWidth(button.obj.buttonHeight)
+
+		if COIN_TEXTURE[COIN_TEXTURE_LINK[coinTexture] or ""] or COIN_TEXTURE[coinTexture] then
+			local coin = COIN_TEXTURE[COIN_TEXTURE_LINK[coinTexture] or ""] or COIN_TEXTURE[coinTexture]
+			button.coin:SetTexture(coin.texture)
+			if coin.texCoord then
+				button.coin:SetTexCoord(unpack(coin.texCoord))
 			end
-		elseif coinTexture == "Reputation" or coinTexture == "Faction" then
-			button.coin:SetTexCoord(0, 1, 0, 1)
-			button.coin:SetTexture(COIN_TEXTURE.REPUTATION)
+			if coin.width then
+				button.coin:SetWidth(button.obj.buttonHeight * coin.width)
+			end
 			if selected then
 				button.coin:SetDesaturated(false)
 			else
 				button.coin:SetDesaturated(true)
 			end
 		else
-			button.coin:SetTexCoord(0, 1, 0, 1)
 			if selected then
-				button.coin:SetTexture(COIN_TEXTURE.GOLD)
+				button.coin:SetTexture(COIN_TEXTURE.GOLD.texture)
 			else
-				button.coin:SetTexture(COIN_TEXTURE.SILVER)
+				button.coin:SetTexture(COIN_TEXTURE.SILVER.texture)
 			end
 		end
 	end
@@ -404,6 +416,7 @@ function GUI.CreateSelect()
 	self.SetBgColor = SetBgColor
 	-- set the selected entry (id, dataNum, startSelect)
 	self.SetSelected = SetSelected
+	self.GetSelected = GetSelected
 	-- goto next entry ()
 	self.SetNext = SetNext
 	self.CheckIfNext = CheckIfNext
@@ -436,7 +449,7 @@ function GUI.CreateSelect()
 	self.ttSource = GameTooltip
 
 
-	self.frame = CreateFrame("ScrollFrame", frameName)
+	self.frame = CreateFrame("ScrollFrame", frameName, nil, _G.BackdropTemplateMixin and "BackdropTemplate" or nil)
 	local frame = self.frame
 	frame:ClearAllPoints()
 	frame:EnableMouse(true)

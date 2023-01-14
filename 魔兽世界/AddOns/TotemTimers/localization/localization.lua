@@ -6,6 +6,7 @@ _G["BINDING_NAME_TOTEMTIMERSEARTHMENU"] = "Open earth totem menu"
 _G["BINDING_NAME_TOTEMTIMERSEARTHSHIELDLEFT"] = "Earth Shield Leftclick"
 _G["BINDING_NAME_TOTEMTIMERSEARTHSHIELDMIDDLE"] = "Earth Shield Middleclick"
 _G["BINDING_NAME_TOTEMTIMERSEARTHSHIELDRIGHT"] = "Earth Shield Rightclick"
+_G["BINDING_NAME_TOTEMTIMERSEARTHSHIELDBUTTON4"] = "Earth Shield Button 4"
 _G["BINDING_NAME_TOTEMTIMERSFIRE"] = "Cast active fire totem"
 _G["BINDING_NAME_TOTEMTIMERSFIREMENU"] = "Open fire totem menu"
 _G["BINDING_NAME_TOTEMTIMERSWATER"] = "Cast active water totem"
@@ -19,7 +20,7 @@ if not L then return end
 L["Air Button"] = true
 L["Cooldown"] = true
 L["Ctrl-Leftclick to remove weapon buffs"] = true
-L["Delete Set"] = "Delete Totem Set %u?"
+L["Delete Set"] = "Delete Totem Set %s?"
 L["Earth Button"] = true
 L["Fire Button"] = true
 L["Leftclick to cast %s"] = true

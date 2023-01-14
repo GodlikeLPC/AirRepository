@@ -1,15 +1,25 @@
-﻿## Interface: 11305
+## Interface: 30400
 ## Title: ThreatClassic2
-## Title-zhCN: [大脚][集]仇恨统计
-## Title-zhTW: [大腳][集]仇恨統計
-## Notes: |cff00ff00ThreatClassic2|r|n|cffbc8f8fSimple threat meter for WoW Classic.|r
+## Notes: Simple threat meter for WoW Classic, TBCC and WotlK.
 ## Author: Dennis-Florian Herr (dfherr)
-## Version: 2.23
+## X-Curse-Project-ID: 355497
+## X-WoWI-ID: 25966
+## X-Wago-ID: pkNM1ONz
+## Version: 2.45
 ## SavedVariables: ThreatClassic2DB
 ## SavedVariablesPerCharacter: TC2_Options
 
+## OptionalDeps: LibStub, CallbackHandler-1.0, Ace3, LibSharedMedia-3.0
+## X-Embeds: LibStub, CallbackHandler-1.0, AceAddon-3.0, AceComm-3.0, AceConfig-3.0, AceDB-3.0, AceDBOptions-3.0, AceGUI-3.0, AceGUI-3.0-SharedMediaWidgets, LibSharedMedia-3.0
+
+## X-Category: Combat
+
+## X-License: MIT
 ## X-Website: https://github.com/dfherr/ThreatClassic2
-## Dependencies: BigFoot
-## X-Revision: BigFoot
 
 ThreatClassic2.xml
+
+## Title: |cff880303[163UI]|r ThreatClassic2
+## Title-zhCN: |cff880303[有爱]|r ThreatClassic2 仇恨监控插件v2
+## X-Vendor: NetEase
+## X-163UI-Version: 20220902154838

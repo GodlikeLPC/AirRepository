@@ -1,0 +1,14 @@
+## Interface: 30400
+## Title: tullaRange Config
+## Notes: GUI based configuration for tullaRange
+## Author: Tuller
+## Dependencies: tullaRange
+## LoadOnDemand: 1
+localization\localization.xml
+widgets\widgets.xml
+colorOptions.lua
+
+## Title: |cff880303[163UI]|r tullaRange Config
+## Title-zhCN: |cff880303[有爱]|r tullaRange 配置界面
+## X-Vendor: NetEase
+## X-163UI-Version: 20230105151404

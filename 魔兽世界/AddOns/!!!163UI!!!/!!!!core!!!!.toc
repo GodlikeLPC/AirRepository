@@ -1,0 +1,11 @@
+## Interface: 90005
+## Title: !!!!Core
+## Version: a-20210101
+## Author: 
+## SavedVariables: GLOBAL_CORE_SAVED
+## SavedVariablesPerCharacter: 
+
+_0list.xml
+
+## X-Vendor: NetEase
+## X-163UI-Version: 20200515181011

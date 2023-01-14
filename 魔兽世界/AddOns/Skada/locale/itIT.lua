@@ -4,7 +4,7 @@ if not L then return end
 L["%s dies"] = "%s muore"
 L["%s on %s removed by %s"] = "%s su %s rimosso da %s"
 L["%s on %s removed by %s's %s"] = "%s su %s rimosso dal %s di %s"
-L["A damage meter."] = "Un misuratore di danni"
+L["A damage meter."] = "Un misuratore di danni."
 L["Absorb"] = "Assorbimenti"
 L["Absorb details"] = "Dettagli assorbimenti"
 L["Absorb spells"] = "Incantesimi assorbiti"
@@ -39,8 +39,7 @@ L["Background color"] = "Colore di sfondo"
 L["Background texture"] = "Texture di sfondo"
 L["Bar color"] = "Colore barra"
 L["Bar display"] = "Mostra Barre"
---[[Translation missing --]]
---[[ L["Bar display is the normal bar window used by most damage meters. It can be extensively styled."] = ""--]] 
+L["Bar display is the normal bar window used by most damage meters. It can be extensively styled."] = "Le barre vengono mostrate come le normali barre utilizzati dalla maggior parte dei misuratori di danno. Può essere personalizzata estensivamente."
 L["Bar font"] = "Carattere Barra"
 L["Bar font size"] = "Dimensione carattere"
 L["Bar height"] = "Altezza barra"
@@ -57,8 +56,6 @@ L["Border color"] = "Colore del Bordo"
 L["Border texture"] = "Texture dei bordi"
 L["Border thickness"] = "Spessore dei bordi"
 L["Boss fights will be kept with this on, and non-boss fights are discarded."] = "I combattimenti con i boss verranno mantenuti con questo attivo, e gli altri combattimenti scartati"
---[[Translation missing --]]
---[[ L["Broker display"] = ""--]] 
 L["Buff spell list"] = "Lista dei Benefici"
 L["Buff uptimes"] = "Tempo dei Benefici"
 L["Buffs"] = "Buffs"
@@ -115,10 +112,6 @@ L["Data Collection"] = "Collezzione Dati"
 L["Data feed"] = "Immissione Dati"
 L["Data resets"] = "Reimposta dati"
 L["Data segments to keep"] = "Segmenti di dati da mantenere"
---[[Translation missing --]]
---[[ L["Data text"] = ""--]] 
---[[Translation missing --]]
---[[ L["Data text acts as an LDB data feed. It can be integrated in any LDB display such as Titan Panel or ChocolateBar. It also has an optional internal frame."] = ""--]] 
 L["Death log"] = "Elenco morti"
 L["Deaths"] = "Morti"
 L["Deaths:"] = "Morti:"
@@ -158,10 +151,6 @@ L["Enemy damage done"] = "Danno fatto dal nemico"
 L["Enemy damage taken"] = "Danno subito dal nemico"
 L["Enemy healing done"] = "Cure fatte dal nemico"
 L["Enemy healing taken"] = "Cure ricevute dal nemico"
---[[Translation missing --]]
---[[ L["Energy gain sources"] = ""--]] 
---[[Translation missing --]]
---[[ L["Energy gained"] = ""--]] 
 L["Enter the name for the new window."] = "Inserisci il nome della nuova finestra."
 L["Enter the name for the window."] = "Inserisci il nome della finestra."
 L["Evade"] = "Evasioni"
@@ -169,10 +158,6 @@ L["Fails"] = "Fallimenti"
 L["Fails:"] = "Fallimenti:"
 L["Fixed bar width"] = "Larghezza della barra fissa"
 L["Flash screen"] = "Lampeggia schermo"
---[[Translation missing --]]
---[[ L["Focus gain sources"] = ""--]] 
---[[Translation missing --]]
---[[ L["Focus gained"] = ""--]] 
 L["Font flags"] = "Carattere"
 L["General"] = "Generale"
 L["General options"] = "Opzioni Generali"
@@ -198,12 +183,6 @@ L["Hides Skada's window when not in a party or raid."] = "Nascondi le finestre d
 L["Hint: Left-Click to set active mode."] = "Suggerimento: Tasto sinistro per impostare la modalità attiva."
 L["Hint: Left-Click to toggle Skada window."] = "Suggerimento: Tasto sinistro per attivare Skada."
 L["Hit"] = "Colpo"
---[[Translation missing --]]
---[[ L["Holy power gain sources"] = ""--]] 
---[[Translation missing --]]
---[[ L["Holy power gained"] = ""--]] 
---[[Translation missing --]]
---[[ L["How often windows are updated. Shorter for faster updates. Increases CPU usage."] = ""--]] 
 L["HPS"] = "CPS"
 L["HPS:"] = "CPS:"
 L["If checked, bar width is fixed. Otherwise, bar width depends on the text width."] = "Se selezionato, la larghezza della barra è fissa. Altrimenti, la larghezza della barra dipende dalla larghezza del testo."
@@ -212,10 +191,6 @@ L["Immune"] = "Immunità"
 L["Include set"] = "Includi set"
 L["Include set name in title bar"] = "Includi nome del set nella barra del titolo"
 L["Informative tooltips"] = "Tooltips Informativi"
---[[Translation missing --]]
---[[ L["Inline bar display"] = ""--]] 
---[[Translation missing --]]
---[[ L["Inline display is a horizontal window style."] = ""--]] 
 L["Instance"] = "Istanza"
 L["Interrupts"] = "Interruzioni"
 L["Keep segment"] = "Mantieni segmento"
@@ -245,8 +220,6 @@ L["Mode switching"] = "Cambio Modalità"
 L["Monochrome"] = "Monocromatico"
 L["Name"] = "Nome"
 L["Name of recipient"] = "Nome del destinatario"
---[[Translation missing --]]
---[[ L["Name of your new theme."] = ""--]] 
 L["No"] = "No"
 L["No mode or segment selected for report."] = "Nessuna modalità o segmento selezionato per il resoconto."
 L["No mode selected for report."] = "Nessuna modalità selezionata per il resoconto."
@@ -268,25 +241,15 @@ L["Percent"] = "Percento"
 L["Play sound"] = "Esegui suono"
 L["Position of the tooltips."] = "Posizione dei tooltips."
 L["Power"] = "Potere"
---[[Translation missing --]]
---[[ L["Power gains"] = ""--]] 
 L["Profiles"] = "Profili"
---[[Translation missing --]]
---[[ L["Rage gain sources"] = ""--]] 
---[[Translation missing --]]
---[[ L["Rage gained"] = ""--]] 
 L["Raid"] = "Incursione"
 L["RDPS"] = "RDPS"
 L["RealID"] = "RealID"
 L["Reflect"] = "Riflessi"
 L["Rename window"] = "Rinomina finestra"
 L["Report"] = "Resoconto"
---[[Translation missing --]]
---[[ L["Report description"] = ""--]] 
 L["reports the active mode"] = "riporta la modalità attiva"
 L["Reset"] = "Reimposta"
---[[Translation missing --]]
---[[ L["Reset description"] = ""--]] 
 L["Reset on entering instance"] = "Reimposta entrando in istanza"
 L["Reset on joining a group"] = "Reimposta entrando in un gruppo"
 L["Reset on leaving a group"] = "Reimposta lasciando un gruppo"
@@ -299,14 +262,6 @@ L["Reverse bar growth"] = "Crescita delle barre inversa"
 L["Right to left"] = "Da destra a sinistra"
 L["Right-click to configure"] = "Tasto destro per configurare"
 L["Right-click to open menu"] = "Tasto destro per aprire il menu"
---[[Translation missing --]]
---[[ L["Right-click to set active set."] = ""--]] 
---[[Translation missing --]]
---[[ L["Role icons"] = ""--]] 
---[[Translation missing --]]
---[[ L["Runic power gain sources"] = ""--]] 
---[[Translation missing --]]
---[[ L["Runic power gained"] = ""--]] 
 L["'s "] = " di "
 L["'s Absorbs"] = " - Assorbimenti"
 L["'s Buffs"] = " Benefici di "
@@ -355,24 +310,12 @@ L["Skada will not collect any data when automatically hidden."] = "Skada non col
 L["Skada: %s for %s:"] = "Skada: %s per %s:"
 L["Skada: Fights"] = "Skada: Combattimenti"
 L["Skada: Modes"] = "Skada: Modalità"
---[[Translation missing --]]
---[[ L["Smart"] = ""--]] 
---[[Translation missing --]]
---[[ L["Smooth bars"] = ""--]] 
 L["Snap to best fit"] = "Blocca per adattare meglio"
 L["Snaps the window size to best fit when resizing."] = "Blocca la dimensione della finestra durante un ridimensionamento per proporzioni migliori."
---[[Translation missing --]]
---[[ L["Sort modes by usage"] = ""--]] 
 L["Spell details"] = "Dettagli incantesimi"
 L["Spell list"] = "Lista Incantesimi"
---[[Translation missing --]]
---[[ L["Spell school colors"] = ""--]] 
 L["Start new segment"] = "Inizia nuovo segmento"
 L["Stop"] = "Stop"
---[[Translation missing --]]
---[[ L["Stop description"] = ""--]] 
---[[Translation missing --]]
---[[ L["Strata"] = ""--]] 
 L["Subview rows"] = "Righe Sommario"
 L["Switch to mode"] = "Cambia in modalità"
 L["Switch to segment"] = "Cambia in segmento"
@@ -389,8 +332,6 @@ L["The height of the title frame."] = "L'altezza della cornice del titolo."
 L["The height of the window. If this is 0 the height is dynamically changed according to how many bars exist."] = "L'altezza della finestra. Se questo valore è 0, l'altezza viene cambiata dinamicamente in base a quante barre sono presenti."
 L["The margin between the outer edge and the background texture."] = "Il margine tra il bordo esterno e la texture di sfondo."
 L["The maximum number of bars shown."] = "Il numero massimo di barre da mostrare."
---[[Translation missing --]]
---[[ L["The mode list will be sorted to reflect usage instead of alphabetically."] = ""--]] 
 L["The number of fight segments to keep. Persistent segments are not included in this."] = "Il numero di segmenti dei combattimenti da mantenere. Segmenti persistenti non sono inclusi in questo."
 L["The number of rows from each subview to show when using informative tooltips."] = "Il numero di righe nei sommari da mostrare quando si usano le informazioni supplementari."
 L["The size of the texture pattern."] = "La dimensione del modello di texture."
@@ -409,8 +350,6 @@ L["Themes"] = "Temi"
 L["There is nothing to report."] = "Non c'é nulla da riportare."
 L["Thick outline"] = "Bordo spesso"
 L["This change requires a UI reload. Are you sure?"] = "Questa modifica richiede il ricaricamento della UI. Sei sicuro?"
---[[Translation missing --]]
---[[ L["This determines what other frames will be in front of the frame."] = ""--]] 
 L["This will cause the screen to flash as a threat warning."] = "Questo causerà un lampeggio sullo schermo quando c'é un avviso di minaccia."
 L["This will cause the screen to shake as a threat warning."] = "Questo causerà uno scuotimento dello schermo quando c'é un avviso di minaccia."
 L["This will play a sound as a threat warning."] = "Questo eseguirà un suono quando c'é un avviso di minaccia."
@@ -420,12 +359,6 @@ L["Threat threshold"] = "Limite minaccia"
 L["Threat warning"] = "Avviso Minaccia"
 L["Threat: Personal Threat"] = "Minaccia: Minaccia Personale"
 L["Tick the modules you want to disable."] = "Seleziona i moduli che vuoi disabilitare."
---[[Translation missing --]]
---[[ L["Tile"] = ""--]] 
---[[Translation missing --]]
---[[ L["Tile size"] = ""--]] 
---[[Translation missing --]]
---[[ L["Tile the background texture."] = ""--]] 
 L["Title bar"] = "Barra del titolo"
 L["Title color"] = "Colore del titolo"
 L["Title height"] = "Altezza del titolo"
@@ -443,18 +376,10 @@ L["Tweaks"] = "Ritocchi"
 L["Update frequency"] = "Frequenza di aggiornamento"
 L["Use class icons where applicable."] = "Usa le icone di classe dove possibile."
 L["Use focus target"] = "Usa bersaglio focalizzato"
---[[Translation missing --]]
---[[ L["Use role icons where applicable."] = ""--]] 
---[[Translation missing --]]
---[[ L["Use spell school colors where applicable."] = ""--]] 
---[[Translation missing --]]
---[[ L["Various tweaks to get around deficiences and problems in the game's combat logs. Carries a small performance penalty."] = ""--]] 
 L["When possible, bar text will be colored according to player class."] = "Quando possibile, il testo delle barre sarà colorato in base alla classe del personaggio."
 L["When possible, bars will be colored according to player class."] = "Quando possibile, le barre saranno colorate in base alla classe del personaggio."
 L["When your threat reaches this level, relative to tank, warnings are shown."] = "Quando la tua minaccia raggiunge questo livello, in relazione con il difensore, verranno mostrati degli avvisi."
 L["Whisper"] = "Sussurro"
---[[Translation missing --]]
---[[ L["Whisper Target"] = ""--]] 
 L["Width"] = "Larghezza"
 L["Window"] = "Finestra"
 L["Window height"] = "Altezza della finestra"

@@ -1,0 +1,19 @@
+## Interface: 30400
+## Interface-Classic: 11403
+## Interface-BCC: 20502
+## Interface-WoTLK: 30400
+## Title: XLoot Monitor
+## Notes: A graphical presentation of items looted by yourself and your group
+## Version: 9.2.7-1
+## Author: Xuerian
+## X-Category: Inventory
+
+## Dependencies: XLoot
+
+load.xml
+
+## Title: |cff880303[163UI]|r XLoot Monitor
+## Title-zhCN: |cff880303[有爱]|r XLoot 拾取记录模块
+## Notes-zhCN: 美化拾取框,方便快捷的通告掉落到团队 工会 小队等频道.
+## X-Vendor: NetEase
+## X-163UI-Version: 20220913170724

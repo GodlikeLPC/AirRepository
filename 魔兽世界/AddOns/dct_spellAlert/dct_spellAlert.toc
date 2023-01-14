@@ -1,4 +1,4 @@
-﻿## Interface: 11305
+## Interface: 30400
 ## Title: <DCT> SpellAlert
 ## Title-zhCN: |cffffe00a<|r|cffff7d0aDCT|r|cffffe00a>|r 法术预警模块
 ## Title-zhTW: |cffffe00a<|r|cffff7d0aDCT|r|cffffe00a>|r 法術預警模組
@@ -10,17 +10,15 @@
 ## X-Revision: BigFoot
 ## SavedVariables: DCTSA_CONFIG
 ## SavedVariablesPerCharacter: DCTSA_PERCONFIG
-## LoadOnDemand: 1
-
+## LoadOnDemand: 0
 default_config.lua
 loc_sa.lua
-
 locals\cn_loc_sa.lua
 locals\cn_pre_set.lua
 locals\tw_loc_sa.lua
 locals\tw_pre_set.lua
-
 dct_sa.lua
 options_sa.lua
 options_sa.xml
-
+## X-Vendor: NetEase
+## X-163UI-Version: 20220901200239

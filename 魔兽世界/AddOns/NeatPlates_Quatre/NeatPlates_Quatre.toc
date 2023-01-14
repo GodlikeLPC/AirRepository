@@ -1,0 +1,14 @@
+## Interface: 30400
+## Title: NeatPlates: Quatre Theme
+## Notes: It's the 4th!
+## Author: Binny
+## Dependencies: NeatPlates, NeatPlatesHub
+
+Quatre.lua
+## Title: |cff880303[163UI]|r NeatPlates: Quatre Theme
+## Title-zhCN: |cff880303[有爱]|r Neat 姓名板Quatre主题
+## Title-zhTW: |cff880303[有爱]|r Neat 姓名板Quatre主题
+## Notes-zhCN: 强大到爆的多功能姓名版美化插件-QuatreTheme风格模块。
+## Notes-zhTW: 強大到爆的多功能姓名版美化插件-QuatreTheme風格模塊。
+## X-Vendor: NetEase
+## X-163UI-Version: 20230105151404

@@ -1,0 +1,11 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\FrameXML\UI.xsd">
+
+	<Script file="retail-9sl.lua"/>
+	<Script file="classic-1vanilla.lua"/>
+	<Script file="classic-2bcc.lua"/>
+	<Script file="classic-3wotlk.lua"/>
+	<Script file="default.lua"/>
+
+</Ui>
+

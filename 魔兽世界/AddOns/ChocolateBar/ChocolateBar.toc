@@ -1,0 +1,48 @@
+## Interface: 30400
+## Title: ChocolateBar
+## Notes: A display for LibDataBroker-1.1
+## Author: Kiatra - github.com/Kiatra/ChocolateBar/
+## Version: v3.9.7
+## OptionalDeps: Ace3, LibSharedMedia-3.0, LibQTip-1.0
+## X-WoWI-ID: 12326
+## X-Curse-Project-ID: 17424
+## SavedVariables: ChocolateBarDB, CB_PlayedTime
+
+#@no-lib-strip@
+libs\libs.xml
+#@end-no-lib-strip@
+
+libs\LibDataBroker-1.1\LibDataBroker-1.1.lua
+
+localization\enUS.lua
+localization\deDE.lua
+localization\esES.lua
+localization\frFr.lua
+localization\koKR.lua
+localization\zhCN.lua
+localization\zhTW.lua
+localization\ptBR.lua
+localization\ruRU.lua
+
+Core.lua
+Jostle.lua
+Jostle2.lua
+DragAndDrop.lua
+Chocolate.lua
+Bar.lua
+DropPoints.lua
+modules\Placeholder.lua
+modules\MoreChocolate.lua
+Options.lua
+
+
+modules\CB_PlayedTime_Loc.lua
+modules\CB_PlayedTime.lua
+modules\CB_PlayedTime_Options.lua
+
+Brokers.lua
+
+## Title: |cff880303[163UI]|r ChocolateBar
+## Title-zhCN: |cff880303[有爱]|r Chocolate 巧克力信息条
+## X-Vendor: NetEase
+## X-163UI-Version: 20221216165106

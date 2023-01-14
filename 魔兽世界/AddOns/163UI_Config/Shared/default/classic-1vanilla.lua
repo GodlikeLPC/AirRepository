@@ -1,0 +1,312 @@
+﻿--[=[
+	DEFAULT
+--]=]
+--[====[
+	--	implement
+	--
+--]====]
+
+local __namespace = _G.__core_namespace;
+local __addon = __namespace.__private.__addon;
+
+if __namespace.__client._Type ~= "classic" or __namespace.__client._Major ~= 1 then
+	return;
+end
+
+local __private = __namespace.__nsconfig;
+local __core = __namespace.__core;
+local __const = __namespace.__const;
+local __ui = __namespace.__ui;
+
+if __core.__is_dev then
+	__core._F_devDebugProfileStart("config.shared.default-1vanilla");
+end
+
+local _F_corePrint = __core._F_corePrint;
+local _F_coreDebug = __core._F_coreDebug;
+----------------------------------------------------------------
+
+-->		upvalue
+local select = select;
+local unpack = unpack;
+local GetCVar, SetCVar = GetCVar, SetCVar;
+
+if __core.__is_dev then
+	__core._F_BuildEnv("config.shared.default-1vanilla");
+end
+
+
+local __default = {
+	__Major = 1,
+};
+
+local _C_PLAYER_CLASS = __const._C_PLAYER_CLASS;
+
+
+__default.blzOptions = {
+	-- { "cvar", "useUIScale", },
+	-- { "cvar", "uiscale", },
+	-->		Controls
+	{ "cvar", "deselectOnClick", "1", },
+	-- { "cvar", "autoClearAFK", "1", },
+	{ "cvar", "autoLootDefault", "1", },
+	{ "set1", GetModifiedClick, SetModifiedClick, "AUTOLOOTTOGGLE", "SHIFT", },		--	GetModifiedClick("AUTOLOOTTOGGLE"),SetModifiedClick("AUTOLOOTTOGGLE", value)
+	{ "cvar", "interactOnLeftClick", "0", },
+	{ "cvar", "lootUnderMouse", "1", },
+	-->		Combat
+	{ "cvar", "showTargetOfTarget", "1", },
+	-- { "cvar", "doNotFlashLowHealthWarning", "0", },
+	-- { "set1", GetModifiedClick, SetModifiedClick, "SELFCAST", "ALT", },		--	GetModifiedClick("SELFCAST"), SetModifiedClick("SELFCAST", value)
+	-- { "cvar", "enableFloatingCombatText", "0", },
+	--...
+	-->		Display
+	{ "set0", ShowingHelm, ShowHelm, false, },
+	{ "set0", ShowingCloak, ShowCloak, false, },
+	{ "cvar", "instantQuestText", "1", },
+	-- { "cvar", "autoQuestWatch", "1", },
+	-- { "cvar", "hideOutdoorWorldState", "0", },
+	-- { "cvar", "rotateMinimap", "0", },
+	-- { "cvar", "showMinimapClock", "1", },
+	{ "cvar", "showNewbieTips", "0", },
+	-- { "cvar", "showLoadingScreenTips", "1", },
+	-- { "cvar", "hideAdventureJournalAlerts", "0", },
+	-- { "cvar", "showInGameNavigation", "1", },
+	{ "cvar", "showTutorials", "0", },
+		-- { "cvar", "closedInfoFrames", },						--	????
+	-- { "cvar", "statusTextDisplay", "NUMERIC", },				--	not work in classic, use it instead:
+		-- { "cvar", "statusText", "1", },
+	-- { "set1", InterfaceOptionsDisplayPanelDisplayDropDown.GetValue, InterfaceOptionsDisplayPanelDisplayDropDown.SetValue, InterfaceOptionsDisplayPanelDisplayDropDown, "NUMERIC", },
+	-- { "cvar", "chatBubbles", "1", },
+		-- { "cvar", "chatBubblesParty", },
+	-->		Social
+	{ "cvar", "profanityFilter", "0", },
+	{ "cvar", "spamFilter", "0", },
+	-- { "cvar", "showLootSpam", "1", },
+	-- { "cvar", "guildMemberNotify", "1", },
+	-- { "cvar", "blockTrades", "0", },
+	-- { "set0", GetAutoDeclineGuildInvites, SetAutoDeclineGuildInvites, false, },		--	GetAutoDeclineGuildInvites(), SetAutoDeclineGuildInvites(value)
+	-- { "cvar", "blockChannelInvites", "0", },
+	-- { "cvar", "showToastOnline", "1", },
+	-- { "cvar", "showToastOffline", "1", },
+	-- { "cvar", "showToastBroadcast", "0", },
+	-- { "cvar", "showToastFriendRequest", "1", },
+	-- { "cvar", "showToastWindow", "1", },
+	-- { "cvar", "enableTwitter", },
+	-- { "cvar", "chatStyle", "im", },
+	{ "cvar", "showTimestamps", "%H:%M:%S", },
+	{ "cvar", "whisperMode", "inline", },
+	-->		ActionBars
+	{ "gvar", "SHOW_MULTI_ACTIONBAR_1", "1", },
+	{ "gvar", "SHOW_MULTI_ACTIONBAR_2", "1", },
+	{ "gvar", "SHOW_MULTI_ACTIONBAR_3", "1", },
+	{ "gvar", "SHOW_MULTI_ACTIONBAR_4", "1", },
+	{ "gvar", "ALWAYS_SHOW_MULTIBARS", "1", },
+	{ "set0", GetActionBarToggles, SetActionBarToggles, true, true, true, true, true, },			--	GetActionBarToggles(), SetActionBarToggles(show1, show2, show3, show4 [, alwaysShow])
+	--[[]]{ "check", "InterfaceOptionsActionBarsPanelBottomLeft", true, },
+	--[[]]{ "check", "InterfaceOptionsActionBarsPanelBottomRight", true, },
+	--[[]]{ "check", "InterfaceOptionsActionBarsPanelRight", true, },
+	--[[]]{ "check", "InterfaceOptionsActionBarsPanelRightTwo", true, },
+	-- { "cvar", "multiBarRightVerticalLayout", "0", },
+	{ "cvar", "lockActionBars", "1", },
+	{ "set1", GetModifiedClick, SetModifiedClick, "PICKUPACTION", "SHIFT", },		--	GetModifiedClick("PICKUPACTION"), SetModifiedClick("PICKUPACTION", value)
+	{ "cvar", "alwaysShowActionBars", "1", },
+	{ "cvar", "countdownForCooldowns", "1", },
+	-->		Names
+	{ "cvar", "UnitNameOwn", "0", },
+	{ "cvar", "UnitNameNPC", "1", },
+	{ "cvar", "UnitNamePlayerGuild", "1", },
+	{ "cvar", "UnitNamePlayerPVPTitle", "1", },
+	{ "cvar", "UnitNameNonCombatCreatureName", "0", },
+	{ "cvar", "UnitNameFriendlyPlayerName", "1", },
+	{ "cvar", "UnitNameFriendlyMinionName", "1", },
+	{ "cvar", "UnitNameEnemyPlayerName", "1", },
+	{ "cvar", "UnitNameEnemyMinionName", "1", },
+	{ "cvar", "nameplateShowAll", "1", },
+	{ "cvar", "nameplateShowEnemies", "1", },
+	{ "cvar", "nameplateShowEnemyMinions", "1", },
+	{ "cvar", "nameplateShowEnemyMinus", "1", },
+	{ "cvar", "nameplateShowFriends", "0", },
+	{ "cvar", "nameplateShowFriendlyMinions", "0", },
+	-- { "cvar", "nameplateMotion", "0", },
+	-->		Camera
+	{ "cvar", "cameraWaterCollision", "0", },
+	{ "cvar", "cameraDistanceMaxZoomFactor", "2.0", },
+	-- { "cvar", "cameraYawSmoothSpeed", "180", },
+	{ "cvar", "cameraSmoothStyle", "0", },
+	{ "cvar", "cameraTerrainTilt", "0", },
+	{ "cvar", "cameraBobbing", "0", },
+	{ "cvar", "cameraPivot", "1", },
+	-->		Mouse
+	-- { "cvar", "mouseInvertPitch", "0", },
+	-- { "cvar", "cameraYawMoveSpeed", "180", },
+	-- { "cvar", "enableMouseSpeed", "0", },
+	-- { "cvar", "mouseSpeed", "1", },
+	-- { "cvar", "ClipCursor", "0", },
+	-- { "cvar", "autointeract", "0", },
+	-- { "cvar", "cameraSmoothTrackingStyle", "4", },
+	-->		Accessibility
+	-- { "cvar", "enableMovePad", "0", },
+	-- { "cvar", "movieSubtitle", "1", },
+	-- { "cvar", "colorblindMode", "0", },
+	-- { "cvar", "colorblindSimulator", },
+	-- { "cvar", "colorblindWeaknessFactor", "0.5", },
+	--		RaidFrame
+	--	interface\addons\blizzard_cufprofiles\blizzard_compactunitframeprofiles
+};
+__default.addons_state = {
+	["!!!163ui!!!"] = true,
+	["!bauderrorframe"] = false,
+	["!tddropdown"] = true,
+	["163ui_buff"] = false,
+	["163ui_chat"] = false,
+	["163ui_chathistory"] = false,
+	["163ui_combattimer"] = false,
+	["163ui_config"] = true,
+	["163ui_moreoptions"] = false,
+	["163ui_plugins"] = false,
+	["accountant_classic"] = true,
+	["advancedinterfaceoptions"] = true,
+	["alacalendar"] = true,
+	["alachat_classic"] = true,
+	["alaeguild"] = true,
+	["alagearman"] = true,
+	["alamisc"] = true,
+	["alatalentemu"] = true,
+	["alatrade"] = true,
+	["alatradeskill"] = true,
+	["alaunitframe"] = true,
+	["atlas"] = false,
+	["atlaslootclassic"] = true,
+	["auctionator"] = false,
+	["autobarclassic"] = false,
+	["bagbrother"] = true,
+	["bagnon"] = true,
+	["battleinfo"] = true,
+	["baudauction"] = true,
+	["bigdebuffs"] = false,
+	["bigwigs"] = false,
+	["blinkhealthtext"] = false,
+	["blizzmove"] = true,
+	["broker_everything"] = false,
+	["butterquesttracker"] = true,
+	["buyemallclassic"] = false,
+	["castdelaybar"] = true,
+	["characterstatsclassic"] = true,
+	["chocolatebar"] = false,
+	["classicauradurations"] = true,
+	["classiccastbars"] = true,
+	["classiccodex"] = false,
+	["classicspellactivations"] = true,
+	["clicklinks"] = true,
+	["clique"] = false,
+	["codexlite"] = true,
+	["combuctor"] = false,
+	["dbm-core"] = true,
+	["dct"] = false,
+	["decursive"] = false,
+	["dejunk"] = false,
+	["details"] = false,
+	["dominos"] = true,
+	["doom_cooldownpulse"] = false,
+	["elkbuffbars"] = false,
+	["enhancedchatfilter"] = false,
+	["exolink"] = true,
+	["exolink_bis"] = true,
+	["exrt"] = false,
+	["extraactionbar"] = false,
+	["fivesecondrule"] = false,
+	["fizzle"] = true,
+	["floaspectbar"] = false,
+	["gathermate2"] = false,
+	["gfw_feedomatic_classic"] = false,
+	["goodleader"] = false,
+	["grid2"] = false,
+	["gtfo"] = false,
+	["handynotes"] = true,
+	["hhtd"] = false,
+	["honorspy"] = false,
+	["ignitetracker"] = false,
+	["leatrix_maps"] = true,
+	["leatrix_plus"] = false,
+	["littlewigs"] = false,
+	["magebuttons"] = false,
+	["markme"] = false,
+	["masque"] = true,
+	["meetinghorn"] = false,
+	["mendeleev"] = false,
+	["merinspect"] = false,
+	["missingtradeskillslist"] = true,
+	["modernquestwatch"] = false,
+	["myslot"] = true,
+	["neatplates"] = false,
+	["novaworldbuffs"] = false,
+	["nugcombobar"] = false,
+	["nugcombobargui"] = false,
+	["nugrunning"] = false,
+	["nugrunningoptions"] = false,
+	["omnibar"] = false,
+	["omnicc"] = false,
+	["orbsellandrepair"] = true,
+	["pallypower"] = false,
+	["parrot"] = false,
+	["patchwerkheal"] = false,
+	["poisoner"] = false,
+	["postal"] = true,
+	["quartz"] = false,
+	["questannounce"] = false,
+	["questie"] = false,
+	["questlogex"] = true,
+	["questxp"] = true,
+	["raidledger"] = true,
+	["rangedisplay"] = false,
+	["recount"] = true,
+	["sexymap"] = false,
+	["shadowedunitframes"] = false,
+	["showmemyheal"] = false,
+	["silverdragon"] = false,
+	["simpleraidtargeticons"] = false,
+	["simpleunitframes"] = false,
+	["speedyautoloot"] = false,
+	["spellwhisper"] = false,
+	["spy"] = true,
+	["stealyourcarbon"] = true,
+	["targetnameplateindicator"] = true,
+	["tdpack2"] = false,
+	["tellmewhen"] = false,
+	["threatclassic2"] = true,
+	["tinytooltip"] = false,
+	["tiptac"] = true,
+	["tomtom"] = false,
+	["totemtimers"] = false,
+	["townsfolktracker"] = false,
+	["trackingeye"] = false,
+	["tradelog"] = true,
+	["trinketmenu"] = false,
+	["tullarange"] = false,
+	["unitframesplus"] = false,
+	["weakauras"] = false,
+	["weaponswingtimer"] = false,
+	["webdkp"] = false,
+	["whatstraining"] = true,
+	["whisperpop"] = true,
+	["xloot"] = false,
+};
+
+
+__default.addons_protected = {
+	["!!!163ui!!!"] = true,
+	["163ui_config"] = true,
+	["bagbrother"] = true,
+};
+__default.addons_hidden = {
+	["!!!libs"] = true,
+	["bagbrother"] = true,
+	["dbm-statusbartimers"] = true,
+};
+
+__namespace.__default = __default;
+
+
+if __core.__is_dev then
+	_F_corePrint("|cff00ff00core|r.default", __core._F_devDebugProfileTick("config.shared.default-1vanilla"));
+end

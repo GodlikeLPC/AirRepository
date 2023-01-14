@@ -1,29 +1,28 @@
 local mod	= DBM:NewMod("Noth", "DBM-Naxx", 3)
 local L		= mod:GetLocalizedStrings()
 
-mod:SetRevision("20200731154050")
+mod:SetRevision("20221215074731")
 mod:SetCreatureID(15954)
 mod:SetEncounterID(1117)
 mod:SetModelID(16590)
 mod:RegisterCombat("combat_yell", L.Pull)
 
 mod:RegisterEventsInCombat(
-	"SPELL_CAST_SUCCESS 29213 29212",--54835 Add in wrath
-	--"CHAT_MSG_MONSTER_YELL",
-	"CHAT_MSG_RAID_BOSS_EMOTE",
-	"UNIT_SPELLCAST_SUCCEEDED"
+	"SPELL_CAST_SUCCESS 29213 54835 29212 29208",
+	"CHAT_MSG_RAID_BOSS_EMOTE"
 )
 
---TODO, determine if old way is required or if new way is still functional
+--TODO, if boss unit Ids are missing from wrath (at this point I wouldn't put it past blizzard since it was a 3.3 feature not 3.0), port the classic vanilla mod
 local warnTeleportNow	= mod:NewAnnounce("WarningTeleportNow", 3, "135736")
 local warnTeleportSoon	= mod:NewAnnounce("WarningTeleportSoon", 1, "135736")
 local warnCurse			= mod:NewSpellAnnounce(29213, 2)
+local warnBlink			= mod:NewSpellAnnounce(29208, 3)
 
 local specWarnAdds		= mod:NewSpecialWarningAdds(29212, "-Healer", nil, nil, 1, 2)
 
 local timerTeleport		= mod:NewTimer(90, "TimerTeleport", "135736", nil, nil, 6)
 local timerTeleportBack	= mod:NewTimer(70, "TimerTeleportBack", "135736", nil, nil, 6)
-local timerCurseCD		= mod:NewCDTimer(53.3, 29213, nil, nil, nil, 5, nil, DBM_CORE_L.CURSE_ICON)
+local timerCurseCD		= mod:NewCDTimer(53.3, 29213, nil, nil, nil, 5, nil, DBM_COMMON_L.CURSE_ICON)
 local timerAddsCD		= mod:NewAddsTimer(30, 29212, nil, "-Healer")
 
 mod.vb.teleCount = 0
@@ -49,11 +48,14 @@ function mod:Balcony()
 		timer = 55
 	end
 	timerTeleportBack:Start(timer)
-	warnTeleportSoon:Schedule(timer - 20)
+	warnTeleportSoon:Schedule(timer - 10)
 	warnTeleportNow:Show()
-	self:ScheduleMethod(timer, "BackInRoom")
+	if self:IsClassic() then
+		self:ScheduleMethod(timer, "BackInRoom")
+	end
 end
 
+--Wrath classic has to use shitter code because blizz decided not to support boss unitIds
 function mod:BackInRoom()
 	self.vb.addsCount = 0
 	self.vb.curseCount = 0
@@ -71,7 +73,7 @@ function mod:BackInRoom()
 		timer = 35
 	end
 	timerTeleport:Start(timer)
-	warnTeleportSoon:Schedule(timer - 20)
+	warnTeleportSoon:Schedule(timer - 10)
 	warnTeleportNow:Show()
 	if self.vb.teleCount == 4 then--11-12 except after 4th return it's 17
 		timerCurseCD:Start(17)--verify consistency though
@@ -88,37 +90,34 @@ function mod:OnCombatStart(delay)
 	timerAddsCD:Start(7-delay)
 	timerCurseCD:Start(9.5-delay)
 	timerTeleport:Start(90.8-delay)
-	warnTeleportSoon:Schedule(70.8-delay)
+	warnTeleportSoon:Schedule(80.8-delay)
 	self:ScheduleMethod(90.8-delay, "Balcony")
+	if not self:IsClassic() then--Use better more accurate method on retail where boss UnitIds are available
+		self:RegisterShortTermEvents(
+			"UNIT_SPELLCAST_SUCCEEDED boss1"
+		)
+	end
 end
 
-do
-	local CurseofthePlaguebringer, Cripple = DBM:GetSpellInfo(29213), DBM:GetSpellInfo(29212)
-	function mod:SPELL_CAST_SUCCESS(args)
-		--if args:IsSpellID(29213, 54835) then -- Curse of the Plaguebringer
-		if args.spellName == CurseofthePlaguebringer then -- Curse of the Plaguebringer
-			self.vb.curseCount = self.vb.curseCount + 1
-			warnCurse:Show()
-			if self.vb.teleCount == 2 and self.vb.curseCount == 2 or self.vb.teleCount == 3 and self.vb.curseCount == 1 then
-				timerCurseCD:Start(67)--Niche cases it's 67 and not 53-55
-			elseif self.vb.curseCount < 2 then
-				timerCurseCD:Start()
-			end
-		--elseif args.spellId == 29212 then--Cripple that's always cast when he teleports away
-		elseif args.spellName == Cripple then--Cripple that's always cast when he teleports away
-			self:UnscheduleMethod("Balcony")
-			self:Balcony()
+function mod:OnCombatEnd()
+	self:UnregisterShortTermEvents()
+end
+
+function mod:SPELL_CAST_SUCCESS(args)
+	if args:IsSpellID(29213, 54835) then	-- Curse of the Plaguebringer
+		self.vb.curseCount = self.vb.curseCount + 1
+		warnCurse:Show()
+		if self.vb.teleCount == 2 and self.vb.curseCount == 2 or self.vb.teleCount == 3 and self.vb.curseCount == 1 then
+			timerCurseCD:Start(67)--Niche cases it's 67 and not 53-55
+		elseif self.vb.curseCount < 2 then
+			timerCurseCD:Start()
 		end
-	end
-end
+--	elseif args.spellId == 29212 then--Cripple that's always cast when he teleports away
 
---[[
-function mod:CHAT_MSG_MONSTER_YELL(msg, npc, _, _, target)
-	if msg == L.AddsYell or msg:find(L.AddsYell) then
-		self:SendSync("Adds")--Syncing to help unlocalized clients
+	elseif args.spellId == 29208 then
+		warnBlink:Show()
 	end
 end
---]]
 
 function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, npc, _, _, target)
 	if msg == L.Adds or msg:find(L.Adds) then
@@ -129,8 +128,31 @@ function mod:CHAT_MSG_RAID_BOSS_EMOTE(msg, npc, _, _, target)
 end
 
 function mod:UNIT_SPELLCAST_SUCCEEDED(uId, _, spellId)
-	if spellId == 29231 and self:AntiSpam() then--Teleport Return
-		self:SendSync("Teleport")
+	if spellId == 29231 then--Teleport Return
+		self.vb.addsCount = 0
+		self.vb.curseCount = 0
+		timerAddsCD:Stop()
+		local timer
+		if self.vb.teleCount == 1 then
+			timer = 109
+			timerAddsCD:Start(10)
+		elseif self.vb.teleCount == 2 then
+			timer = 173
+			timerAddsCD:Start(17)
+		elseif self.vb.teleCount == 3 then
+			timer = 93
+		else
+			timer = 35
+		end
+		timerTeleport:Start(timer)
+		warnTeleportSoon:Schedule(timer - 10)
+		warnTeleportNow:Show()
+		if self.vb.teleCount == 4 then--11-12 except after 4th return it's 17
+			timerCurseCD:Start(17)--verify consistency though
+		else
+			timerCurseCD:Start(11)
+		end
+		self:ScheduleMethod(timer, "Balcony")
 	end
 end
 
@@ -146,7 +168,7 @@ function mod:OnSync(msg, targetname)
 			elseif self.vb.teleCount == 1 then--3 waves 34 then 47 seconds apart
 				if self.vb.addsCount == 1 then
 					timerAddsCD:Start(33.9)
-				else
+				elseif self.vb.addsCount == 1 then
 					timerAddsCD:Start(47.3)
 				end
 			elseif self.vb.teleCount == 2 then--30, 32, 32, 30
@@ -172,8 +194,5 @@ function mod:OnSync(msg, targetname)
 				timerAddsCD:Start(30)
 			end
 		end
-	elseif msg == "Teleport" then--Boss away
-		self:UnscheduleMethod("BackInRoom")
-		self:BackInRoom()
 	end
 end

@@ -1,0 +1,40 @@
+## Interface: 30400
+## Title: |cff71FFC9SinStats|r
+## Author: Sinba
+## Notes : Character Stats
+## Version: 4.3.6
+## X-Website: https://www.curseforge.com/wow/addons/sinstats
+## X-Curse-Project-ID: 389802
+## SavedVariables: SinStatsDB
+
+
+Locales\Core.lua
+Locales\Wrath\enUS.lua
+Locales\Wrath\zhCN.lua
+Locales\Wrath\zhTW.lua
+Locales\Wrath\koKR.lua
+Locales\Wrath\frFR.lua
+embeds.xml
+SinStats.lua
+HUDEvents.lua
+HUD.lua
+Widgets.lua
+Config.lua
+Wrath.lua
+
+Stats\Wrath\IDTables.lua
+Stats\Wrath\Talents.lua
+Stats\Wrath\Updater.lua
+Stats\Wrath\SinLive.lua
+Stats\Wrath\Armor.lua
+Stats\Wrath\Melee.lua
+Stats\Wrath\Defensive.lua
+Stats\Wrath\Ranged.lua
+Stats\Wrath\Spells.lua
+Stats\Wrath\Pet.lua
+Stats\Wrath\Resistance.lua
+Stats\Wrath\Misc.lua
+## Title: |cff880303[163UI]|r |cff00f26dSinStats|r
+## Title-zhCN: |cff880303[有爱]|r SinStats HUD角色属性
+## X-Vendor: NetEase
+## X-163UI-Version: 20230105151404

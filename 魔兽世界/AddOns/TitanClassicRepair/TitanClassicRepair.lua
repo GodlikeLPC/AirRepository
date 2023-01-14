@@ -15,19 +15,20 @@ TPR.ITEM_BAG = {};
 
 -- this index (0) will never be set, just accessed to this state,
 -- it simplifies code for TitanRepair_GetMostDamagedItem() when Tit_R_EquipedMinIndex == 0
-TPR.END=11
+TPR.END=12
 TPR.ITEM_STATUS[0] = { values = {}, name = INVTYPE_HEAD, slot = "VIRTUAL" };
-TPR.ITEM_STATUS[1] = { values = {}, name = INVTYPE_HEAD, slot = "Head" };
-TPR.ITEM_STATUS[2] = { values = {}, name = INVTYPE_SHOULDER, slot = "Shoulder" };
-TPR.ITEM_STATUS[3] = { values = {}, name = INVTYPE_CHEST, slot = "Chest" };
-TPR.ITEM_STATUS[4] = { values = {}, name = INVTYPE_WAIST, slot = "Waist" };
-TPR.ITEM_STATUS[5] = { values = {}, name = INVTYPE_LEGS, slot = "Legs" };
-TPR.ITEM_STATUS[6] = { values = {}, name = INVTYPE_FEET, slot = "Feet" };
-TPR.ITEM_STATUS[7] = { values = {}, name = INVTYPE_WRIST, slot = "Wrist" };
-TPR.ITEM_STATUS[8] = { values = {}, name = INVTYPE_HAND, slot = "Hands" };
-TPR.ITEM_STATUS[9] = { values = {}, name = INVTYPE_WEAPONMAINHAND, slot = "MainHand" };
-TPR.ITEM_STATUS[10] = { values = {}, name = INVTYPE_WEAPONOFFHAND, slot = "SecondaryHand" };
---TPR.ITEM_STATUS[11] = { values = {}, name = INVTYPE_RANGED, slot = "Ranged" }; -- Ranged weapons are no longer available in WoW
+TPR.ITEM_STATUS[1] = { values = {}, name = INVTYPE_HEAD, slot = INVSLOT_HEAD };
+TPR.ITEM_STATUS[2] = { values = {}, name = INVTYPE_SHOULDER, slot = INVSLOT_SHOULDER };
+TPR.ITEM_STATUS[3] = { values = {}, name = INVTYPE_CHEST, slot = INVSLOT_CHEST };
+TPR.ITEM_STATUS[4] = { values = {}, name = INVTYPE_WAIST, slot = INVSLOT_WAIST };
+TPR.ITEM_STATUS[5] = { values = {}, name = INVTYPE_LEGS, slot = INVSLOT_LEGS };
+TPR.ITEM_STATUS[6] = { values = {}, name = INVTYPE_FEET, slot = INVSLOT_FEET };
+TPR.ITEM_STATUS[7] = { values = {}, name = INVTYPE_WRIST, slot = INVSLOT_WRIST };
+TPR.ITEM_STATUS[8] = { values = {}, name = INVTYPE_HAND, slot = INVSLOT_HAND };
+TPR.ITEM_STATUS[9] = { values = {}, name = INVTYPE_WEAPONMAINHAND, slot = INVSLOT_MAINHAND };
+TPR.ITEM_STATUS[10] = { values = {}, name = INVTYPE_WEAPONOFFHAND, slot = INVSLOT_OFFHAND };
+--TPR.ITEM_STATUS[10] = { values = {}, name = INVTYPE_WEAPONOFFHAND, slot = "SecondaryHand" };
+TPR.ITEM_STATUS[11] = { values = {}, name = INVTYPE_RANGED, slot = INVSLOT_RANGED }; -- Ranged weapons are back in Classic
 TPR.ITEM_STATUS[TPR.END] = { values = {}, name = INVENTORY_TOOLTIP };
 TPR.INVENTORY_STATUS = {}
 TPR.INVENTORY_STATUS[0] = { values = {}, name = INVENTORY_TOOLTIP };
@@ -93,7 +94,7 @@ function TitanPanelRepairButton_OnLoad(self)
 			ShowLabelText = true,
 			ShowRegularText = false,
 			ShowColoredText = true,
-			DisplayOnRightSide = false
+			DisplayOnRightSide = true,
 		},
 		savedVariables = {
 			ShowIcon = 1,
@@ -105,8 +106,8 @@ function TitanPanelRepairButton_OnLoad(self)
 			AutoRepair = false,
 			DiscountFriendly = false,
 			DiscountHonored = false,
-			DiscountRevered = false,
-			DiscountExalted = false,
+			DiscountPVP = false,
+			DiscountCombined = false,
 			ShowPercentage = false,
 			ShowColoredText = false,
 			ShowInventory = false,
@@ -118,6 +119,7 @@ function TitanPanelRepairButton_OnLoad(self)
 			ShowItems = true,
 			ShowDiscounts = true,
 			ShowCosts = true,
+			DisplayOnRightSide = false,
 		}
 	};
 
@@ -542,9 +544,9 @@ function TitanRepair_GetEquipedInformation()
 
 	tit_debug_bis("_GetEquipedInfo loop" );
 	for index, value in pairs(INVENTORY_ALERT_STATUS_SLOTS) do -- index begins from 1
-		if index==11 then
+--		if index==11 then
 			--do nothing
-		else
+--		else
 			local act_status, act_val, act_max, act_cost,
 			itemName, itemType, itemSubType, itemRarity, itemColor = TitanRepair_GetStatus(index);
 			if TitanGetVar(TITAN_REPAIR_ID,"IgnoreThrown")
@@ -572,7 +574,7 @@ function TitanRepair_GetEquipedInformation()
 			TPR.ITEM_STATUS[index].values.item_quality = itemRarity;
 			TPR.ITEM_STATUS[index].values.item_color = itemColor;
 			TPR.ITEM_STATUS[index].values.item_frac = act_status;
-		end
+--		end
 	end
 	tit_debug_bis("_GetEquipedInfo loop end " .. (min_status or 0).. " | " ..(min_index or 0));
 	TPR.EquipedMinIndex = min_index;
@@ -609,9 +611,13 @@ function TitanRepair_GetStatus(index, bag)
 		_, repairCost = TitanRepairTooltip:SetBagItem(bag, index)
 		curDurability, maxDurability = GetContainerItemDurability(bag, index)
 	else
-		local slotName = TPR.ITEM_STATUS[index].slot.."Slot"
+--		local slotName = TPR.ITEM_STATUS[index].slot.."Slot"
 		--tit_debug_bis("_GetStatus index="..index..", slotName="..(slotName or "NIL"))
-		local slotId = GetInventorySlotInfo(slotName) or -1
+--		local slotId = GetInventorySlotInfo(slotName) or -1
+		-- Had to change the lookup for Classic. Could not find the right lookup text for ranged so used the constants
+		-- instead. The slot in the array above was changed to match.
+		local slotId = TPR.ITEM_STATUS[index].slot or -1
+		tit_debug_bis("_GetStatus index="..index..", slotId="..(slotId or "NIL"))
 		hasItem, _, repairCost = TitanRepairTooltip:SetInventoryItem("player", slotId)
 		--tit_debug_bis("_GetStatus slotName="..slotName..", slotId="..slotId..", hasItem="..(hasItem or 0))
 		if hasItem then
@@ -728,27 +734,27 @@ function TitanRepair_GetStatusStr(index, short)
 	-- local item_cost = TitanRepair_GetCostStr(item_status.cost);
 	local item_cost = TitanPanelRepair_GetTextGSC(item_status.values.cost);
 	if (not TPR.MerchantisOpen) and (not TPR.WholeScanInProgress) then
-		if TitanGetVar(TITAN_REPAIR_ID, "DiscountFriendly") then
-			item_cost = TitanPanelRepair_GetTextGSC(item_status.values.cost * 0.95);
-		elseif TitanGetVar(TITAN_REPAIR_ID, "DiscountHonored") then
+		if TitanGetVar(TITAN_REPAIR_ID, "DiscountHonored") then
 			item_cost = TitanPanelRepair_GetTextGSC(item_status.values.cost * 0.90);
-		elseif TitanGetVar(TITAN_REPAIR_ID, "DiscountRevered") then
-			item_cost = TitanPanelRepair_GetTextGSC(item_status.values.cost * 0.85);
-		elseif TitanGetVar(TITAN_REPAIR_ID, "DiscountExalted") then
+		elseif TitanGetVar(TITAN_REPAIR_ID, "DiscountPVP") then
+			item_cost = TitanPanelRepair_GetTextGSC(item_status.values.cost * 0.90);
+		elseif TitanGetVar(TITAN_REPAIR_ID, "DiscountCombined") then
 			item_cost = TitanPanelRepair_GetTextGSC(item_status.values.cost * 0.80);
 		end
 	end
 
 	if ((not short) and item_cost and TitanGetVar(TITAN_REPAIR_ID,"ShowRepairCost")) then
 		if (not TPR.MerchantisOpen) and (not TPR.WholeScanInProgress) then
-			if TitanGetVar(TITAN_REPAIR_ID, "DiscountFriendly") then
-				valueText = valueText .. "\t" .. item_cost..TitanUtils_GetGreenText(" ("..FACTION_STANDING_LABEL5..")");
-			elseif TitanGetVar(TITAN_REPAIR_ID, "DiscountHonored") then
+			if TitanGetVar(TITAN_REPAIR_ID, "DiscountHonored") then
 				valueText = valueText .. "\t" .. item_cost..TitanUtils_GetGreenText(" ("..FACTION_STANDING_LABEL6..")");
-			elseif TitanGetVar(TITAN_REPAIR_ID, "DiscountRevered") then
-				valueText = valueText .. "\t" .. item_cost..TitanUtils_GetGreenText(" ("..FACTION_STANDING_LABEL7..")");
-			elseif TitanGetVar(TITAN_REPAIR_ID, "DiscountExalted") then
-				valueText = valueText .. "\t" .. item_cost..TitanUtils_GetGreenText(" ("..FACTION_STANDING_LABEL8..")");
+			elseif TitanGetVar(TITAN_REPAIR_ID, "DiscountPVP") then
+                local start=string.find("(",L["REPAIR_LOCALE"]["pvp"]);
+                local stop=string.find(")",L["REPAIR_LOCALE"]["pvp"],start+1);
+				valueText = valueText .. "\t" .. item_cost..TitanUtils_GetGreenText(" ("..string.sub(L["REPAIR_LOCALE"]["pvp"], start+1, stop-1)..")");
+			elseif TitanGetVar(TITAN_REPAIR_ID, "DiscountCombined") then
+                local start=string.find("(",L["REPAIR_LOCALE"]["combined"]);
+                local stop=string.find(")",L["REPAIR_LOCALE"]["combined"],start+1);
+				valueText = valueText .. "\t" .. item_cost..TitanUtils_GetGreenText(" ("..string.sub(L["REPAIR_LOCALE"]["combined"], start+1, stop-1)..")");
 			else
 				valueText = valueText .. "\t" .. item_cost;
 			end
@@ -1183,6 +1189,7 @@ local info;
 				TitanPanelButton_UpdateButton(TITAN_REPAIR_ID)
 			end
 			L_UIDropDownMenu_AddButton(info, _G["L_UIDROPDOWNMENU_MENU_LEVEL"]);
+
 		end
 
 		if _G["L_UIDROPDOWNMENU_MENU_VALUE"] == "Options" then
@@ -1260,7 +1267,6 @@ local info;
 			L_UIDropDownMenu_AddButton(info, _G["L_UIDROPDOWNMENU_MENU_LEVEL"]);
 		end
 
---[[
 		if _G["L_UIDROPDOWNMENU_MENU_VALUE"] == "GuildBank" then
 			totalGBCP = GetGuildBankMoney();
 			withdrawGBCP = GetGuildBankWithdrawMoney();
@@ -1279,7 +1285,6 @@ local info;
 			info.checked = TitanGetVar(TITAN_REPAIR_ID,"UseGuildBank");
 			L_UIDropDownMenu_AddButton(info, _G["L_UIDROPDOWNMENU_MENU_LEVEL"]);
 		end
-]]
 
 		if _G["L_UIDROPDOWNMENU_MENU_VALUE"] == "TooltipOptions" then
 			TitanPanelRightClickMenu_AddTitle(L["REPAIR_LOCALE"]["TooltipOptions"], _G["L_UIDROPDOWNMENU_MENU_LEVEL"]);
@@ -1326,7 +1331,6 @@ local info;
 	info.hasArrow = 1;
 	L_UIDropDownMenu_AddButton(info);
 
---[[
 	local guildName, _, _ = GetGuildInfo("player")
 	info = {};
 	info.notCheckable = true
@@ -1338,7 +1342,6 @@ local info;
 		info.disabled = true
 	end
 	L_UIDropDownMenu_AddButton(info);
-]]
 
 	info = {};
 	info.notCheckable = true
@@ -1358,6 +1361,7 @@ local info;
 	TitanPanelRightClickMenu_AddToggleIcon(TITAN_REPAIR_ID);
 	TitanPanelRightClickMenu_AddToggleLabelText(TITAN_REPAIR_ID);
 	TitanPanelRightClickMenu_AddToggleColoredText(TITAN_REPAIR_ID);
+	TitanPanelRightClickMenu_AddToggleRightSide(TITAN_REPAIR_ID);
 	TitanPanelRightClickMenu_AddSpacer();
 	TitanPanelRightClickMenu_AddCommand(L["TITAN_PANEL_MENU_HIDE"], TITAN_REPAIR_ID, TITAN_PANEL_MENU_FUNC_HIDE);
 end
@@ -1471,7 +1475,6 @@ function TitanRepair_RepairItems()
 	-- New RepairAll function
 	local cost = GetRepairAllCost();
 	local money = GetMoney();
---[[
 	local withdrawLimit = GetGuildBankWithdrawMoney();
 	local guildBankMoney = GetGuildBankMoney();
 
@@ -1488,16 +1491,15 @@ function TitanRepair_RepairItems()
 				MerchantGuildBankRepairButton:Disable();
 				-- report repair cost to chat (optional)
 				if TitanGetVar(TITAN_REPAIR_ID,"AutoRepairReport") then
-					DEFAULT_CHAT_FRAME:AddMessage(_G["GREEN_FONT_COLOR_CODE"]..L["TITAN_REPAIR"]..":".."|r"..L["TITAN_REPAIR_REPORT_COST_CHAT"]..TitanPanelRepair_GetTextGSC(cost))
+					DEFAULT_CHAT_FRAME:AddMessage(_G["GREEN_FONT_COLOR_CODE"]..L["TITAN_REPAIR"]..": ".."|r"..L["TITAN_REPAIR_REPORT_COST_CHAT"]..TitanPanelRepair_GetTextGSC(cost).."|r.")
 				end
 			else
-				DEFAULT_CHAT_FRAME:AddMessage(_G["GREEN_FONT_COLOR_CODE"]..L["TITAN_REPAIR"]..":".."|r"..L["TITAN_REPAIR_GBANK_NOMONEY"])
+				DEFAULT_CHAT_FRAME:AddMessage(_G["GREEN_FONT_COLOR_CODE"]..L["TITAN_REPAIR"]..": ".."|r"..L["TITAN_REPAIR_GBANK_NOMONEY"])
 			end
 		else
-			DEFAULT_CHAT_FRAME:AddMessage(_G["GREEN_FONT_COLOR_CODE"]..L["TITAN_REPAIR"]..":".."|r"..L["TITAN_REPAIR_GBANK_NORIGHTS"])
+			DEFAULT_CHAT_FRAME:AddMessage(_G["GREEN_FONT_COLOR_CODE"]..L["TITAN_REPAIR"]..": ".."|r"..L["TITAN_REPAIR_GBANK_NORIGHTS"])
 		end
 	end
-]]
 
 	-- Use own funds
 	if not TitanGetVar(TITAN_REPAIR_ID,"UseGuildBank") then
@@ -1511,10 +1513,10 @@ function TitanRepair_RepairItems()
 			MerchantGuildBankRepairButton:Disable();
 			-- report repair cost to chat (optional)
 			if TitanGetVar(TITAN_REPAIR_ID,"AutoRepairReport") then
-				DEFAULT_CHAT_FRAME:AddMessage(_G["GREEN_FONT_COLOR_CODE"]..L["TITAN_REPAIR"]..":".."|r"..L["TITAN_REPAIR_REPORT_COST_CHAT"]..TitanPanelRepair_GetTextGSC(cost))
+				DEFAULT_CHAT_FRAME:AddMessage(_G["GREEN_FONT_COLOR_CODE"]..L["TITAN_REPAIR"]..": ".."|r"..L["TITAN_REPAIR_REPORT_COST_CHAT"]..TitanPanelRepair_GetTextGSC(cost))
 			end
 		else
-			DEFAULT_CHAT_FRAME:AddMessage(_G["GREEN_FONT_COLOR_CODE"]..L["TITAN_REPAIR"]..":".."|r"..L["TITAN_REPAIR_CANNOT_AFFORD"])
+			DEFAULT_CHAT_FRAME:AddMessage(_G["GREEN_FONT_COLOR_CODE"]..L["TITAN_REPAIR"]..": ".."|r"..L["TITAN_REPAIR_CANNOT_AFFORD"])
 		end
 	end
 end

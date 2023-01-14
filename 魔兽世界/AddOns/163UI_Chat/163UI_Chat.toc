@@ -1,0 +1,12 @@
+## Interface: 30400
+## Title: 163UI_Chat
+## LoadOnDemand: 0
+## Notes:  一些聊天窗口的设置，缩放、滚动、时间标记、记录行数等。
+
+163UI_Chat.lua
+BNCharacterName.lua
+
+
+## Title-zhCN: |cff880303[有爱]|r 163UI 聊天框增强
+## X-Vendor: NetEase
+## X-163UI-Version: 20221118201415

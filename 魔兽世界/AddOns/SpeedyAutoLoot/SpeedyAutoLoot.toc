@@ -1,0 +1,13 @@
+## Interface: 30400
+## Title: |cffEEE4AESpeedy AutoLoot|r
+## Notes: |cff58C6FALoot at ludicrous speed!|r|n|n|cffFFC700Slash command: /sal, /speedyautoloot|r
+## Author: Yuyuli
+## Version: 2.2.7
+## SavedVariables: SpeedyAutoLootDB
+## OptionalDeps: ElvUI, ElvUI_Config
+
+SpeedyAutoLoot.lua
+## Title: |cff880303[163UI]|r |cffEEE4AESpeedy AutoLoot|r
+## Title-zhCN: |cff880303[有爱]|r SpeedyAutoLoot 快速拾取
+## X-Vendor: NetEase
+## X-163UI-Version: 20230105151404

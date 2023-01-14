@@ -1,7 +1,7 @@
 --[[
     This file is part of Decursive.
 
-    Decursive (v 2.7.7) add-on for World of Warcraft UI
+    Decursive (v 2.7.8.12) add-on for World of Warcraft UI
     Copyright (C) 2006-2019 John Wellesz (Decursive AT 2072productions.com) ( http://www.2072productions.com/to/decursive.php )
 
     Decursive is free software: you can redistribute it and/or modify
@@ -24,7 +24,7 @@
     Decursive is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY.
 
-    This file was last updated on 2019-11-18T13:42:00Z
+    This file was last updated on 2022-10-26T09:46:29Z
 --]]
 -------------------------------------------------------------------------------
 
@@ -49,6 +49,12 @@ local InCombatLockdown  = _G.InCombatLockdown;
 
 local addonName, T = ...;
 DecursiveRootTable = T; -- needed until we get rid of the xml based UI. -- Also used by HHTD from 2013-04-05
+
+-- a necessray compatibility layer between WoW 9 and WoW classic since we still have old xml UI stuff
+DecursiveTemplateMixin = BackdropTemplateMixin and BackdropTemplateMixin or {
+    OnBackdropLoaded = function() end;
+    OnBackdropSizeChanged = function() end;
+}
 
 T._FatalError_Diaplayed = false;
 
@@ -92,11 +98,19 @@ T._DebugTimerRefName    = "";
 T.Dcr = {};
 
 local DC                = T._C;
+
+DC.UI_BACKDROP = {
+    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+    edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
+    tile = true, tileSize = 16, edgeSize = 16,
+    insets = { left = 3, right = 5, top = 5, bottom = 5 }
+}
+
 local DebugTextTable    = T._DebugTextTable;
 local Reported          = {};
 
 local UNPACKAGED = "@pro" .. "ject-version@";
-local VERSION = "2.7.7";
+local VERSION = "2.7.8.12";
 
 T._LoadedFiles = {};
 T._LoadedFiles["Dcr_DIAG.lua"] = false; -- here for consistency but useless in this particular file
@@ -307,7 +321,7 @@ do
         _Debug(unpack(TIandBI));
 
 
-        DebugHeader = ("%s\n2.7.7  %s(%s)  CT: %0.4f D: %s %s %s BDTHFAd: %s nDrE: %d Embeded: %s W: %d (LA: %d TAMU: %d) TA: %d NDRTA: %d BUIE: %d TI: [dc:%d, lc:%d, y:%d, LEBY:%d, LB:%d, TTE:%u] (%s, %s, %s, %s)"):format(instructionsHeader, -- "%s\n
+        DebugHeader = ("%s\n2.7.8.12  %s(%s)  CT: %0.4f D: %s %s %s BDTHFAd: %s nDrE: %d Embeded: %s W: %d (LA: %d TAMU: %d) TA: %d NDRTA: %d BUIE: %d TI: [dc:%d, lc:%d, y:%d, LEBY:%d, LB:%d, TTE:%u] (%s, %s, %s, %s)"):format(instructionsHeader, -- "%s\n
         tostring(DC.MyClass), tostring(UnitLevel("player") or "??"), NiceTime(), date(), GetLocale(), -- %s(%s)  CT: %0.4f D: %s %s
         BugGrabber and "BG" .. (T.BugGrabber and "e" or "") or "NBG", -- %s
         tostring(T._BDT_HotFix1_applyed), -- BDTHFAd: %s
@@ -358,9 +372,9 @@ do
 
         T._DebugText = (headerSucess and DebugHeader or (HeaderFailOver .. 'Report header gen failed: ' .. (headerGenErrorm and headerGenErrorm or "")))
         .. table.concat(T._DebugTextTable, "")
-        .. "\n\n-- --\n" .. actionsConfiguration .. "\n-- --"
+        .. "\n\n-- --\n" .. actionsConfiguration .. "\n-- --" -- (Spells assignments:)
         .. customSpellConfiguration .. "\n-- --"
-        .. spellTable .. "\n-- --"
+        .. spellTable .. "\n-- --" -- (Decursive known spells:)
         .. SRTOLErrors .. "\n-- --"
         .. "\n\nLoaded Addons:\n\n" .. loadedAddonList .. "\n-- --";
 
@@ -589,8 +603,8 @@ local _, _, _, tocversion = GetBuildInfo();
 T._CatchAllErrors = false;
 T._tocversion = tocversion;
 
-DC.WOWC = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
-DC.WOW8 = (tocversion >= 80000) or DC.WOWC
+DC.WOWC = WOW_PROJECT_ID ~= WOW_PROJECT_MAINLINE
+DC.WOTLK =  WOW_PROJECT_WRATH_CLASSIC ~= nil and WOW_PROJECT_ID >= WOW_PROJECT_WRATH_CLASSIC -- https://wowpedia.fandom.com/wiki/WOW_PROJECT_ID
 
 
 
@@ -775,6 +789,10 @@ T._ShowNotice = function (notice)
             showAlert = 1,
             preferredIndex = 3,
         }; -- }}}
+
+        if T.Dcr.L and T.Dcr.L["NOTICE_FRAME_TEMPLATE"] and T.Dcr.L["NOTICE_FRAME_TEMPLATE"]:find("%s") then
+            StaticPopupDialogs["DECURSIVE_NOTICE_FRAME"].text = T.Dcr.L["NOTICE_FRAME_TEMPLATE"];
+        end
     end
 
     StaticPopup_Show ("DECURSIVE_NOTICE_FRAME", notice);
@@ -805,9 +823,9 @@ do
 
         for spellID, spellData in pairs(D.classprofile.UserSpells) do
             if not spellData.IsDefault then
-                 customSpellConfText[#customSpellConfText + 1] = ("    %s (id: %d) - %s - %s - %s - B: %d - Ts: %s - UF: %s - Macro: %s\n"):format(
+                 customSpellConfText[#customSpellConfText + 1] = ("    %s (id: %s) - %s - %s - %s - B: %d - Ts: %s - UF: %s - Macro: %s\n"):format(
                  --                                                                  3    4    5       6        7        8           9
-                 tostring(spellData.IsItem and (GetItemInfo(spellID * -1)) or (GetSpellInfo(spellID))), spellID,
+                 select (2, pcall(function () return tostring(spellData.IsItem and (GetItemInfo(spellID * -1)) or (GetSpellInfo(spellID))) end)), tostring(spellID),
                  spellData.Disabled and "OFF" or "ON", -- 3
                  spellData.Pet and "PET" or "PLAYER", -- 4
                  spellData.IsItem and "ITEM" or "SPELL", -- 5
@@ -893,25 +911,25 @@ do
 
         --LibStub:GetLibrary
         local UseLibStub = {
-            ["AceAddon-3.0"] = 12,
+            ["AceAddon-3.0"] = 13,
             ["AceComm-3.0"] = 12,
             ["AceConsole-3.0"] = 7,
-            ["AceDB-3.0"] = 26,
+            ["AceDB-3.0"] = 27,
             ["AceDBOptions-3.0"] = 15,
             ["AceEvent-3.0"] = 4,
-            ["AceHook-3.0"] = 8,
+            ["AceHook-3.0"] = 9,
             ["AceLocale-3.0"] = 6,
             ["AceTimer-3.0"] = 17,
 
-            ["AceGUI-3.0"] = 36,
+            ["AceGUI-3.0"] = 41,
             ["AceConfig-3.0"] = 3,
             ["AceConfigCmd-3.0"] = 14,
-            ["AceConfigDialog-3.0"] = 73,
+            ["AceConfigDialog-3.0"] = 85,
             ["AceConfigRegistry-3.0"] = 20,
 
             ["LibDataBroker-1.1"] = 4,
-            ["LibDBIcon-1.0"] = 43,
-            ["LibQTip-1.0"] = 46,
+            ["LibDBIcon-1.0"] = 44,
+            ["LibQTip-1.0"] = 49,
             ["CallbackHandler-1.0"] = 7,
         };
 
@@ -1099,7 +1117,7 @@ do
 end -- }}}
 
 
-T._HookErrorHandler();
+-- T._HookErrorHandler();
 
 do
     local IsInRaid = _G.IsInRaid;
@@ -1109,4 +1127,8 @@ do
     end
 end
 
-T._LoadedFiles["Dcr_DIAG.lua"] = "2.7.7";
+T._LoadedFiles["Dcr_DIAG.lua"] = "2.7.8.12";
+
+T._LoadOrderedFiles = {  };
+function T._HookErrorHandler() return true; end
+function T._AddDebugText() end

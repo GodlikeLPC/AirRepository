@@ -1,0 +1,12 @@
+## Interface: 30400
+## Title: QuestXP Tracker
+## Author: KindredTwitch
+## Version: 0.8.1
+## Notes: Shows Quest XP in the QuestLog Frame
+## SavedVariablesPerCharacter: QXPdb
+
+QuestXP.lua
+## Title: |cff880303[163UI]|r QuestXP Tracker
+## Title-zhCN: |cff880303[有爱]|r QuestXP 任务经验显示
+## X-Vendor: NetEase
+## X-163UI-Version: 20220929115111

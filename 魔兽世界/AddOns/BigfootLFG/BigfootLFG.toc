@@ -1,7 +1,0 @@
-﻿## Interface: 11302
-## Version: 1.1
-## Title: BigfootLFG
-## Author: Manas丶
-## Notes: fucking stupid bigfoot channel
-
-BigfootLFG.lua

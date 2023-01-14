@@ -1,6 +1,0 @@
-commit 4e97f8ebdab1cd3a7cf73a6e55b7e1f9b086d049
-Author: Yunohu <kernighan@gmail.com>
-Date:   Fri Aug 30 21:51:48 2019 +0000
-
-    Initial code for TitanClassicMail
-

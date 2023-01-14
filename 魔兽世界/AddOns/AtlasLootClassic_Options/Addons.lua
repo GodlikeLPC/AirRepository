@@ -367,6 +367,18 @@ local function CreateSourceOptions()
                 width = "full",
                 name = AL["Show recipe source if available."],
             },
+            showVendorPrices = {
+                order = 5,
+                type = "toggle",
+                width = "full",
+                name = AL["Show vendor prices if available."],
+            },
+            showLineBreak = {
+                order = 6,
+                type = "toggle",
+                width = "full",
+                name = AL["Add line break before source."],
+            },
             typeSelection = {
                 type = "group",
                 name = AL["Icon"],

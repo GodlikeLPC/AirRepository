@@ -1,3 +1,0 @@
-
-eCastingBar_Settings = {
-}

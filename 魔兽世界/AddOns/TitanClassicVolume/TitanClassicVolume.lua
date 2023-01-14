@@ -357,8 +357,7 @@ function TitanPanelVolumeControlFrame_OnLoad(self)
 	_G[self:GetName().."DialogTitle"]:SetText(L["TITAN_VOLUME_DIALOG_CONTROL_TITLE"]);
 --	_G[self:GetName().."MicrophoneTitle"]:SetText(L["TITAN_VOLUME_MICROPHONE_CONTROL_TITLE"]);
 --	_G[self:GetName().."SpeakerTitle"]:SetText(L["TITAN_VOLUME_SPEAKER_CONTROL_TITLE"]);
-	self:SetBackdropBorderColor(1, 1, 1);
-	self:SetBackdropColor(0, 0, 0, 1);
+	TitanPanelRightClickMenu_SetCustomBackdrop(self)
 end
 
 function TitanPanelVolumeControlFrame_OnUpdate(self, elapsed)
